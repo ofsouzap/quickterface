@@ -1,0 +1,6 @@
+(library
+ (name quickterface)
+ (libraries core lwt lwt_ppx js_of_ocaml) ; Beware: using [lwt_unix] to the libraries causes unexpected runtime errors in JS builds.
+ (modules io app terminal_app web_app)
+ (preprocess
+  (pps ppx_jane js_of_ocaml-ppx lwt_ppx)))

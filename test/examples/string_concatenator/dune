@@ -1,0 +1,22 @@
+(library
+ (name app)
+ (modules app)
+ (libraries core quickterface)
+ (preprocess
+  (pps ppx_jane lwt_ppx)))
+
+(executable
+ (name terminal)
+ (modes exe)
+ (modules terminal)
+ (libraries app quickterface core lwt)
+ (preprocess
+  (pps ppx_jane lwt_ppx)))
+
+(executable
+ (name webapp)
+ (modes js)
+ (modules webapp)
+ (libraries app quickterface core lwt)
+ (preprocess
+  (pps ppx_jane lwt_ppx)))

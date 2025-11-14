@@ -1,0 +1,20 @@
+(lang dune 3.20)
+
+(name quickterface)
+
+(generate_opam_files true)
+
+(source
+ (github ofsouzap/quickiterface))
+
+(authors "Ofsouzap <ofsouzap@gmail.com>")
+
+(maintainers "Ofsouzap <ofsouzap@gmail.com>")
+
+(license MIT)
+
+(package
+ (name quickterface)
+ (allow_empty)
+ (synopsis "Quick-to-program app interfaces in OCaml for terminal and web")
+ (depends ocaml core js_of_ocaml js_of_ocaml-ppx lwt lwt_ppx cmdliner))
