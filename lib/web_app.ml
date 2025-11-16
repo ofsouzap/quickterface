@@ -8,28 +8,109 @@ end
 module Web_app_io = struct
   type t = {
     document : Dom_html.document Js.t;
-    outputs_div : Dom_html.divElement Js.t;
+    log_container : Dom_html.divElement Js.t;
     text_input_field : Dom_html.inputElement Js.t;
     text_input_field_submit_button : Dom_html.buttonElement Js.t;
   }
 
-  let init () : t =
-    let document = Dom_html.document in
-    let outputs_div = Dom_html.createDiv document in
-    Dom.appendChild document##.body outputs_div;
+  let create_stylesheet_element document =
+    let style_element = Dom_html.createStyle document in
+    let css =
+      {|
+body {
+    background-color: #0b1d40ff;
+    width: 100%;
+    height: 100%;
+    margin: 0;
+}
+
+.quickterface__main-container {
+    position: fixed;
+    top: 0;
+    bottom: 0;
+    left: 0;
+    right: 0;
+    display: flex;
+    flex-direction: column;
+    height: 100%;
+    width: 100%;
+}
+
+.quickterface__inputs-container {
+    min-height: 100px;
+}
+
+.quickterface__log-container {
+    height: 100%;
+    display: flex;
+    flex-direction: column;
+    overflow-y: auto;
+    color: #eee;
+    padding: 8px;
+    font-size: 14px;
+    font-family: "Fira Code", Menlo, Consolas, monospace;
+}
+
+.quickterface__log-spacer {
+    flex-grow: 1;
+}
+
+.quickterface__log-item {
+    margin: 1px 1px 1px 1px;
+}
+|}
+    in
+    style_element##.innerHTML := Js.string css;
+    style_element
+
+  let create_log_container ~document ~main_container =
+    let log_container = Dom_html.createDiv document in
+    log_container##.className := Js.string "quickterface__log-container";
+    Dom.appendChild main_container log_container;
+    let log_spacer = Dom_html.createDiv document in
+    log_spacer##.className := Js.string "quickterface__log-spacer";
+    Dom.appendChild log_container log_spacer;
+    log_container
+
+  let create_inputs_container ~document =
+    let inputs_container = Dom_html.createDiv document in
+    inputs_container##.className := Js.string "quickterface__inputs-container";
     let text_input_field =
       Dom_html.createInput document ~_type:(Js.string "text")
     in
-    Dom.appendChild document##.body text_input_field;
+    Dom.appendChild inputs_container text_input_field;
     let text_input_field_submit_button = Dom_html.createButton document in
     text_input_field_submit_button##.innerText := Js.string "Submit";
-    Dom.appendChild document##.body text_input_field_submit_button;
-    { document; outputs_div; text_input_field; text_input_field_submit_button }
+    Dom.appendChild inputs_container text_input_field_submit_button;
+    (inputs_container, text_input_field, text_input_field_submit_button)
+
+  let init () : t =
+    (* TODO - this code ugly. make code pretty *)
+    let document = Dom_html.document in
+    Dom.appendChild Dom_html.document##.head
+      (create_stylesheet_element document);
+    let main_container = Dom_html.createDiv document in
+    main_container##.className := Js.string "quickterface__main-container";
+    let log_container = create_log_container ~document ~main_container in
+    let inputs_container, text_input_field, text_input_field_submit_button =
+      create_inputs_container ~document
+    in
+    Dom.appendChild main_container inputs_container;
+    Dom.appendChild document##.body main_container;
+    {
+      document;
+      log_container;
+      text_input_field;
+      text_input_field_submit_button;
+    }
 
   let add_output_text t ~text () =
+    let item_div = Dom_html.createDiv t.document in
+    item_div##.className := Js.string "quickterface__log-item";
+    Dom.appendChild t.log_container item_div;
     let newP = (Dom_html.createP t.document :> Dom_html.element Js.t) in
     newP##.innerText := Js.string text;
-    Dom.appendChild t.outputs_div newP;
+    Dom.appendChild item_div newP;
     Lwt.return ()
 
   let reset_text_input_field t () =
