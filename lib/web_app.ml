@@ -1,5 +1,7 @@
 open! Core
 open Js_of_ocaml
+module Class = Web_helper.Class
+module Stylesheet = Web_helper.Stylesheet
 
 module type S = sig
   val run : unit -> unit Lwt.t
@@ -12,7 +14,7 @@ module Web_app_io = struct
 
       let make ~document ~text =
         let item_div = Dom_html.createDiv document in
-        item_div##.className := Js.string "quickterface__log-item";
+        (item_div##.className := Class.(to_js_string Log_item));
         let newP = (Dom_html.createP document :> Dom_html.element Js.t) in
         newP##.innerText := Js.string text;
         Dom.appendChild item_div newP;
@@ -28,7 +30,7 @@ module Web_app_io = struct
 
       let make ~document : t =
         let container = Dom_html.createDiv document in
-        container##.className := Js.string "quickterface__inputs-container";
+        (container##.className := Class.(to_js_string Input_text));
         let text_input_field =
           Dom_html.createInput document ~_type:(Js.string "text")
         in
@@ -96,10 +98,10 @@ module Web_app_io = struct
 
     let make ~document ~main_container : t =
       let container = Dom_html.createDiv document in
-      container##.className := Js.string "quickterface__log-container";
+      (container##.className := Class.(to_js_string Log_container));
       Dom.appendChild main_container container;
       let log_spacer = Dom_html.createDiv document in
-      log_spacer##.className := Js.string "quickterface__log-spacer";
+      (log_spacer##.className := Class.(to_js_string Log_spacer));
       Dom.appendChild container log_spacer;
       { document; container }
 
@@ -118,52 +120,8 @@ module Web_app_io = struct
 
   let create_stylesheet_element document =
     let style_element = Dom_html.createStyle document in
-    let css =
-      {|
-body {
-    background-color: #0b1d40ff;
-    width: 100%;
-    height: 100%;
-    margin: 0;
-}
-
-.quickterface__main-container {
-    position: fixed;
-    top: 0;
-    bottom: 0;
-    left: 0;
-    right: 0;
-    display: flex;
-    flex-direction: column;
-    height: 100%;
-    width: 100%;
-}
-
-.quickterface__inputs-container {
-    min-height: 100px;
-}
-
-.quickterface__log-container {
-    height: 100%;
-    display: flex;
-    flex-direction: column;
-    overflow-y: auto;
-    color: #eee;
-    padding: 8px;
-    font-size: 14px;
-    font-family: "Fira Code", Menlo, Consolas, monospace;
-}
-
-.quickterface__log-spacer {
-    flex-grow: 1;
-}
-
-.quickterface__log-item {
-    margin: 1px 1px 1px 1px;
-}
-|}
-    in
-    style_element##.innerHTML := Js.string css;
+    let css_string = Stylesheet.css_string in
+    style_element##.innerHTML := Js.string css_string;
     style_element
 
   let make () : t =
@@ -171,7 +129,7 @@ body {
     Dom.appendChild Dom_html.document##.head
       (create_stylesheet_element document);
     let main_container = Dom_html.createDiv document in
-    main_container##.className := Js.string "quickterface__main-container";
+    (main_container##.className := Class.(to_js_string Main_container));
     let log = Log.make ~document ~main_container in
     Dom.appendChild document##.body main_container;
     { log }

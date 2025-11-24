@@ -1,0 +1,7 @@
+(library
+ (public_name quickterface.web_helper)
+ (name web_helper)
+ (libraries core lwt lwt_ppx js_of_ocaml) ; Beware: using [lwt_unix] to the libraries causes unexpected runtime errors in JS builds.
+ (modules class stylesheet)
+ (preprocess
+  (pps ppx_jane js_of_ocaml-ppx lwt_ppx)))
