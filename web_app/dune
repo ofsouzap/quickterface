@@ -2,6 +2,6 @@
  (public_name quickterface.web_app)
  (name web_app)
  (libraries core lwt lwt_ppx js_of_ocaml) ; Beware: using [lwt_unix] to the libraries causes unexpected runtime errors in JS builds.
- (modules class stylesheet outputs inputs log)
+ (modules class stylesheet outputs inputs log app)
  (preprocess
   (pps ppx_jane js_of_ocaml-ppx lwt_ppx)))
