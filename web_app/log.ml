@@ -14,11 +14,11 @@ let make ~document ~main_container : t =
   { document; container }
 
 let add_output_text { document; container } ~text () =
-  let%lwt element = Outputs.Text.make ~document ~text in
-  Dom.appendChild container element.element;
+  let%lwt output_text = Outputs.Text.make ~document ~text in
+  Dom.appendChild container (Outputs.Text.element output_text);
   Lwt.return ()
 
 let read_input_text { document; container } () =
   let input_text = Inputs.Text.make ~document in
-  Dom.appendChild container input_text.element;
+  Dom.appendChild container (Inputs.Text.element input_text);
   Inputs.Text.wait_for_text_input input_text ()

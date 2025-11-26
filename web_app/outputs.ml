@@ -11,4 +11,6 @@ module Text = struct
     newP##.innerText := Js.string text;
     Dom.appendChild item_div newP;
     Lwt.return { element = item_div }
+
+  let element t = t.element
 end
