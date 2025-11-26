@@ -14,10 +14,12 @@ module Style = struct
 end
 
 module Selector = struct
-  type t = Body | Class of Class.t [@@deriving enumerate]
+  type t = Body | Button | Input | Class of Class.t [@@deriving enumerate]
 
   let to_css_string = function
     | Body -> "body"
+    | Button -> "button"
+    | Input -> "input"
     | Class class_ -> Printf.sprintf ".%s" (Class.to_prefixed_string class_)
 end
 
@@ -32,7 +34,20 @@ module Entry = struct
           { name = "width"; value = "100%" };
           { name = "height"; value = "100%" };
           { name = "margin"; value = "0" };
+          { name = "padding-bottom"; value = "env(safe-area-inset-bottom)" };
+          { name = "box-sizing"; value = "border-box" };
+          { name = "touch-action"; value = "manipulation" };
+          { name = "font-size"; value = "16px" };
+          {
+            name = "font-family";
+            value = "\"Fira Code\", Menlo, Consolas, monospace";
+          };
         ]
+
+  let button_style =
+    Style.Style Style.Entry.[ { name = "min-height"; value = "44px" } ]
+
+  let input_style = button_style
 
   let class_style =
     let open Style.Entry in
@@ -57,20 +72,17 @@ module Entry = struct
             { name = "display"; value = "flex" };
             { name = "flex-direction"; value = "column" };
             { name = "overflow-y"; value = "auto" };
+            { name = "justify-content"; value = "flex-end" };
             { name = "color"; value = "#eee" };
             { name = "padding"; value = "8px" };
-            { name = "font-size"; value = "14px" };
-            {
-              name = "font-family";
-              value = "\"Fira Code\", Menlo, Consolas, monospace";
-            };
           ]
-    | Log_spacer -> Style [ { name = "flex-grow"; value = "1" } ]
     | Log_item -> Style [ { name = "margin"; value = "1px 1px 1px 1px" } ]
     | Input_text -> Style [ { name = "min-height"; value = "100px" } ]
 
   let selector_style = function
     | Selector.Body -> body_style
+    | Selector.Button -> button_style
+    | Selector.Input -> input_style
     | Selector.Class c -> class_style c
 
   let of_selector selector = { selector; style = selector_style selector }

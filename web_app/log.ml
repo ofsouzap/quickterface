@@ -10,9 +10,7 @@ let make ~document ~main_container : t =
   let container = Dom_html.createDiv document in
   (container##.className := Class.(to_js_string Log_container));
   Dom.appendChild main_container container;
-  let log_spacer = Dom_html.createDiv document in
-  (log_spacer##.className := Class.(to_js_string Log_spacer));
-  Dom.appendChild container log_spacer;
+
   { document; container }
 
 let add_output_text { document; container } ~text () =
