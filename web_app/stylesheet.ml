@@ -48,7 +48,7 @@ module Entry = struct
         ]
 
   let button_style =
-    Style.Style Style.Entry.[ { name = "min-height"; value = "44px" } ]
+    Style.Style Style.Entry.[ { name = "min-height"; value = "50px" } ]
 
   let input_style = button_style
 
@@ -82,11 +82,36 @@ module Entry = struct
     | Log_item ->
         Style
           [
-            { name = "margin"; value = "1px" };
+            { name = "margin"; value = "4px" };
+            { name = "border-radius"; value = "4px" };
+            { name = "padding"; value = "2px 6px 2px 6px" };
+            { name = "background-color"; value = "#444" };
             { name = "overflow-wrap"; value = "break-word" };
             { name = "word-break"; value = "break-word" };
           ]
-    | Input_text -> Style [ { name = "min-height"; value = "100px" } ]
+    | Input_text_container_form ->
+        Style
+          [
+            { name = "display"; value = "flex" };
+            { name = "flex-direction"; value = "row" };
+            { name = "gap"; value = "8px" };
+            { name = "align-items"; value = "center" };
+          ]
+    | Input_text_field ->
+        Style
+          [
+            { name = "flex"; value = "1" };
+            { name = "margin"; value = "4px 0px" };
+            { name = "padding"; value = "8px" };
+            { name = "border-radius"; value = "4px" };
+          ]
+    | Input_text_submit_button ->
+        Style
+          [
+            { name = "flex"; value = "0 0 auto" };
+            { name = "padding"; value = "8px 16px" };
+            { name = "cursor"; value = "pointer" };
+          ]
 
   let selector_style = function
     | Selector.Body -> body_style

@@ -1,7 +1,13 @@
 open! Core
 module Js = Js_of_ocaml.Js
 
-type t = Main_container | Log_container | Log_item | Input_text
+type t =
+  | Main_container
+  | Log_container
+  | Log_item
+  | Input_text_container_form
+  | Input_text_field
+  | Input_text_submit_button
 [@@deriving to_string, enumerate]
 
 let to_prefixed_string t =

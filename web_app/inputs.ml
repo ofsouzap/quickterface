@@ -22,19 +22,22 @@ module Text = struct
 
   let make ~document : t =
     let container = Dom_html.createDiv document in
-    (container##.className := Class.(to_js_string Input_text));
 
     let form = Dom_html.createForm document in
     Dom.appendChild container form;
+    (form##.className := Class.(to_js_string Input_text_container_form));
 
     let text_input_field =
       Dom_html.createInput document ~_type:(Js.string "text")
     in
+    (text_input_field##.className := Class.(to_js_string Input_text_field));
     Dom.appendChild form text_input_field;
 
     let text_input_field_submit_button =
       Dom_html.createButton ~_type:(Js.string "submit") document
     in
+    (text_input_field_submit_button##.className
+    := Class.(to_js_string Input_text_submit_button));
     text_input_field_submit_button##.innerText := Js.string "Submit";
     Dom.appendChild form text_input_field_submit_button;
 

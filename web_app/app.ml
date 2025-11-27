@@ -15,9 +15,15 @@ let create_viewport_meta_element document =
   meta_element##.content := Js.string "width=device-width, initial-scale=1.0";
   meta_element
 
+let create_charset_meta_element document =
+  let meta_element = Dom_html.createMeta document in
+  meta_element##setAttribute (Js.string "charset") (Js.string "UTF-8");
+  meta_element
+
 let setup_head ~document () =
   Dom.appendChild document##.head (create_stylesheet_element document);
   Dom.appendChild document##.head (create_viewport_meta_element document);
+  Dom.appendChild document##.head (create_charset_meta_element document);
   ()
 
 let make () : t =

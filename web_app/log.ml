@@ -13,12 +13,20 @@ let make ~document ~main_container : t =
 
   { document; container }
 
-let add_output_text { document; container } ~text () =
-  let%lwt output_text = Outputs.Text.make ~document ~text in
-  Dom.appendChild container (Outputs.Text.element output_text);
+let add_item { document; container } ~item_element () =
+  let container_div = Dom_html.createDiv document in
+  (container_div##.className := Class.(to_js_string Log_item));
+  Dom.appendChild container_div item_element;
+
+  Dom.appendChild container container_div;
   Lwt.return ()
 
-let read_input_text { document; container } () =
+let add_output_text ({ document; container = _ } as t) ~text () =
+  let%lwt output_text = Outputs.Text.make ~document ~text in
+  let%lwt () = add_item t ~item_element:(Outputs.Text.element output_text) () in
+  Lwt.return ()
+
+let read_input_text ({ document; container = _ } as t) () =
   let input_text = Inputs.Text.make ~document in
-  Dom.appendChild container (Inputs.Text.element input_text);
+  let%lwt () = add_item t ~item_element:(Inputs.Text.element input_text) () in
   Inputs.Text.wait_for_input input_text ()
