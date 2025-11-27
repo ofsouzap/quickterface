@@ -13,16 +13,26 @@ module Style = struct
     String.concat ~sep:";" (List.map entries ~f:Entry.to_css_string)
 end
 
-module Selector = struct
+module Selector_atom = struct
   type t = Body | Button | Input | Class of Class.t [@@deriving enumerate]
-
-  (* TODO - allow for pseudo-classes, so that we can do things like customize the button's disabled styling *)
 
   let to_css_string = function
     | Body -> "body"
     | Button -> "button"
     | Input -> "input"
     | Class class_ -> Printf.sprintf ".%s" (Class.to_prefixed_string class_)
+end
+
+module Selector = struct
+  type t = { atom : Selector_atom.t; pseudo_class : string option }
+
+  let of_atom atom = { atom; pseudo_class = None }
+
+  let to_css_string { atom; pseudo_class } =
+    Printf.sprintf "%s%s"
+      (Selector_atom.to_css_string atom)
+      (Option.value_map pseudo_class ~default:"" ~f:(fun pseudo_class ->
+           Printf.sprintf ":%s" pseudo_class))
 end
 
 module Entry = struct
@@ -57,16 +67,17 @@ module Entry = struct
 
   let button_style =
     Style.Style
-      Style.Entry.
-        [
-          { name = "min-height"; value = "50px" };
-          { name = "margin"; value = "4px 0px" };
-          { name = "border-width"; value = "0px" };
-          { name = "border-radius"; value = "4px" };
-          { name = "padding"; value = "8px 16px" };
-          { name = "background-color"; value = "#2563eb" };
-          { name = "cursor"; value = "pointer" };
-        ]
+      (Style.Entry.
+         [
+           { name = "min-height"; value = "50px" };
+           { name = "margin"; value = "4px 0px" };
+           { name = "border-width"; value = "0px" };
+           { name = "border-radius"; value = "4px" };
+           { name = "padding"; value = "8px 16px" };
+           { name = "background-color"; value = "#2563eb" };
+           { name = "cursor"; value = "pointer" };
+         ]
+      @ font_style_entries)
 
   let input_style =
     Style.Style
@@ -134,23 +145,40 @@ module Entry = struct
             { name = "cursor"; value = "pointer" };
           ]
 
-  let selector_style = function
-    | Selector.Body -> body_style
-    | Selector.Button -> button_style
-    | Selector.Input -> input_style
-    | Selector.Class c -> class_style c
+  let selector_atom_style = function
+    | Selector_atom.Body -> body_style
+    | Button -> button_style
+    | Input -> input_style
+    | Class c -> class_style c
 
-  let of_selector selector = { selector; style = selector_style selector }
+  let of_selector_atom selector_atom =
+    {
+      selector = Selector.of_atom selector_atom;
+      style = selector_atom_style selector_atom;
+    }
 
   let to_css_string { selector; style } =
     [%string
       {|%{Selector.to_css_string selector} {
         %{Style.to_css_string style}
         }|}]
+
+  let custom_entries =
+    List.map
+      ~f:(fun (selector, style) -> { selector; style })
+      [
+        ( Selector.{ atom = Button; pseudo_class = Some "disabled" },
+          Style.Style
+            [ Style.Entry.{ name = "background-color"; value = "#888" } ] );
+      ]
 end
 
 let css_string =
-  List.map
-    ~f:(fun selector -> Entry.to_css_string (Entry.of_selector selector))
-    Selector.all
-  |> String.concat ~sep:"\n\n"
+  let atom_entries =
+    List.map
+      ~f:(fun selector -> Entry.of_selector_atom selector)
+      Selector_atom.all
+  in
+  let custom_entries = Entry.custom_entries in
+  let all_entries = atom_entries @ custom_entries in
+  List.map all_entries ~f:Entry.to_css_string |> String.concat ~sep:"\n\n"
