@@ -1,6 +1,17 @@
 open! Core
 open! Js_of_ocaml
 
+module Input = struct
+  module type S = sig
+    type t
+    type result
+
+    val make : document:Dom_html.document Js.t -> t
+    val element : t -> Dom_html.element Js.t
+    val wait_for_input : ?auto_focus:bool -> t -> unit -> result Lwt.t
+  end
+end
+
 module Text = struct
   type t = {
     element : Dom_html.element Js.t;
@@ -57,7 +68,7 @@ module Text = struct
     t.text_input_field_submit_button##.disabled := Js._true;
     Lwt.return ()
 
-  let wait_for_text_input ?(auto_focus = true) t () =
+  let wait_for_input ?(auto_focus = true) t () =
     let get_text () =
       (* Wait for the user to enter their text into the input field *)
       let%lwt () = reset_text_input_field t () in

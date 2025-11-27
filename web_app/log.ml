@@ -21,4 +21,4 @@ let add_output_text { document; container } ~text () =
 let read_input_text { document; container } () =
   let input_text = Inputs.Text.make ~document in
   Dom.appendChild container (Inputs.Text.element input_text);
-  Inputs.Text.wait_for_text_input input_text ()
+  Inputs.Text.wait_for_input input_text ()
