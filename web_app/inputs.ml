@@ -23,13 +23,22 @@ module Text = struct
   let make ~document : t =
     let container = Dom_html.createDiv document in
 
+    let input_field_name_string = Js.string "text_input_field" in
+
     let form = Dom_html.createForm document in
     Dom.appendChild container form;
     (form##.className := Class.(to_js_string Input_text_container_form));
 
+    let input_text_prompt_label = Dom_html.createLabel document in
+    (input_text_prompt_label##.className
+    := Class.(to_js_string Text_prompt_label));
+    input_text_prompt_label##.innerText := Js.string ">";
+    input_text_prompt_label##.htmlFor := input_field_name_string;
+    Dom.appendChild form input_text_prompt_label;
+
     let text_input_field =
       Dom_html.createInput document ~_type:(Js.string "text")
-        ~name:(Js.string "input")
+        ~name:input_field_name_string
     in
     (text_input_field##.className := Class.(to_js_string Input_text_field));
     text_input_field##setAttribute (Js.string "enterkeyhint") (Js.string "send");

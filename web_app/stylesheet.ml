@@ -28,31 +28,56 @@ end
 module Entry = struct
   type t = { selector : Selector.t; style : Style.t }
 
+  let font_style_entries =
+    Style.Entry.
+      [
+        { name = "font-size"; value = "16px" };
+        {
+          name = "font-family";
+          value = "\"Fira Code\", Menlo, Consolas, monospace";
+        };
+      ]
+
   let body_style =
+    Style.Style
+      (Style.Entry.
+         [
+           { name = "background-color"; value = "#0b1d40ff" };
+           { name = "width"; value = "100vw" };
+           { name = "height"; value = "100vh" };
+           { name = "max-width"; value = "100vw" };
+           { name = "max-height"; value = "100vh" };
+           { name = "margin"; value = "0" };
+           { name = "padding-bottom"; value = "env(safe-area-inset-bottom)" };
+           { name = "overflow-x"; value = "hidden" };
+           { name = "box-sizing"; value = "border-box" };
+           { name = "touch-action"; value = "manipulation" };
+         ]
+      @ font_style_entries)
+
+  let button_style =
     Style.Style
       Style.Entry.
         [
-          { name = "background-color"; value = "#0b1d40ff" };
-          { name = "width"; value = "100vw" };
-          { name = "height"; value = "100vh" };
-          { name = "max-width"; value = "100vw" };
-          { name = "max-height"; value = "100vh" };
-          { name = "margin"; value = "0" };
-          { name = "padding-bottom"; value = "env(safe-area-inset-bottom)" };
-          { name = "overflow-x"; value = "hidden" };
-          { name = "box-sizing"; value = "border-box" };
-          { name = "touch-action"; value = "manipulation" };
-          { name = "font-size"; value = "16px" };
-          {
-            name = "font-family";
-            value = "\"Fira Code\", Menlo, Consolas, monospace";
-          };
+          { name = "min-height"; value = "50px" };
+          { name = "margin"; value = "4px 0px" };
+          { name = "border-width"; value = "0px" };
+          { name = "border-radius"; value = "4px" };
+          { name = "padding"; value = "8px 16px" };
+          { name = "background-color"; value = "#2563eb" };
+          { name = "cursor"; value = "pointer" };
         ]
 
-  let button_style =
-    Style.Style Style.Entry.[ { name = "min-height"; value = "50px" } ]
-
-  let input_style = button_style
+  let input_style =
+    Style.Style
+      (Style.Entry.
+         [
+           { name = "min-height"; value = "35px" };
+           { name = "margin"; value = "4px 0px" };
+           { name = "padding"; value = "2px 4px" };
+           { name = "border-radius"; value = "4px" };
+         ]
+      @ font_style_entries)
 
   let class_style =
     let open Style.Entry in
@@ -81,6 +106,7 @@ module Entry = struct
             { name = "color"; value = "#eee" };
             { name = "padding"; value = "8px" };
           ]
+    | Text_prompt_label -> Style [ { name = "width"; value = "10px" } ]
     | Log_item ->
         Style
           [
@@ -99,14 +125,7 @@ module Entry = struct
             { name = "gap"; value = "8px" };
             { name = "align-items"; value = "center" };
           ]
-    | Input_text_field ->
-        Style
-          [
-            { name = "flex"; value = "1" };
-            { name = "margin"; value = "4px 0px" };
-            { name = "padding"; value = "8px" };
-            { name = "border-radius"; value = "4px" };
-          ]
+    | Input_text_field -> Style [ { name = "flex"; value = "1" } ]
     | Input_text_submit_button ->
         Style
           [

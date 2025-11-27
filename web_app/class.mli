@@ -5,6 +5,7 @@ type t =
   | Main_container
   | Log_container
   | Log_item
+  | Text_prompt_label
   | Input_text_container_form
   | Input_text_field
   | Input_text_submit_button
