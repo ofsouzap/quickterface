@@ -12,7 +12,10 @@ let create_stylesheet_element document =
 let create_viewport_meta_element document =
   let meta_element = Dom_html.createMeta document in
   meta_element##.name := Js.string "viewport";
-  meta_element##.content := Js.string "width=device-width, initial-scale=1.0";
+  meta_element##.content :=
+    Js.string
+      "width=device-width, initial-scale=1.0, maximum-scale=1.0, \
+       user-scalable=no";
   meta_element
 
 let create_charset_meta_element document =

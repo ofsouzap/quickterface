@@ -16,6 +16,8 @@ end
 module Selector = struct
   type t = Body | Button | Input | Class of Class.t [@@deriving enumerate]
 
+  (* TODO - allow for pseudo-classes, so that we can do things like customize the button's disabled styling *)
+
   let to_css_string = function
     | Body -> "body"
     | Button -> "button"

@@ -29,8 +29,10 @@ module Text = struct
 
     let text_input_field =
       Dom_html.createInput document ~_type:(Js.string "text")
+        ~name:(Js.string "input")
     in
     (text_input_field##.className := Class.(to_js_string Input_text_field));
+    text_input_field##setAttribute (Js.string "enterkeyhint") (Js.string "send");
     Dom.appendChild form text_input_field;
 
     let text_input_field_submit_button =
