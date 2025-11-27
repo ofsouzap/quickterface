@@ -31,10 +31,13 @@ module Entry = struct
       Style.Entry.
         [
           { name = "background-color"; value = "#0b1d40ff" };
-          { name = "width"; value = "100%" };
-          { name = "height"; value = "100%" };
+          { name = "width"; value = "100vw" };
+          { name = "height"; value = "100vh" };
+          { name = "max-width"; value = "100vw" };
+          { name = "max-height"; value = "100vh" };
           { name = "margin"; value = "0" };
           { name = "padding-bottom"; value = "env(safe-area-inset-bottom)" };
+          { name = "overflow-x"; value = "hidden" };
           { name = "box-sizing"; value = "border-box" };
           { name = "touch-action"; value = "manipulation" };
           { name = "font-size"; value = "16px" };
@@ -56,19 +59,19 @@ module Entry = struct
         Style.Style
           [
             { name = "position"; value = "fixed" };
-            { name = "top"; value = "0" };
-            { name = "bottom"; value = "0" };
-            { name = "left"; value = "0" };
-            { name = "right"; value = "0" };
+            { name = "inset"; value = "0" };
+            { name = "width"; value = "100%" };
+            { name = "height"; value = "100%" };
+            { name = "max-width"; value = "100vw" };
+            { name = "max-height"; value = "100vh" };
             { name = "display"; value = "flex" };
             { name = "flex-direction"; value = "column" };
-            { name = "height"; value = "100%" };
-            { name = "width"; value = "100%" };
           ]
     | Log_container ->
         Style
           [
-            { name = "height"; value = "100%" };
+            { name = "height"; value = "100vh" };
+            { name = "max-width"; value = "100%" };
             { name = "display"; value = "flex" };
             { name = "flex-direction"; value = "column" };
             { name = "overflow-y"; value = "auto" };
@@ -76,7 +79,13 @@ module Entry = struct
             { name = "color"; value = "#eee" };
             { name = "padding"; value = "8px" };
           ]
-    | Log_item -> Style [ { name = "margin"; value = "1px 1px 1px 1px" } ]
+    | Log_item ->
+        Style
+          [
+            { name = "margin"; value = "1px" };
+            { name = "overflow-wrap"; value = "break-word" };
+            { name = "word-break"; value = "break-word" };
+          ]
     | Input_text -> Style [ { name = "min-height"; value = "100px" } ]
 
   let selector_style = function

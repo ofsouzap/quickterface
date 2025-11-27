@@ -7,7 +7,11 @@ module App (Io : Quickterface.Io.S) = struct
     let%lwt () = Io.print_text io "String Concatenator App" () in
     let%lwt () = Io.print_text io "message1" () in
     let%lwt () = Io.print_text io "message2" () in
-    let%lwt () = Io.print_text io "retwuogsfdouqheoifeds" () in
+    let%lwt () =
+      Io.print_text io
+        "retwuogsfdouqheoifefjsernfljsnfglsdnfsdljkfsdljkflsdkflkjsefsdhlfjksdkfjslfjkds"
+        ()
+    in
     let rec run_looping () : empty Lwt.t =
       let%lwt x = Io.read_text io () in
       let%lwt y = Io.read_text io () in
