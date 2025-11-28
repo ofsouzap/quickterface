@@ -1,7 +1,7 @@
 (library
  (public_name quickterface.terminal_app)
  (name quickterface_terminal_app)
- (libraries core lwt lwt_ppx quickterface)
+ (libraries core lwt lwt_ppx cohttp-lwt cohttp-lwt-unix quickterface)
  (modules terminal_app_intf)
  (preprocess
   (pps ppx_jane lwt_ppx)))
