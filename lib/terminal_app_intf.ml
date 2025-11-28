@@ -53,7 +53,7 @@ module type S = sig
   val run : unit -> unit Lwt.t
 end
 
-module Make (App : App.S) : S = struct
+module Make (App : Quickterface.App.S) : S = struct
   module App = App (Terminal_io)
 
   let run =

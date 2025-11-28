@@ -5,10 +5,10 @@ module type S = sig
   val run : unit -> unit Lwt.t
 end
 
-module Make (App : App.S) : S = struct
-  module App = App (Web_app.App)
+module Make (App : Quickterface.App.S) : S = struct
+  module App = App (Quickterface_web_app_backend.App)
 
   let run () =
-    let io = Web_app.App.make () in
+    let io = Quickterface_web_app_backend.App.make () in
     App.main ~io ()
 end
