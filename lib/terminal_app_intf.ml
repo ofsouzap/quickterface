@@ -7,7 +7,9 @@ module Terminal_io = struct
     In_channel.input_line in_channel |> Option.value_exn |> Lwt.return
 
   let print_text { in_channel = _; out_channel } text () =
-    Out_channel.output_line out_channel text |> Lwt.return
+    Out_channel.output_line out_channel text;
+    Out_channel.flush out_channel;
+    Lwt.return ()
 end
 
 module type S = sig
