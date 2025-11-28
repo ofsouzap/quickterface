@@ -144,6 +144,47 @@ module Entry = struct
             { name = "padding"; value = "8px 16px" };
             { name = "cursor"; value = "pointer" };
           ]
+    | Progress_bar_item ->
+        Style
+          [
+            { name = "width"; value = "100%" };
+            { name = "display"; value = "flex" };
+            { name = "flex-direction"; value = "row" };
+            { name = "align-items"; value = "center" };
+            { name = "gap"; value = "8px" };
+          ]
+    | Progress_bar_label ->
+        Style
+          [
+            { name = "flex"; value = "20" };
+            { name = "font-size"; value = "12px" };
+          ]
+    | Progress_bar_bar_container ->
+        Style
+          [
+            { name = "flex"; value = "60" };
+            { name = "width"; value = "100%" };
+            { name = "height"; value = "14px" };
+            { name = "border-radius"; value = "4px" };
+            { name = "background-color"; value = "#222" };
+          ]
+    | Progress_bar_bar_fill_in_progress ->
+        Style
+          [
+            { name = "width"; value = "0%" };
+            { name = "height"; value = "100%" };
+            { name = "border-radius"; value = "4px" };
+            { name = "background-color"; value = "#2196f3" };
+          ]
+    | Progress_bar_bar_fill_completed ->
+        Style
+          [
+            { name = "width"; value = "100%" };
+            { name = "height"; value = "100%" };
+            { name = "border-radius"; value = "4px" };
+            { name = "background-color"; value = "#4caf50" };
+          ]
+    | Progress_bar_progress_label -> Style [ { name = "flex"; value = "20" } ]
 
   let selector_atom_style = function
     | Selector_atom.Body -> body_style

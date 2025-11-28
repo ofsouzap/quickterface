@@ -3,21 +3,50 @@ open! Core
 module Terminal_io = struct
   type t = { in_channel : In_channel.t; out_channel : Out_channel.t }
 
-  let write_output_and_flush { in_channel = _; out_channel } ~text =
+  let write_output ?(flush = true) { in_channel = _; out_channel } ~text =
     Out_channel.output_string out_channel text;
-    Out_channel.flush out_channel;
+    if flush then Out_channel.flush out_channel;
     Lwt.return ()
 
-  let write_output_line_and_flush t ~text =
-    write_output_and_flush t ~text:(text ^ "\n")
+  let write_output_line ?flush t ~text =
+    write_output ?flush t ~text:(text ^ "\n")
 
   let read_text ({ in_channel; out_channel = _ } as t) () =
-    let%lwt () = write_output_and_flush t ~text:"> " in
+    let%lwt () = write_output ~flush:true t ~text:"> " in
     In_channel.input_line in_channel |> Option.value_exn |> Lwt.return
 
   let print_text t text () =
-    let%lwt () = write_output_line_and_flush t ~text in
+    let%lwt () = write_output_line ~flush:true t ~text in
     Lwt.return ()
+
+  let with_progress_bar ?label t ~maximum ~f () =
+    let bar_width = 30 in
+    let bar_character = '#' in
+    let curr_value = ref 0 in
+    let bar_string ~curr_value =
+      let curr_bars =
+        (* Note, this arithmetic evaluation order is necessary for the integer division to not collapse to 0 *)
+        curr_value * bar_width / maximum
+      in
+      let rem_bars = bar_width - curr_bars in
+      Printf.sprintf " %s[%s%s] %d/%d"
+        (Option.value_map label ~default:"" ~f:(fun l -> l ^ " "))
+        (String.init curr_bars ~f:(fun _ -> bar_character))
+        (String.init rem_bars ~f:(fun _ -> ' '))
+        curr_value maximum
+    in
+    let update_bar () =
+      let%lwt () = write_output ~flush:false t ~text:"\r" in
+      write_output ~flush:true t ~text:(bar_string ~curr_value:!curr_value)
+    in
+    let increment_progress_bar () =
+      curr_value := !curr_value + 1;
+      update_bar ()
+    in
+    let%lwt () = update_bar () in
+    let%lwt result = f ~increment_progress_bar () in
+    let%lwt () = write_output ~flush:true t ~text:"\n" in
+    Lwt.return result
 end
 
 module type S = sig

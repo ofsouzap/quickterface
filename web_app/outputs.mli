@@ -1,9 +1,28 @@
 open! Core
 open! Js_of_ocaml
 
-module Text : sig
+module Output : sig
+  module type S = sig
+    type value
+    type t
+
+    val make : document:Dom_html.document Js.t -> value:value -> t Lwt.t
+    val element : t -> Dom_html.element Js.t
+  end
+end
+
+module Text : Output.S with type value := string
+
+module Progress_bar : sig
   type t
 
-  val make : document:Dom_html.document Js.t -> text:string -> t Lwt.t
+  val make :
+    document:Dom_html.document Js.t ->
+    label:string option ->
+    maximum:int ->
+    t Lwt.t
+
   val element : t -> Dom_html.element Js.t
+  val set_value : t -> int -> unit -> unit Lwt.t
+  val finish : t -> unit -> unit Lwt.t
 end
