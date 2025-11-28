@@ -1,6 +1,0 @@
-(library
- (name quickterface)
- (libraries core lwt lwt_ppx js_of_ocaml quickterface.web_app) ; Beware: using [lwt_unix] to the libraries causes unexpected runtime errors in JS builds.
- (modules io app terminal_app_intf web_app_intf)
- (preprocess
-  (pps ppx_jane js_of_ocaml-ppx lwt_ppx)))
