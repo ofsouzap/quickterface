@@ -12,7 +12,8 @@ type t =
   | Progress_bar_item
   | Progress_bar_label
   | Progress_bar_bar_container
-  | Progress_bar_bar_fill
+  | Progress_bar_bar_fill_in_progress
+  | Progress_bar_bar_fill_completed
   | Progress_bar_progress_label
 [@@deriving enumerate]
 

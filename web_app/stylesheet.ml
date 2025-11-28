@@ -168,10 +168,18 @@ module Entry = struct
             { name = "border-radius"; value = "4px" };
             { name = "background-color"; value = "#222" };
           ]
-    | Progress_bar_bar_fill ->
+    | Progress_bar_bar_fill_in_progress ->
         Style
           [
             { name = "width"; value = "0%" };
+            { name = "height"; value = "100%" };
+            { name = "border-radius"; value = "4px" };
+            { name = "background-color"; value = "#2196f3" };
+          ]
+    | Progress_bar_bar_fill_completed ->
+        Style
+          [
+            { name = "width"; value = "100%" };
             { name = "height"; value = "100%" };
             { name = "border-radius"; value = "4px" };
             { name = "background-color"; value = "#4caf50" };

@@ -50,7 +50,8 @@ module Progress_bar = struct
     Dom.appendChild item_div bar_container;
 
     let bar_fill = Dom_html.createDiv document in
-    (bar_fill##.className := Class.(to_js_string Progress_bar_bar_fill));
+    (bar_fill##.className :=
+       Class.(to_js_string Progress_bar_bar_fill_in_progress));
     Dom.appendChild bar_container bar_fill;
 
     let progress_label = Dom_html.createP document in
@@ -73,5 +74,8 @@ module Progress_bar = struct
 
     Lwt.return ()
 
-  let finish _t () = (* TODO - grey out or something *) Lwt.return ()
+  let finish { bar_fill; _ } () =
+    (bar_fill##.className :=
+       Class.(to_js_string Progress_bar_bar_fill_completed));
+    Lwt.return ()
 end
