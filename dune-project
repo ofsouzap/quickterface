@@ -17,4 +17,13 @@
  (name quickterface)
  (allow_empty)
  (synopsis "Quick-to-program app interfaces in OCaml for terminal and web")
- (depends ocaml core js_of_ocaml js_of_ocaml-ppx lwt lwt_ppx cmdliner))
+ (depends
+  ocaml
+  core
+  js_of_ocaml
+  js_of_ocaml-ppx
+  lwt
+  lwt_ppx
+  cohttp-lwt
+  cohttp-lwt-unix
+  cohttp-lwt-jsoo))

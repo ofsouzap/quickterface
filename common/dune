@@ -1,7 +1,7 @@
 (library
  (public_name quickterface)
  (name quickterface)
- (libraries core lwt lwt_ppx)
+ (libraries core lwt lwt_ppx cohttp-lwt)
  (modules io app)
  (preprocess
   (pps ppx_jane lwt_ppx)))

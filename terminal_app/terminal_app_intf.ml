@@ -3,6 +3,8 @@ open! Core
 module Terminal_io = struct
   type t = { in_channel : In_channel.t; out_channel : Out_channel.t }
 
+  module Http_client = Cohttp_lwt_unix.Client
+
   let write_output ?(flush = true) { in_channel = _; out_channel } ~text =
     Out_channel.output_string out_channel text;
     if flush then Out_channel.flush out_channel;

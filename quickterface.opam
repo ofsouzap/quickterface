@@ -14,7 +14,9 @@ depends: [
   "js_of_ocaml-ppx"
   "lwt"
   "lwt_ppx"
-  "cmdliner"
+  "cohttp-lwt"
+  "cohttp-lwt-unix"
+  "cohttp-lwt-jsoo"
   "odoc" {with-doc}
 ]
 build: [

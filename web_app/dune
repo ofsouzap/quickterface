@@ -6,6 +6,8 @@
   lwt
   lwt_ppx
   js_of_ocaml
+  cohttp-lwt
+  cohttp-lwt-jsoo
   quickterface
   quickterface.web_app.backend)
  (modules web_app_intf)
