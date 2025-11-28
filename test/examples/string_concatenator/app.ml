@@ -16,7 +16,7 @@ module App (Io : Quickterface.Io.S) = struct
       let%lwt x = Io.read_text io () in
       let%lwt y = Io.read_text io () in
       let%lwt res =
-        Io.with_progress_bar io ~label:"Concatenating" ~maximum:1_000_000
+        Io.with_progress_bar io ~label:"Concatenating" ~maximum:10
           ~f:(fun ~increment_progress_bar () ->
             let rec loop n =
               if n = 0 then Lwt.return ()
@@ -24,7 +24,7 @@ module App (Io : Quickterface.Io.S) = struct
                 let%lwt () = increment_progress_bar () in
                 loop (n - 1)
             in
-            let%lwt () = loop 1_000_000 in
+            let%lwt () = loop 10 in
             Lwt.return (x ^ y))
           ()
       in

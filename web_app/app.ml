@@ -42,5 +42,5 @@ let make () : t =
   { log }
 
 let read_text t () = Log.read_input_text t.log ()
-let print_text t text () = Log.add_output_text t.log ~text ()
-let with_progress_bar ?label:_ _t ~maximum:_ ~f:_ () = failwith "TODO"
+let print_text t value () = Log.add_output_text t.log ~value ()
+let with_progress_bar ?label { log } = Log.with_progress_bar ?label log

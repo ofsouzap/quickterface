@@ -9,6 +9,11 @@ type t =
   | Input_text_container_form
   | Input_text_field
   | Input_text_submit_button
+  | Progress_bar_item
+  | Progress_bar_label
+  | Progress_bar_bar_container
+  | Progress_bar_bar_fill
+  | Progress_bar_progress_label
 [@@deriving enumerate]
 
 val to_prefixed_string : t -> string
