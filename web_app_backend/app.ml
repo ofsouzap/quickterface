@@ -43,4 +43,5 @@ let make () : t =
 
 let read_text t () = Log.read_input_text t.log ()
 let print_text t value () = Log.add_output_text t.log ~value ()
+let print_math _ _ () = failwith "TODO - not implemented"
 let with_progress_bar ?label { log } = Log.with_progress_bar ?label log

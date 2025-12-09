@@ -6,6 +6,7 @@ type t = { log : Log.t }
 val make : unit -> t
 val read_text : t -> unit -> string Lwt.t
 val print_text : t -> string -> unit -> unit Lwt.t
+val print_math : t -> Quickterface.Math.t -> unit -> unit Lwt.t
 
 val with_progress_bar :
   ?label:string ->
