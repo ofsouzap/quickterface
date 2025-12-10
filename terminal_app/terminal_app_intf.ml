@@ -21,6 +21,38 @@ module Terminal_io = struct
     let%lwt () = write_output_line ~flush:true t ~text in
     Lwt.return ()
 
+  let print_math t (math : Quickterface.Math.t) () =
+    let open Quickterface.Math in
+    let rec math_to_string = function
+      | Literal s -> s
+      | Infinity -> "∞"
+      | Pi -> "π"
+      | E -> "e"
+      | Plus -> "+"
+      | Star -> "*"
+      | C_dot -> "·"
+      | List elements ->
+          elements |> List.map ~f:math_to_string |> String.concat ~sep:" "
+      | Frac (num, denom) ->
+          Printf.sprintf "(%s)/(%s)" (math_to_string num) (math_to_string denom)
+      | Bracketed inner -> Printf.sprintf "(%s)" (math_to_string inner)
+      | Integral { lower; upper } ->
+          let lower_str =
+            match lower with
+            | None -> ""
+            | Some l -> Printf.sprintf "_{%s}" (math_to_string l)
+          in
+          let upper_str =
+            match upper with
+            | None -> ""
+            | Some u -> Printf.sprintf "^{%s}" (math_to_string u)
+          in
+          Printf.sprintf "∫%s%s" lower_str upper_str
+    in
+    let math_string = math_to_string math in
+    let%lwt () = write_output_line ~flush:true t ~text:math_string in
+    Lwt.return ()
+
   let with_progress_bar ?label t ~maximum ~f () =
     let bar_width = 30 in
     let bar_character = '#' in

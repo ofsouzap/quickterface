@@ -1,0 +1,22 @@
+(library
+ (name example_math_app)
+ (modules app)
+ (libraries core quickterface)
+ (preprocess
+  (pps ppx_jane lwt_ppx)))
+
+(executable
+ (name terminal)
+ (modes exe)
+ (modules terminal)
+ (libraries example_math_app quickterface.terminal_app core lwt)
+ (preprocess
+  (pps ppx_jane lwt_ppx)))
+
+(executable
+ (name webapp)
+ (modes js)
+ (modules webapp)
+ (libraries example_math_app quickterface.web_app core lwt)
+ (preprocess
+  (pps ppx_jane lwt_ppx)))

@@ -12,6 +12,7 @@ module Output : sig
 end
 
 module Text : Output.S with type value := string
+module Math : Output.S with type value := Quickterface.Math.t
 
 module Progress_bar : sig
   type t
