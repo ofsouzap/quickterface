@@ -144,6 +144,7 @@ module Entry = struct
             { name = "padding"; value = "8px 16px" };
             { name = "cursor"; value = "pointer" };
           ]
+    | Output_math -> Style [ { name = "padding"; value = "4px 0px" } ]
     | Progress_bar_item ->
         Style
           [

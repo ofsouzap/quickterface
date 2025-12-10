@@ -23,15 +23,35 @@ let create_charset_meta_element document =
   meta_element##setAttribute (Js.string "charset") (Js.string "UTF-8");
   meta_element
 
+let add_and_await_katex_elements document ~parent =
+  (* TODO-someday: Waiting for katex to load before starting the app could cause
+     noticeable start-up delays. Perhaps in future we could use
+     the auto-render functionality to allow the app to start running
+     before katex is ready. *)
+  let katex_setup_elements =
+    Katex_setup.make ~document |> Katex_setup.await_elements
+  in
+  let%lwt () =
+    List.map
+      ~f:
+        (Utils.Await_load_element
+         .add_element_as_child_to_parent_and_wait_for_load ~parent)
+      katex_setup_elements
+    |> Lwt.join
+  in
+  Lwt.return ()
+
 let setup_head ~document () =
   Dom.appendChild document##.head (create_stylesheet_element document);
   Dom.appendChild document##.head (create_viewport_meta_element document);
   Dom.appendChild document##.head (create_charset_meta_element document);
-  ()
+  let%lwt () = add_and_await_katex_elements document ~parent:document##.head in
 
-let make () : t =
+  Lwt.return ()
+
+let make () =
   let document = Dom_html.document in
-  setup_head ~document ();
+  let%lwt () = setup_head ~document () in
 
   let main_container = Dom_html.createDiv document in
   (main_container##.className := Class.(to_js_string Main_container));
@@ -39,9 +59,9 @@ let make () : t =
   let log = Log.make ~document ~main_container in
   Dom.appendChild document##.body main_container;
 
-  { log }
+  Lwt.return { log }
 
 let read_text t () = Log.read_input_text t.log ()
 let print_text t value () = Log.add_output_text t.log ~value ()
-let print_math _ _ () = failwith "TODO - not implemented"
+let print_math t value () = Log.add_output_math t.log ~value ()
 let with_progress_bar ?label { log } = Log.with_progress_bar ?label log

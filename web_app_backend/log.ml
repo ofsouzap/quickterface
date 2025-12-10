@@ -31,6 +31,11 @@ let read_input_text ({ document; container = _ } as t) () =
   let%lwt () = add_item t ~item_element:(Inputs.Text.element input_text) () in
   Inputs.Text.wait_for_input input_text ()
 
+let add_output_math ({ document; container = _ } as t) ~value () =
+  let%lwt output_math = Outputs.Math.make ~document ~value in
+  let%lwt () = add_item t ~item_element:(Outputs.Math.element output_math) () in
+  Lwt.return ()
+
 let with_progress_bar ?label ({ document; container = _ } as t) ~maximum ~f () =
   let%lwt progress_bar = Outputs.Progress_bar.make ~document ~label ~maximum in
   let%lwt () =

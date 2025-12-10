@@ -24,6 +24,38 @@ module Text = struct
   let element t = t.element
 end
 
+module Math = struct
+  type t = { element : Dom_html.element Js.t }
+
+  let katex_render ?(throw_on_error = true) latex_string ~target_element =
+    let arg_string = Js.string latex_string |> Js.Unsafe.inject in
+    let arg_element = target_element |> Js.Unsafe.inject in
+    let arg_options =
+      Js.Unsafe.obj
+        [| ("throwOnError", Js.bool throw_on_error |> Js.Unsafe.inject) |]
+      |> Js.Unsafe.inject
+    in
+    let _ =
+      Js.Unsafe.fun_call
+        (Js.Unsafe.js_expr "katex.render")
+        [| arg_string; arg_element; arg_options |]
+    in
+    Lwt.return ()
+
+  let make ~document ~value =
+    let item_div = Dom_html.createDiv document in
+    (item_div##.className := Class.(to_js_string Output_math));
+
+    let%lwt () =
+      katex_render
+        (Quickterface.Math.latex_string_of_t value)
+        ~target_element:item_div
+    in
+    Lwt.return { element = item_div }
+
+  let element t = t.element
+end
+
 module Progress_bar = struct
   type t = {
     element : Dom_html.element Js.t;

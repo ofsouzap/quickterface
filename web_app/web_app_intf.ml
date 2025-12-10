@@ -14,6 +14,6 @@ module Make (App : Quickterface.App.S) : S = struct
   module App = App (Web_app_io)
 
   let run () =
-    let io = Quickterface_web_app_backend.App.make () in
+    let%lwt io = Quickterface_web_app_backend.App.make () in
     App.main ~io ()
 end
