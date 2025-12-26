@@ -31,21 +31,26 @@ module Terminal_io = struct
       | Plus -> "+"
       | Star -> "*"
       | C_dot -> "·"
+      | Superscript inner -> Printf.sprintf "^(%s)" (math_to_string inner)
+      | Subscript inner -> Printf.sprintf "_(%s)" (math_to_string inner)
+      | Exp -> "exp"
+      | Ln -> "ln"
       | List elements ->
           elements |> List.map ~f:math_to_string |> String.concat ~sep:" "
       | Frac (num, denom) ->
           Printf.sprintf "(%s)/(%s)" (math_to_string num) (math_to_string denom)
       | Bracketed inner -> Printf.sprintf "(%s)" (math_to_string inner)
+      | Partial -> "∂"
       | Integral { lower; upper } ->
           let lower_str =
             match lower with
             | None -> ""
-            | Some l -> Printf.sprintf "_{%s}" (math_to_string l)
+            | Some l -> Printf.sprintf "_(%s)" (math_to_string l)
           in
           let upper_str =
             match upper with
             | None -> ""
-            | Some u -> Printf.sprintf "^{%s}" (math_to_string u)
+            | Some u -> Printf.sprintf "^(%s)" (math_to_string u)
           in
           Printf.sprintf "∫%s%s" lower_str upper_str
     in
