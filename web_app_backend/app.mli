@@ -9,9 +9,9 @@ val input_text : t -> unit -> string Lwt.t
 val input_integer : t -> unit -> int Lwt.t
 
 val output :
-  ?options:'a Quickterface.Output_options.t ->
+  ?options:'options ->
   t ->
-  'a Quickterface.Io.Output.t ->
+  ('options, 'a) Quickterface.Io.Output.t ->
   'a ->
   unit ->
   unit Lwt.t

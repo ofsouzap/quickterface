@@ -5,7 +5,9 @@ module Input = struct
 end
 
 module Output = struct
-  type _ t = Text : string t | Math : Math.t t
+  type (_, _) t =
+    | Text : (Output_text_options.t, string) t
+    | Math : (Output_text_options.t, Math.t) t
 end
 
 module type S = sig
@@ -18,7 +20,12 @@ module type S = sig
   val input_integer : t -> unit -> int Lwt.t
 
   val output :
-    ?options:'a Output_options.t -> t -> 'a Output.t -> 'a -> unit -> unit Lwt.t
+    ?options:'options ->
+    t ->
+    ('options, 'a) Output.t ->
+    'a ->
+    unit ->
+    unit Lwt.t
 
   val output_text :
     ?options:Output_text_options.t -> t -> string -> unit -> unit Lwt.t

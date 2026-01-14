@@ -74,31 +74,10 @@ let output_text ?options t value () =
 let output_math ?options t value () =
   Log.add_output_math ?options t.log ~value ()
 
-let output : type a.
-    ?options:a Quickterface.Output_options.t ->
-    _ ->
-    a Output.t ->
-    a ->
-    unit ->
-    unit Lwt.t =
+let output : type options a.
+    ?options:options -> _ -> (options, a) Output.t -> a -> unit -> unit Lwt.t =
  fun ?options t -> function
-  | Text ->
-      fun x ->
-        output_text
-          ?options:
-            (Option.map
-               ~f:(function
-                 | Quickterface.Output_options.Text text_options -> text_options)
-               options)
-          t x
-  | Math ->
-      fun x ->
-        output_math
-          ?options:
-            (Option.map
-               ~f:(function
-                 | Quickterface.Output_options.Math text_options -> text_options)
-               options)
-          t x
+  | Text -> fun x -> output_text ?options t x
+  | Math -> fun x -> output_math ?options t x
 
 let with_progress_bar ?label { log } = Log.with_progress_bar ?label log
