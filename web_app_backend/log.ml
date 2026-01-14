@@ -21,8 +21,9 @@ let add_item { document; container } ~item_element () =
   Dom.appendChild container container_div;
   Lwt.return ()
 
-let add_output_text ({ document; container = _ } as t) ~value () =
-  let%lwt output_text = Outputs.Text.make ~document ~value in
+let add_output_text ?(options = Quickterface.Output_text_options.default)
+    ({ document; container = _ } as t) ~value () =
+  let%lwt output_text = Outputs.Text.make ~document ~options ~value in
   let%lwt () = add_item t ~item_element:(Outputs.Text.element output_text) () in
   Lwt.return ()
 
@@ -31,8 +32,9 @@ let read_input_text ({ document; container = _ } as t) () =
   let%lwt () = add_item t ~item_element:(Inputs.Text.element input_text) () in
   Inputs.Text.wait_for_input input_text ()
 
-let add_output_math ({ document; container = _ } as t) ~value () =
-  let%lwt output_math = Outputs.Math.make ~document ~value in
+let add_output_math ?(options = Quickterface.Output_text_options.default)
+    ({ document; container = _ } as t) ~value () =
+  let%lwt output_math = Outputs.Math.make ~document ~options ~value in
   let%lwt () = add_item t ~item_element:(Outputs.Math.element output_math) () in
   Lwt.return ()
 

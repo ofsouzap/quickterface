@@ -3,16 +3,29 @@ open! Js_of_ocaml
 
 module Output : sig
   module type S = sig
+    type options
     type value
     type t
 
-    val make : document:Dom_html.document Js.t -> value:value -> t Lwt.t
+    val make :
+      document:Dom_html.document Js.t ->
+      options:options ->
+      value:value ->
+      t Lwt.t
+
     val element : t -> Dom_html.element Js.t
   end
 end
 
-module Text : Output.S with type value := string
-module Math : Output.S with type value := Quickterface.Math.t
+module Text :
+  Output.S
+    with type value := string
+     and type options := Quickterface.Output_text_options.t
+
+module Math :
+  Output.S
+    with type value := Quickterface.Math.t
+     and type options := Quickterface.Output_text_options.t
 
 module Progress_bar : sig
   type t
