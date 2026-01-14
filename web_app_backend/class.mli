@@ -4,7 +4,8 @@ module Js = Js_of_ocaml.Js
 type t =
   | Main_container
   | Log_container
-  | Log_item
+  | Log_item_default_output_channel
+  | Log_item_error_channel
   | Text_prompt_label
   | Input_text_container_form
   | Input_text_field
