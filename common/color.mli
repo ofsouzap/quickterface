@@ -3,7 +3,6 @@ open! Core
 type t
 
 val default_foreground : t
-val default_background : t
 val green : t
 val red : t
 val blue : t
