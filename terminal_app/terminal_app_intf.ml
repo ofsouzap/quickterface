@@ -1,6 +1,8 @@
 open! Core
 
 module Terminal_io = struct
+  open Quickterface.Io
+
   type t = {
     in_channel : In_channel.t;
     out_channel : Out_channel.t;
@@ -31,11 +33,11 @@ module Terminal_io = struct
   let write_output_line ?options ?flush t ~text =
     write_output ?options ?flush t ~text:(text ^ "\n")
 
-  let read_text ({ in_channel; out_channel = _; error_channel = _ } as t) () =
+  let input_text ({ in_channel; out_channel = _; error_channel = _ } as t) () =
     let%lwt () = write_output ~flush:true t ~text:"> " in
     In_channel.input_line in_channel |> Option.value_exn |> Lwt.return
 
-  let read_integer ({ in_channel; out_channel = _; error_channel = _ } as t) ()
+  let input_integer ({ in_channel; out_channel = _; error_channel = _ } as t) ()
       =
     let rec get_input_integer () =
       (* Get an input *)
@@ -55,11 +57,14 @@ module Terminal_io = struct
 
     get_input_integer ()
 
-  let print_text ?options t text () =
+  let input : type a. _ -> a Input.t -> unit -> a Lwt.t =
+   fun t -> function Text -> input_text t | Integer -> input_integer t
+
+  let output_text ?options t text () =
     let%lwt () = write_output_line ?options ~flush:true t ~text in
     Lwt.return ()
 
-  let print_math ?options t (math : Quickterface.Math.t) () =
+  let output_math ?options t (math : Quickterface.Math.t) () =
     let open Quickterface.Math in
     let rec math_to_string = function
       | Literal s -> s
@@ -95,6 +100,35 @@ module Terminal_io = struct
     let math_string = math_to_string math in
     let%lwt () = write_output_line ?options ~flush:true t ~text:math_string in
     Lwt.return ()
+
+  let output : type a.
+      ?options:a Quickterface.Output_options.t ->
+      _ ->
+      a Output.t ->
+      a ->
+      unit ->
+      unit Lwt.t =
+   fun ?options t -> function
+    | Text ->
+        fun x ->
+          output_text
+            ?options:
+              (Option.map
+                 ~f:(function
+                   | Quickterface.Output_options.Text text_options ->
+                       text_options)
+                 options)
+            t x
+    | Math ->
+        fun x ->
+          output_math
+            ?options:
+              (Option.map
+                 ~f:(function
+                   | Quickterface.Output_options.Math text_options ->
+                       text_options)
+                 options)
+            t x
 
   let with_progress_bar ?label t ~maximum ~f () =
     let bar_width = 30 in

@@ -4,17 +4,17 @@ module App (Io : Quickterface.Io.S) = struct
   type empty = |
 
   let main ~io () =
-    let%lwt () = Io.print_text io "String Concatenator App" () in
-    let%lwt () = Io.print_text io "message1" () in
-    let%lwt () = Io.print_text io "message2" () in
+    let%lwt () = Io.output_text io "String Concatenator App" () in
+    let%lwt () = Io.output_text io "message1" () in
+    let%lwt () = Io.output_text io "message2" () in
     let%lwt () =
-      Io.print_text io
+      Io.output_text io
         "retwuogsfdouqheoifefjsernfljsnfglsdnfsdljkfsdljkflsdkflkjsefsdhlfjksdkfjslfjkds"
         ()
     in
     let rec run_looping () : empty Lwt.t =
-      let%lwt x = Io.read_text io () in
-      let%lwt y = Io.read_text io () in
+      let%lwt x = Io.input_text io () in
+      let%lwt y = Io.input_text io () in
       let%lwt res =
         Io.with_progress_bar io ~label:"Concatenating" ~maximum:10
           ~f:(fun ~increment_progress_bar () ->
@@ -28,7 +28,7 @@ module App (Io : Quickterface.Io.S) = struct
             Lwt.return (x ^ y))
           ()
       in
-      let%lwt () = Io.print_text io res () in
+      let%lwt () = Io.output_text io res () in
       run_looping ()
     in
     match%lwt run_looping () with _ -> .

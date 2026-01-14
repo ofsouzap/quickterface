@@ -15,8 +15,8 @@ val add_output_text :
   unit ->
   unit Lwt.t
 
-val read_input_text : t -> unit -> string Lwt.t
-val read_input_integer : t -> unit -> int Lwt.t
+val input_text : t -> unit -> string Lwt.t
+val input_integer : t -> unit -> int Lwt.t
 
 val add_output_math :
   ?options:Quickterface.Output_text_options.t ->

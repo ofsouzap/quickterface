@@ -41,12 +41,12 @@ let add_output_text ?(options = Quickterface.Output_text_options.default)
   in
   Lwt.return ()
 
-let read_input_text ({ document; container = _ } as t) () =
+let input_text ({ document; container = _ } as t) () =
   let input_text = Inputs.Text.make ~document in
   let%lwt () = add_item t ~item_element:(Inputs.Text.element input_text) () in
   Inputs.Text.wait_for_input input_text ()
 
-let read_input_integer ({ document; container = _ } as t) () =
+let input_integer ({ document; container = _ } as t) () =
   let input = Inputs.Integer.make ~document in
   let%lwt () = add_item t ~item_element:(Inputs.Integer.element input) () in
   Inputs.Integer.wait_for_input input ()

@@ -1,5 +1,6 @@
 open! Core
 open! Js_of_ocaml
+open Quickterface.Io
 
 type t = { log : Log.t }
 
@@ -61,13 +62,43 @@ let make () =
 
   Lwt.return { log }
 
-let read_text t () = Log.read_input_text t.log ()
-let read_integer t () = Log.read_input_integer t.log ()
+let input_text t () = Log.input_text t.log ()
+let input_integer t () = Log.input_integer t.log ()
 
-let print_text ?options t value () =
+let input : type a. _ -> a Input.t -> unit -> a Lwt.t =
+ fun t -> function Text -> input_text t | Integer -> input_integer t
+
+let output_text ?options t value () =
   Log.add_output_text ?options t.log ~value ()
 
-let print_math ?options t value () =
+let output_math ?options t value () =
   Log.add_output_math ?options t.log ~value ()
+
+let output : type a.
+    ?options:a Quickterface.Output_options.t ->
+    _ ->
+    a Output.t ->
+    a ->
+    unit ->
+    unit Lwt.t =
+ fun ?options t -> function
+  | Text ->
+      fun x ->
+        output_text
+          ?options:
+            (Option.map
+               ~f:(function
+                 | Quickterface.Output_options.Text text_options -> text_options)
+               options)
+          t x
+  | Math ->
+      fun x ->
+        output_math
+          ?options:
+            (Option.map
+               ~f:(function
+                 | Quickterface.Output_options.Math text_options -> text_options)
+               options)
+          t x
 
 let with_progress_bar ?label { log } = Log.with_progress_bar ?label log

@@ -2,9 +2,9 @@ open! Core
 
 module App (Io : Quickterface.Io.S) = struct
   let main ~io () =
-    let%lwt () = Io.print_text io "Math App" () in
+    let%lwt () = Io.output_text io "Math App" () in
     let%lwt () =
-      Io.print_math io
+      Io.output_math io
         (let open Quickterface.Math in
          List
            [
@@ -18,7 +18,7 @@ module App (Io : Quickterface.Io.S) = struct
         ()
     in
     let%lwt _ =
-      Io.print_text
+      Io.output_text
         ~options:
           Quickterface.
             {
@@ -28,7 +28,7 @@ module App (Io : Quickterface.Io.S) = struct
         io "error message??" ()
     in
     let%lwt () =
-      Io.print_math
+      Io.output_math
         ~options:
           Quickterface.
             {
@@ -45,14 +45,14 @@ module App (Io : Quickterface.Io.S) = struct
         ()
     in
     let%lwt () =
-      Io.print_math io
+      Io.output_math io
         (let open Quickterface.Math in
          E)
         ()
     in
-    let%lwt x = Io.read_integer io () in
+    let%lwt x = Io.input_integer io () in
     let%lwt () =
-      Io.print_math io
+      Io.output_math io
         (let open Quickterface.Math in
          List [ E; Superscript (Literal (string_of_int x)) ])
         ()

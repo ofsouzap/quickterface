@@ -4,17 +4,26 @@ open! Js_of_ocaml
 type t = { log : Log.t }
 
 val make : unit -> t Lwt.t
-val read_text : t -> unit -> string Lwt.t
-val read_integer : t -> unit -> int Lwt.t
+val input : t -> 'a Quickterface.Io.Input.t -> unit -> 'a Lwt.t
+val input_text : t -> unit -> string Lwt.t
+val input_integer : t -> unit -> int Lwt.t
 
-val print_text :
+val output :
+  ?options:'a Quickterface.Output_options.t ->
+  t ->
+  'a Quickterface.Io.Output.t ->
+  'a ->
+  unit ->
+  unit Lwt.t
+
+val output_text :
   ?options:Quickterface.Output_text_options.t ->
   t ->
   string ->
   unit ->
   unit Lwt.t
 
-val print_math :
+val output_math :
   ?options:Quickterface.Output_text_options.t ->
   t ->
   Quickterface.Math.t ->
