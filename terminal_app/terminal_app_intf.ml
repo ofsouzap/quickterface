@@ -57,8 +57,11 @@ module Terminal_io = struct
 
     get_input_integer ()
 
-  let input : type a. _ -> a Input.t -> unit -> a Lwt.t =
-   fun t -> function Text -> input_text t | Integer -> input_integer t
+  let input : type settings a.
+      _ -> (settings, a) Input.t -> settings -> unit -> a Lwt.t =
+   fun t -> function
+    | Text -> fun () -> input_text t
+    | Integer -> fun () -> input_integer t
 
   let output_text ?options t text () =
     let%lwt () = write_output_line ?options ~flush:true t ~text in

@@ -4,7 +4,10 @@ open! Js_of_ocaml
 type t = { log : Log.t }
 
 val make : unit -> t Lwt.t
-val input : t -> 'a Quickterface.Io.Input.t -> unit -> 'a Lwt.t
+
+val input :
+  t -> ('settings, 'a) Quickterface.Io.Input.t -> 'settings -> unit -> 'a Lwt.t
+
 val input_text : t -> unit -> string Lwt.t
 val input_integer : t -> unit -> int Lwt.t
 

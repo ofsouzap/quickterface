@@ -1,7 +1,7 @@
 open! Core
 
 module Input = struct
-  type _ t = Text : string t | Integer : int t
+  type (_, _) t = Text : (unit, string) t | Integer : (unit, int) t
 end
 
 module Output = struct
@@ -15,7 +15,7 @@ module type S = sig
 
   module Http_client : Cohttp_lwt.S.Client
 
-  val input : t -> 'a Input.t -> unit -> 'a Lwt.t
+  val input : t -> ('settings, 'a) Input.t -> 'settings -> unit -> 'a Lwt.t
   val input_text : t -> unit -> string Lwt.t
   val input_integer : t -> unit -> int Lwt.t
 
