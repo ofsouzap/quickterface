@@ -3,10 +3,16 @@ open! Js_of_ocaml
 
 module Output = struct
   module type S = sig
+    type options
     type value
     type t
 
-    val make : document:Dom_html.document Js.t -> value:value -> t Lwt.t
+    val make :
+      document:Dom_html.document Js.t ->
+      options:options ->
+      value:value ->
+      t Lwt.t
+
     val element : t -> Dom_html.element Js.t
   end
 end
@@ -14,10 +20,13 @@ end
 module Text = struct
   type t = { element : Dom_html.element Js.t }
 
-  let make ~document ~value =
+  let make ~document ~options:{ Quickterface.Output_text_options.color } ~value
+      =
     let item_div = Dom_html.createDiv document in
     let newP = (Dom_html.createP document :> Dom_html.element Js.t) in
     newP##.innerText := Js.string value;
+    newP##.style##.color
+    := Js.string (Quickterface.Color.css_color_string color);
     Dom.appendChild item_div newP;
     Lwt.return { element = item_div }
 
@@ -42,16 +51,19 @@ module Math = struct
     in
     Lwt.return ()
 
-  let make ~document ~value =
-    let item_div = Dom_html.createDiv document in
-    (item_div##.className := Class.(to_js_string Output_math));
+  let make ~document ~options:{ Quickterface.Output_text_options.color } ~value
+      =
+    let itemDiv = Dom_html.createDiv document in
+    (itemDiv##.className := Class.(to_js_string Output_math));
+    itemDiv##.style##.color
+    := Js.string (Quickterface.Color.css_color_string color);
 
     let%lwt () =
       katex_render
         (Quickterface.Math.latex_string_of_t value)
-        ~target_element:item_div
+        ~target_element:itemDiv
     in
-    Lwt.return { element = item_div }
+    Lwt.return { element = itemDiv }
 
   let element t = t.element
 end

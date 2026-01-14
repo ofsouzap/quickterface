@@ -62,6 +62,11 @@ let make () =
   Lwt.return { log }
 
 let read_text t () = Log.read_input_text t.log ()
-let print_text t value () = Log.add_output_text t.log ~value ()
-let print_math t value () = Log.add_output_math t.log ~value ()
+
+let print_text ?options t value () =
+  Log.add_output_text ?options t.log ~value ()
+
+let print_math ?options t value () =
+  Log.add_output_math ?options t.log ~value ()
+
 let with_progress_bar ?label { log } = Log.with_progress_bar ?label log
