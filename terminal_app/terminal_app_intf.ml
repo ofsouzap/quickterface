@@ -5,23 +5,33 @@ module Terminal_io = struct
 
   module Http_client = Cohttp_lwt_unix.Client
 
-  let write_output ?(flush = true) { in_channel = _; out_channel } ~text =
-    Out_channel.output_string out_channel text;
+  let write_output
+      ?options:({ Quickterface.Output_text_options.color } =
+          Quickterface.Output_text_options.default) ?(flush = true)
+      { in_channel = _; out_channel } ~text =
+    let formatted_text =
+      let set_color = Quickterface.Color.ansi_color_code color in
+      let reset_color =
+        Quickterface.Color.(ansi_color_code default_foreground)
+      in
+      [%string "%{set_color}%{text}%{reset_color}"]
+    in
+    Out_channel.output_string out_channel formatted_text;
     if flush then Out_channel.flush out_channel;
     Lwt.return ()
 
-  let write_output_line ?flush t ~text =
-    write_output ?flush t ~text:(text ^ "\n")
+  let write_output_line ?options ?flush t ~text =
+    write_output ?options ?flush t ~text:(text ^ "\n")
 
   let read_text ({ in_channel; out_channel = _ } as t) () =
     let%lwt () = write_output ~flush:true t ~text:"> " in
     In_channel.input_line in_channel |> Option.value_exn |> Lwt.return
 
-  let print_text t text () =
-    let%lwt () = write_output_line ~flush:true t ~text in
+  let print_text ?options t text () =
+    let%lwt () = write_output_line ?options ~flush:true t ~text in
     Lwt.return ()
 
-  let print_math t (math : Quickterface.Math.t) () =
+  let print_math ?options t (math : Quickterface.Math.t) () =
     let open Quickterface.Math in
     let rec math_to_string = function
       | Literal s -> s
@@ -55,7 +65,7 @@ module Terminal_io = struct
           Printf.sprintf "∫%s%s" lower_str upper_str
     in
     let math_string = math_to_string math in
-    let%lwt () = write_output_line ~flush:true t ~text:math_string in
+    let%lwt () = write_output_line ?options ~flush:true t ~text:math_string in
     Lwt.return ()
 
   let with_progress_bar ?label t ~maximum ~f () =

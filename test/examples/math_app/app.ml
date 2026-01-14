@@ -17,5 +17,17 @@ module App (Io : Quickterface.Io.S) = struct
            ])
         ()
     in
+    let%lwt () =
+      Io.print_math
+        ~options:Quickterface.{ Output_text_options.color = Color.green }
+        io
+        (let open Quickterface.Math in
+         List
+           [
+             Literal "e";
+             Superscript (List [ Literal "i"; Frac (Literal "π", Literal "2") ]);
+           ])
+        ()
+    in
     Lwt.return ()
 end
