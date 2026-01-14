@@ -5,6 +5,7 @@ type t = { log : Log.t }
 
 val make : unit -> t Lwt.t
 val read_text : t -> unit -> string Lwt.t
+val read_integer : t -> unit -> int Lwt.t
 
 val print_text :
   ?options:Quickterface.Output_text_options.t ->

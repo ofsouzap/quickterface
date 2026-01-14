@@ -6,6 +6,7 @@ module type S = sig
   module Http_client : Cohttp_lwt.S.Client
 
   val read_text : t -> unit -> string Lwt.t
+  val read_integer : t -> unit -> int Lwt.t
 
   val print_text :
     ?options:Output_text_options.t -> t -> string -> unit -> unit Lwt.t

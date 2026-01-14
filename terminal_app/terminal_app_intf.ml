@@ -35,6 +35,26 @@ module Terminal_io = struct
     let%lwt () = write_output ~flush:true t ~text:"> " in
     In_channel.input_line in_channel |> Option.value_exn |> Lwt.return
 
+  let read_integer ({ in_channel; out_channel = _; error_channel = _ } as t) ()
+      =
+    let rec get_input_integer () =
+      (* Get an input *)
+      let%lwt () = write_output ~flush:true t ~text:"> " in
+      let input_string = In_channel.input_line in_channel |> Option.value_exn in
+
+      (* Try read it as an integer *)
+      match Int.of_string_opt input_string with
+      | Some x -> Lwt.return x
+      | None ->
+          let%lwt () =
+            write_output_line ~flush:true t
+              ~text:"[Invalid input. Input must be an integer]"
+          in
+          get_input_integer ()
+    in
+
+    get_input_integer ()
+
   let print_text ?options t text () =
     let%lwt () = write_output_line ?options ~flush:true t ~text in
     Lwt.return ()

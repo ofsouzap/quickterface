@@ -12,7 +12,13 @@ module Input = struct
   end
 end
 
-module Text = struct
+module Simple_html_input (M : sig
+  type t
+
+  val html_input_type : string
+  val t_of_string_result : string -> (t, Error.t) Result.t
+end) =
+struct
   type t = {
     element : Dom_html.element Js.t;
     form : Dom_html.formElement Js.t;
@@ -37,7 +43,8 @@ module Text = struct
     Dom.appendChild form input_text_prompt_label;
 
     let text_input_field =
-      Dom_html.createInput document ~_type:(Js.string "text")
+      Dom_html.createInput document
+        ~_type:(Js.string M.html_input_type)
         ~name:input_field_name_string
     in
     (text_input_field##.className := Class.(to_js_string Input_text_field));
@@ -88,8 +95,14 @@ module Text = struct
       let%lwt () = reset_text_input_field t () in
       let input_submit_promise, input_submit_handler = Lwt.task () in
       let submit_handler _ () =
-        let text_input_field_context = get_text_input_field_content t () in
-        Lwt.wakeup input_submit_handler text_input_field_context
+        let text_input_field_content = get_text_input_field_content t () in
+        match M.t_of_string_result text_input_field_content with
+        | Ok input_parsed_value ->
+            Lwt.wakeup input_submit_handler input_parsed_value
+        | Error error ->
+            failwith
+              ([%message "Failed to parse input" (error : Error.t)]
+              |> Sexp.to_string_hum)
       in
       set_submit_handler t ~handler:submit_handler ();
       if auto_focus then t.text_input_field##focus;
@@ -107,3 +120,21 @@ module Text = struct
     let%lwt () = on_input_read () in
     Lwt.return input_text
 end
+
+module Text = Simple_html_input (struct
+  type t = string
+
+  let html_input_type = "text"
+  let t_of_string_result s = Ok s
+end)
+
+module Integer = Simple_html_input (struct
+  type t = int
+
+  let html_input_type = "number"
+
+  let t_of_string_result s =
+    match Int.of_string_opt s with
+    | Some x -> Ok x
+    | None -> Error (Error.of_string "Unable to parse string as int")
+end)

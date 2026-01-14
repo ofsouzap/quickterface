@@ -46,6 +46,11 @@ let read_input_text ({ document; container = _ } as t) () =
   let%lwt () = add_item t ~item_element:(Inputs.Text.element input_text) () in
   Inputs.Text.wait_for_input input_text ()
 
+let read_input_integer ({ document; container = _ } as t) () =
+  let input = Inputs.Integer.make ~document in
+  let%lwt () = add_item t ~item_element:(Inputs.Integer.element input) () in
+  Inputs.Integer.wait_for_input input ()
+
 let add_output_math ?(options = Quickterface.Output_text_options.default)
     ({ document; container = _ } as t) ~value () =
   let%lwt output_math = Outputs.Math.make ~document ~options ~value in

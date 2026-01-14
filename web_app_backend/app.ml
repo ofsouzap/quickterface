@@ -62,6 +62,7 @@ let make () =
   Lwt.return { log }
 
 let read_text t () = Log.read_input_text t.log ()
+let read_integer t () = Log.read_input_integer t.log ()
 
 let print_text ?options t value () =
   Log.add_output_text ?options t.log ~value ()

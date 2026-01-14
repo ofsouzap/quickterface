@@ -13,3 +13,4 @@ module Input : sig
 end
 
 module Text : Input.S with type result := string
+module Integer : Input.S with type result := int
