@@ -13,28 +13,23 @@ module Input = struct
   end
 end
 
-module Html_input (M : sig
+module Html_input (Element : sig
+  type t
   type settings
   type value
 
-  module Element : sig
-    type t
-
-    val append_element_as_child : t -> parent:#Dom.node Js.t -> unit
-    val reset : t -> unit -> unit Lwt.t
-    val make_readonly : t -> unit -> unit Lwt.t
-    val focus : t -> unit -> unit Lwt.t
-    val read_value_result : t -> unit -> (value, Error.t) Result.t
-  end
-
-  val make_input :
-    document:Dom_html.document Js.t -> settings:settings -> unit -> Element.t
+  val append_element_as_child : t -> parent:#Dom.node Js.t -> unit
+  val reset : t -> unit -> unit Lwt.t
+  val make_readonly : t -> unit -> unit Lwt.t
+  val focus : t -> unit -> unit Lwt.t
+  val read_value_result : t -> unit -> (value, Error.t) Result.t
+  val make : document:Dom_html.document Js.t -> settings:settings -> unit -> t
 end) =
 struct
   type t = {
     element : Dom_html.element Js.t;
     form : Dom_html.formElement Js.t;
-    input_element : M.Element.t;
+    input_element : Element.t;
     submit_button : Dom_html.buttonElement Js.t;
   }
 
@@ -45,8 +40,8 @@ struct
     Dom.appendChild container form;
     (form##.className := Class.(to_js_string Input_text_container_form));
 
-    let input_element = M.make_input ~document ~settings () in
-    M.Element.append_element_as_child input_element ~parent:form;
+    let input_element = Element.make ~document ~settings () in
+    Element.append_element_as_child input_element ~parent:form;
 
     let submit_button =
       Dom_html.createButton ~_type:(Js.string "submit") document
@@ -69,18 +64,18 @@ struct
     t.form##.onsubmit := Dom.handler (Fn.const Js._true)
 
   let set_to_readonly t () =
-    let%lwt () = M.Element.make_readonly t.input_element () in
+    let%lwt () = Element.make_readonly t.input_element () in
     t.submit_button##.disabled := Js._true;
     Lwt.return ()
 
   let wait_for_input ?(auto_focus = true) t () =
     let get_input () =
-      let%lwt () = M.Element.reset t.input_element () in
+      let%lwt () = Element.reset t.input_element () in
 
       let input_submit_promise, input_submit_handler = Lwt.task () in
 
       let submit_handler _ () =
-        match M.Element.read_value_result t.input_element () with
+        match Element.read_value_result t.input_element () with
         | Ok input_parsed_value ->
             Lwt.wakeup input_submit_handler input_parsed_value
         | Error error ->
@@ -93,7 +88,7 @@ struct
       set_submit_handler t ~handler:submit_handler ();
 
       let%lwt () =
-        if auto_focus then M.Element.focus t.input_element () else Lwt.return ()
+        if auto_focus then Element.focus t.input_element () else Lwt.return ()
       in
       input_submit_promise
     in
@@ -117,34 +112,31 @@ module Simple_html_input (M : sig
   val t_of_string_result : string -> (t, Error.t) Result.t
 end) =
 Html_input (struct
+  type t = Dom_html.inputElement Js.t
   type settings = unit
   type value = M.t
 
-  module Element = struct
-    type t = Dom_html.inputElement Js.t
+  let append_element_as_child t ~parent = Dom.appendChild parent t
 
-    let append_element_as_child t ~parent = Dom.appendChild parent t
+  let reset t () =
+    t##.value := Js.string "";
+    Lwt.return ()
 
-    let reset t () =
-      t##.value := Js.string "";
-      Lwt.return ()
+  let make_readonly t () =
+    t##.readOnly := Js._true;
+    Lwt.return ()
 
-    let make_readonly t () =
-      t##.readOnly := Js._true;
-      Lwt.return ()
+  let focus t () =
+    t##focus;
+    Lwt.return ()
 
-    let focus t () =
-      t##focus;
-      Lwt.return ()
+  let get_content t () = Js.to_string t##.value
 
-    let get_content t () = Js.to_string t##.value
+  let read_value_result element () =
+    let input_element_content = get_content element () in
+    M.t_of_string_result input_element_content
 
-    let read_value_result element () =
-      let input_element_content = get_content element () in
-      M.t_of_string_result input_element_content
-  end
-
-  let make_input ~document ~settings:() () =
+  let make ~document ~settings:() () =
     let input_field_name_string = Js.string "text_input_field" in
     Dom_html.createInput document
       ~_type:(Js.string M.html_input_type)
