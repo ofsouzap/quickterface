@@ -20,24 +20,21 @@ module Html_input (M : sig
   module Element : sig
     type t
 
-    val append_element_as_child : t Js.t -> parent:#Dom.node Js.t -> unit
-    val reset : t Js.t -> unit -> unit Lwt.t
-    val make_readonly : t Js.t -> unit -> unit Lwt.t
-    val focus : t Js.t -> unit -> unit Lwt.t
-    val read_value_result : t Js.t -> unit -> (value, Error.t) Result.t
+    val append_element_as_child : t -> parent:#Dom.node Js.t -> unit
+    val reset : t -> unit -> unit Lwt.t
+    val make_readonly : t -> unit -> unit Lwt.t
+    val focus : t -> unit -> unit Lwt.t
+    val read_value_result : t -> unit -> (value, Error.t) Result.t
   end
 
   val make_input :
-    document:Dom_html.document Js.t ->
-    settings:settings ->
-    unit ->
-    Element.t Js.t
+    document:Dom_html.document Js.t -> settings:settings -> unit -> Element.t
 end) =
 struct
   type t = {
     element : Dom_html.element Js.t;
     form : Dom_html.formElement Js.t;
-    input_element : M.Element.t Js.t;
+    input_element : M.Element.t;
     submit_button : Dom_html.buttonElement Js.t;
   }
 
@@ -124,7 +121,7 @@ Html_input (struct
   type value = M.t
 
   module Element = struct
-    type t = Dom_html.inputElement
+    type t = Dom_html.inputElement Js.t
 
     let append_element_as_child t ~parent = Dom.appendChild parent t
 
