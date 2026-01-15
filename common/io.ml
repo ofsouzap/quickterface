@@ -11,6 +11,7 @@ module Output = struct
   type (_, _) t =
     | Text : (Output_text_options.t, string) t
     | Math : (Output_text_options.t, Math.t) t
+    | Title : (unit, string) t
 end
 
 module type S = sig
@@ -36,6 +37,8 @@ module type S = sig
 
   val output_math :
     ?options:Output_text_options.t -> t -> Math.t -> unit -> unit Lwt.t
+
+  val output_title : t -> string -> unit -> unit Lwt.t
 
   val with_progress_bar :
     ?label:string ->

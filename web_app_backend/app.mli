@@ -1,7 +1,7 @@
 open! Core
 open! Js_of_ocaml
 
-type t = { log : Log.t }
+type t
 
 val make : unit -> t Lwt.t
 
@@ -33,6 +33,8 @@ val output_math :
   Quickterface.Math.t ->
   unit ->
   unit Lwt.t
+
+val output_title : t -> string -> unit -> unit Lwt.t
 
 val with_progress_bar :
   ?label:string ->
