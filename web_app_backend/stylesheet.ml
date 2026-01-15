@@ -14,12 +14,14 @@ module Style = struct
 end
 
 module Selector_atom = struct
-  type t = Body | Button | Input | Class of Class.t [@@deriving enumerate]
+  type t = Body | Button | Input | Select | Class of Class.t
+  [@@deriving enumerate]
 
   let to_css_string = function
     | Body -> "body"
     | Button -> "button"
     | Input -> "input"
+    | Select -> "select"
     | Class class_ -> Printf.sprintf ".%s" (Class.to_prefixed_string class_)
 end
 
@@ -89,6 +91,8 @@ module Entry = struct
            { name = "border-radius"; value = "4px" };
          ]
       @ font_style_entries)
+
+  let select_style = input_style
 
   let class_style =
     let open Style.Entry in
@@ -198,6 +202,7 @@ module Entry = struct
     | Selector_atom.Body -> body_style
     | Button -> button_style
     | Input -> input_style
+    | Select -> select_style
     | Class c -> class_style c
 
   let of_selector_atom selector_atom =

@@ -15,6 +15,15 @@ module App (Io : Quickterface.Io.S) = struct
     let rec run_looping () : empty Lwt.t =
       let%lwt x = Io.input_text io () in
       let%lwt y = Io.input_text io () in
+      let%lwt mode =
+        Io.input_single_selection io [ "first first"; "first last" ] ()
+      in
+      let f =
+        match mode with
+        | "first first" -> fun x y -> x ^ y
+        | "first last" -> fun x y -> y ^ x
+        | _ -> assert false
+      in
       let%lwt res =
         Io.with_progress_bar io ~label:"Concatenating" ~maximum:10
           ~f:(fun ~increment_progress_bar () ->
@@ -25,7 +34,7 @@ module App (Io : Quickterface.Io.S) = struct
                 loop (n - 1)
             in
             let%lwt () = loop 10 in
-            Lwt.return (x ^ y))
+            Lwt.return (f x y))
           ()
       in
       let%lwt () = Io.output_text io res () in

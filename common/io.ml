@@ -1,7 +1,10 @@
 open! Core
 
 module Input = struct
-  type (_, _) t = Text : (unit, string) t | Integer : (unit, int) t
+  type (_, _) t =
+    | Text : (unit, string) t
+    | Integer : (unit, int) t
+    | Single_selection : (string list, string) t
 end
 
 module Output = struct
@@ -18,6 +21,7 @@ module type S = sig
   val input : t -> ('settings, 'a) Input.t -> 'settings -> unit -> 'a Lwt.t
   val input_text : t -> unit -> string Lwt.t
   val input_integer : t -> unit -> int Lwt.t
+  val input_single_selection : t -> string list -> unit -> string Lwt.t
 
   val output :
     ?options:'options ->

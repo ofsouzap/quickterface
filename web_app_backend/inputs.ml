@@ -160,3 +160,48 @@ module Integer = Simple_html_input (struct
     | Some x -> Ok x
     | None -> Error (Error.of_string "Unable to parse string as int")
 end)
+
+module Single_selection = Html_input (struct
+  type t = {
+    element : Dom_html.selectElement Js.t;
+    options : string list;
+    default : string;
+  }
+
+  type settings = string list
+  type value = string
+
+  let append_element_as_child { element; _ } ~parent =
+    Dom.appendChild parent element
+
+  let reset { element; options = _; default } () =
+    element##.value := Js.string default;
+    Lwt.return ()
+
+  let make_readonly { element; _ } () =
+    element##.disabled := Js._true;
+    Lwt.return ()
+
+  let focus { element; _ } () =
+    element##focus;
+    Lwt.return ()
+
+  let read_value_result { element; options; default = _ } () =
+    let input = Js.to_string element##.value in
+    if List.mem options input ~equal:String.equal then Ok input
+    else Error (Error.of_string "Input value is not one of allowed options")
+
+  let make ~document ~settings:options () =
+    match options with
+    | [] -> failwith "No options provided"
+    | default :: _ ->
+        let input_field_name_string = Js.string "select_input" in
+        let element =
+          Dom_html.createSelect document ~name:input_field_name_string
+        in
+        List.iter options ~f:(fun option ->
+            let option_element = Dom_html.createOption document in
+            option_element##.innerText := Js.string option;
+            Dom.appendChild element option_element);
+        { element; options; default }
+end)

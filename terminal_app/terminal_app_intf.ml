@@ -57,11 +57,66 @@ module Terminal_io = struct
 
     get_input_integer ()
 
+  let input_single_selection
+      ({ in_channel; out_channel = _; error_channel = _ } as t) options () =
+    (* Print the options *)
+    let option_printers =
+      List.mapi options ~f:(fun i option ->
+          let i_string = string_of_int i in
+          write_output_line t ~flush:false
+            ~text:[%string "  [%{i_string}] %{option}"])
+    in
+    let%lwt _ = Lwt.all option_printers in
+
+    (* Helpers for parsing the input *)
+    let read_input_as_index input_string =
+      match Int.of_string_opt input_string with
+      | Some x -> (
+          match List.nth options x with
+          | Some value -> `Is_valid value
+          | None -> `Out_of_range)
+      | None -> `Not_integer
+    in
+    let read_input_as_value_name input_string =
+      List.fold_result options ~init:() ~f:(fun () option ->
+          if String.equal option input_string then Error option else Ok ())
+      |> function
+      | Ok () -> `No_match
+      | Error value -> `Is_valid value
+    in
+    let read_input input_string =
+      match read_input_as_index input_string with
+      | `Is_valid value -> Ok value
+      | `Out_of_range -> Error "index provided is out of range"
+      | `Not_integer -> (
+          match read_input_as_value_name input_string with
+          | `Is_valid value -> Ok value
+          | `No_match -> Error "input is not name of option or index of option")
+    in
+
+    (* Get the selected option *)
+    let rec get_input () =
+      (* Get an input *)
+      let%lwt () = write_output ~flush:true t ~text:"> " in
+      let input_string = In_channel.input_line in_channel |> Option.value_exn in
+      match read_input input_string with
+      | Ok value -> Lwt.return value
+      | Error error_message ->
+          let%lwt () =
+            write_output_line ~flush:true t
+              ~text:[%string "[Invalid input: %{error_message}]"]
+          in
+          get_input ()
+    in
+
+    get_input ()
+
   let input : type settings a.
       _ -> (settings, a) Input.t -> settings -> unit -> a Lwt.t =
    fun t -> function
     | Text -> fun () -> input_text t
     | Integer -> fun () -> input_integer t
+    | Single_selection -> fun options -> input_single_selection t options
 
   let output_text ?options t text () =
     let%lwt () = write_output_line ?options ~flush:true t ~text in

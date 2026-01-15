@@ -51,6 +51,13 @@ let input_integer ({ document; container = _ } as t) () =
   let%lwt () = add_item t ~item_element:(Inputs.Integer.element input) () in
   Inputs.Integer.wait_for_input input ()
 
+let input_single_selection ({ document; container = _ } as t) options () =
+  let input = Inputs.Single_selection.make options ~document in
+  let%lwt () =
+    add_item t ~item_element:(Inputs.Single_selection.element input) ()
+  in
+  Inputs.Single_selection.wait_for_input input ()
+
 let add_output_math ?(options = Quickterface.Output_text_options.default)
     ({ document; container = _ } as t) ~value () =
   let%lwt output_math = Outputs.Math.make ~document ~options ~value in

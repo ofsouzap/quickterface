@@ -64,12 +64,14 @@ let make () =
 
 let input_text t () = Log.input_text t.log ()
 let input_integer t () = Log.input_integer t.log ()
+let input_single_selection t = Log.input_single_selection t.log
 
 let input : type settings a.
     _ -> (settings, a) Input.t -> settings -> unit -> a Lwt.t =
  fun t -> function
   | Text -> fun () -> input_text t
   | Integer -> fun () -> input_integer t
+  | Single_selection -> input_single_selection t
 
 let output_text ?options t value () =
   Log.add_output_text ?options t.log ~value ()

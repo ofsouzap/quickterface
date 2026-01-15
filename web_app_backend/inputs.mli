@@ -15,3 +15,6 @@ end
 
 module Text : Input.S with type settings := unit and type result := string
 module Integer : Input.S with type settings := unit and type result := int
+
+module Single_selection :
+  Input.S with type settings := string list and type result := string
