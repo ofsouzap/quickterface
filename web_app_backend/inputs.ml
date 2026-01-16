@@ -225,6 +225,8 @@ module Multi_selection = Html_input (struct
     let make ~document ~value_name ~input_name () =
       (* TODO - make this formatted much nicer *)
       let label_container = Dom_html.createLabel document in
+      (label_container##.className
+      := Class.(to_js_string Input_multiselect_container));
 
       let checkbox =
         Dom_html.createInput document ~_type:(Js.string "checkbox")
@@ -232,8 +234,9 @@ module Multi_selection = Html_input (struct
       in
       Dom.appendChild label_container checkbox;
 
-      let value_text_node = document##createTextNode (Js.string value_name) in
-      Dom.appendChild label_container value_text_node;
+      let value_node = Dom_html.createP document in
+      value_node##.innerText := Js.string value_name;
+      Dom.appendChild label_container value_node;
 
       {
         element = (label_container :> Dom_html.element Js.t);
@@ -298,7 +301,6 @@ module Multi_selection = Html_input (struct
               ()
           in
           Checkbox.append_element_as_child ~parent:fieldset checkbox;
-          Dom.appendChild fieldset (Dom_html.createBr document);
           checkbox)
     in
 

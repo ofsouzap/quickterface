@@ -9,6 +9,7 @@ type t =
   | Text_prompt_label
   | Input_container_form
   | Input_submit_button
+  | Input_multiselect_container
   | Output_math
   | Progress_bar_item
   | Progress_bar_label

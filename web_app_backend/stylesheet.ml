@@ -154,6 +154,13 @@ module Entry = struct
             { name = "padding"; value = "8px 16px" };
             { name = "cursor"; value = "pointer" };
           ]
+    | Input_multiselect_container ->
+        Style
+          [
+            { name = "display"; value = "flex" };
+            { name = "flex-direction"; value = "row" };
+            { name = "gap"; value = "16px" };
+          ]
     | Output_math -> Style [ { name = "padding"; value = "4px 0px" } ]
     | Progress_bar_item ->
         Style
