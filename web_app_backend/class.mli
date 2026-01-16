@@ -7,9 +7,8 @@ type t =
   | Log_item_default_output_channel
   | Log_item_error_channel
   | Text_prompt_label
-  | Input_text_container_form
-  | Input_text_field
-  | Input_text_submit_button
+  | Input_container_form
+  | Input_submit_button
   | Output_math
   | Progress_bar_item
   | Progress_bar_label

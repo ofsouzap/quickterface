@@ -139,7 +139,7 @@ module Entry = struct
         Style
           (log_item_style_items
           @ [ { name = "background-color"; value = "#a44" } ])
-    | Input_text_container_form ->
+    | Input_container_form ->
         Style
           [
             { name = "display"; value = "flex" };
@@ -147,8 +147,7 @@ module Entry = struct
             { name = "gap"; value = "8px" };
             { name = "align-items"; value = "center" };
           ]
-    | Input_text_field -> Style [ { name = "flex"; value = "1" } ]
-    | Input_text_submit_button ->
+    | Input_submit_button ->
         Style
           [
             { name = "flex"; value = "0 0 auto" };

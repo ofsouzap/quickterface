@@ -38,7 +38,7 @@ struct
 
     let form = Dom_html.createForm document in
     Dom.appendChild container form;
-    (form##.className := Class.(to_js_string Input_text_container_form));
+    (form##.className := Class.(to_js_string Input_container_form));
 
     let input_element = Element.make ~document ~settings () in
     Element.append_element_as_child input_element ~parent:form;
@@ -46,7 +46,7 @@ struct
     let submit_button =
       Dom_html.createButton ~_type:(Js.string "submit") document
     in
-    (submit_button##.className := Class.(to_js_string Input_text_submit_button));
+    (submit_button##.className := Class.(to_js_string Input_submit_button));
     submit_button##.innerText := Js.string "Submit";
     Dom.appendChild form submit_button;
 
