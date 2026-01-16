@@ -13,9 +13,18 @@ let make ~document ~main_container : t =
 
   { document; container }
 
-let add_item { document; container } ~item_element () =
+let output_channel_options_class
+    Quickterface.
+      { Output_text_options.channel_options = output_channel_options } =
+  match output_channel_options with
+  | Quickterface.Output_channel_options.Default_output_channel _ ->
+      Class.Log_item_default_output_channel
+  | Error_channel -> Class.Log_item_error_channel
+
+let add_item ?(log_item_class = Class.Log_item_default_output_channel)
+    { document; container } ~item_element () =
   let container_div = Dom_html.createDiv document in
-  (container_div##.className := Class.(to_js_string Log_item));
+  container_div##.className := Class.to_js_string log_item_class;
   Dom.appendChild container_div item_element;
 
   Dom.appendChild container container_div;
@@ -24,7 +33,12 @@ let add_item { document; container } ~item_element () =
 let add_output_text ?(options = Quickterface.Output_text_options.default)
     ({ document; container = _ } as t) ~value () =
   let%lwt output_text = Outputs.Text.make ~document ~options ~value in
-  let%lwt () = add_item t ~item_element:(Outputs.Text.element output_text) () in
+  let%lwt () =
+    add_item t
+      ~item_element:(Outputs.Text.element output_text)
+      ~log_item_class:(output_channel_options_class options)
+      ()
+  in
   Lwt.return ()
 
 let read_input_text ({ document; container = _ } as t) () =
@@ -35,7 +49,12 @@ let read_input_text ({ document; container = _ } as t) () =
 let add_output_math ?(options = Quickterface.Output_text_options.default)
     ({ document; container = _ } as t) ~value () =
   let%lwt output_math = Outputs.Math.make ~document ~options ~value in
-  let%lwt () = add_item t ~item_element:(Outputs.Math.element output_math) () in
+  let%lwt () =
+    add_item t
+      ~item_element:(Outputs.Math.element output_math)
+      ~log_item_class:(output_channel_options_class options)
+      ()
+  in
   Lwt.return ()
 
 let with_progress_bar ?label ({ document; container = _ } as t) ~maximum ~f () =

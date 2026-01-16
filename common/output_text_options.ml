@@ -1,6 +1,9 @@
 open! Core
 
-(* TODO-soon - add output channel [`Output | `Error] as another option *)
-type t = { color : Color.t }
+type t = { channel_options : Output_channel_options.t }
 
-let default = { color = Color.default_foreground }
+let default =
+  {
+    channel_options =
+      Default_output_channel { color = Color.default_foreground };
+  }

@@ -20,15 +20,22 @@ end
 module Text = struct
   type t = { element : Dom_html.element Js.t }
 
-  let make ~document ~options:{ Quickterface.Output_text_options.color } ~value
-      =
-    let item_div = Dom_html.createDiv document in
+  let make ~document
+      ~options:{ Quickterface.Output_text_options.channel_options } ~value =
+    let color =
+      match channel_options with
+      | Default_output_channel { color } -> color
+      | Error_channel -> Quickterface.Color.default_foreground
+    in
+
+    let itemDiv = Dom_html.createDiv document in
     let newP = (Dom_html.createP document :> Dom_html.element Js.t) in
     newP##.innerText := Js.string value;
     newP##.style##.color
     := Js.string (Quickterface.Color.css_color_string color);
-    Dom.appendChild item_div newP;
-    Lwt.return { element = item_div }
+    Dom.appendChild itemDiv newP;
+
+    Lwt.return { element = itemDiv }
 
   let element t = t.element
 end
@@ -51,8 +58,14 @@ module Math = struct
     in
     Lwt.return ()
 
-  let make ~document ~options:{ Quickterface.Output_text_options.color } ~value
-      =
+  let make ~document
+      ~options:{ Quickterface.Output_text_options.channel_options } ~value =
+    let color =
+      match channel_options with
+      | Default_output_channel { color } -> color
+      | Error_channel -> Quickterface.Color.default_foreground
+    in
+
     let itemDiv = Dom_html.createDiv document in
     (itemDiv##.className := Class.(to_js_string Output_math));
     itemDiv##.style##.color

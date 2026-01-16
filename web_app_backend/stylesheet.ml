@@ -92,6 +92,15 @@ module Entry = struct
 
   let class_style =
     let open Style.Entry in
+    let log_item_style_items =
+      [
+        { name = "margin"; value = "4px" };
+        { name = "border-radius"; value = "4px" };
+        { name = "padding"; value = "2px 6px 2px 6px" };
+        { name = "overflow-wrap"; value = "break-word" };
+        { name = "word-break"; value = "break-word" };
+      ]
+    in
     function
     | Class.Main_container ->
         Style.Style
@@ -118,16 +127,14 @@ module Entry = struct
             { name = "padding"; value = "8px" };
           ]
     | Text_prompt_label -> Style [ { name = "width"; value = "10px" } ]
-    | Log_item ->
+    | Log_item_default_output_channel ->
         Style
-          [
-            { name = "margin"; value = "4px" };
-            { name = "border-radius"; value = "4px" };
-            { name = "padding"; value = "2px 6px 2px 6px" };
-            { name = "background-color"; value = "#444" };
-            { name = "overflow-wrap"; value = "break-word" };
-            { name = "word-break"; value = "break-word" };
-          ]
+          (log_item_style_items
+          @ [ { name = "background-color"; value = "#444" } ])
+    | Log_item_error_channel ->
+        Style
+          (log_item_style_items
+          @ [ { name = "background-color"; value = "#a44" } ])
     | Input_text_container_form ->
         Style
           [

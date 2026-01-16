@@ -17,10 +17,24 @@ module App (Io : Quickterface.Io.S) = struct
            ])
         ()
     in
+    let%lwt _ =
+      Io.print_text
+        ~options:
+          Quickterface.
+            {
+              Output_text_options.channel_options =
+                Output_channel_options.Error_channel;
+            }
+        io "error message??" ()
+    in
     let%lwt () =
       Io.print_math
         ~options:
-          Quickterface.{ Output_text_options.color = Color.default_foreground }
+          Quickterface.
+            {
+              Output_text_options.channel_options =
+                Default_output_channel { color = Quickterface.Color.blue };
+            }
         io
         (let open Quickterface.Math in
          List

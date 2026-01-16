@@ -1,29 +1,37 @@
 open! Core
 
 module Terminal_io = struct
-  type t = { in_channel : In_channel.t; out_channel : Out_channel.t }
+  type t = {
+    in_channel : In_channel.t;
+    out_channel : Out_channel.t;
+    error_channel : Out_channel.t;
+  }
 
   module Http_client = Cohttp_lwt_unix.Client
 
   let write_output
-      ?options:({ Quickterface.Output_text_options.color } =
+      ?options:({ Quickterface.Output_text_options.channel_options } =
           Quickterface.Output_text_options.default) ?(flush = true)
-      { in_channel = _; out_channel } ~text =
-    let formatted_text =
-      let set_color = Quickterface.Color.ansi_color_code color in
-      let reset_color =
-        Quickterface.Color.(ansi_color_code default_foreground)
-      in
-      [%string "%{set_color}%{text}%{reset_color}"]
+      { in_channel = _; out_channel; error_channel } ~text =
+    let output_channel_to_use, formatted_text =
+      match channel_options with
+      | Default_output_channel { color } ->
+          ( out_channel,
+            let set_color = Quickterface.Color.ansi_color_code color in
+            let reset_color =
+              Quickterface.Color.(ansi_color_code default_foreground)
+            in
+            [%string "%{set_color}%{text}%{reset_color}"] )
+      | Error_channel -> (error_channel, [%string "<!> %{text}"])
     in
-    Out_channel.output_string out_channel formatted_text;
-    if flush then Out_channel.flush out_channel;
+    Out_channel.output_string output_channel_to_use formatted_text;
+    if flush then Out_channel.flush output_channel_to_use;
     Lwt.return ()
 
   let write_output_line ?options ?flush t ~text =
     write_output ?options ?flush t ~text:(text ^ "\n")
 
-  let read_text ({ in_channel; out_channel = _ } as t) () =
+  let read_text ({ in_channel; out_channel = _; error_channel = _ } as t) () =
     let%lwt () = write_output ~flush:true t ~text:"> " in
     In_channel.input_line in_channel |> Option.value_exn |> Lwt.return
 
@@ -109,5 +117,9 @@ module Make (App : Quickterface.App.S) : S = struct
     App.main
       ~io:
         Terminal_io.
-          { in_channel = In_channel.stdin; out_channel = Out_channel.stdout }
+          {
+            in_channel = In_channel.stdin;
+            out_channel = Out_channel.stdout;
+            error_channel = Out_channel.stderr;
+          }
 end
