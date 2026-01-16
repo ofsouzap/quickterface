@@ -205,3 +205,102 @@ module Single_selection = Html_input (struct
             Dom.appendChild element option_element);
         { element; options; default }
 end)
+
+module Multi_selection = Html_input (struct
+  module Checkbox = struct
+    type t = {
+      element : Dom_html.element Js.t;
+      checkbox : Dom_html.inputElement Js.t;
+      value_name : string;
+    }
+
+    let append_element_as_child { element; _ } ~parent =
+      Dom.appendChild parent element
+
+    let reset { checkbox; _ } () = checkbox##.checked := Js._false
+    let make_readonly { checkbox; _ } () = checkbox##.disabled := Js._true
+    let is_checked { checkbox; _ } () = Js.to_bool checkbox##.checked
+    let value_name { value_name; _ } = value_name
+
+    let make ~document ~value_name ~input_name () =
+      (* TODO - make this formatted much nicer *)
+      let label_container = Dom_html.createLabel document in
+
+      let checkbox =
+        Dom_html.createInput document ~_type:(Js.string "checkbox")
+          ~name:(Js.string input_name)
+      in
+      Dom.appendChild label_container checkbox;
+
+      let value_text_node = document##createTextNode (Js.string value_name) in
+      Dom.appendChild label_container value_text_node;
+
+      {
+        element = (label_container :> Dom_html.element Js.t);
+        checkbox;
+        value_name;
+      }
+  end
+
+  type t = {
+    element : Dom_html.fieldSetElement Js.t;
+    checkboxes : Checkbox.t list;
+    options : string list;
+  }
+
+  type settings = string list
+  type value = string list
+
+  let append_element_as_child { element; _ } ~parent =
+    Dom.appendChild parent element
+
+  let reset { checkboxes; _ } () =
+    List.iter checkboxes ~f:(fun checkbox -> Checkbox.reset checkbox ());
+    Lwt.return ()
+
+  let make_readonly { checkboxes; _ } () =
+    List.iter checkboxes ~f:(fun checkbox -> Checkbox.make_readonly checkbox ());
+    Lwt.return ()
+
+  let focus { checkboxes; _ } () =
+    (match checkboxes with
+    | [] -> ()
+    | first_checkbox :: _ -> first_checkbox.element##focus);
+    Lwt.return ()
+
+  let read_value_result { element = _; checkboxes; options } () =
+    List.fold_result checkboxes ~init:[] ~f:(fun acc checkbox ->
+        if Checkbox.is_checked checkbox () then
+          let value = Checkbox.value_name checkbox in
+          if List.mem options value ~equal:String.equal then
+            (* Add on the checked, correct value *)
+            Ok (value :: acc)
+          else
+            Error
+              (Error.of_string
+                 [%string
+                   "Checkbox value \"${value}\" is not one of allowed options"])
+        else
+          (* Don't add as not checked *)
+          Ok acc)
+
+  let make ~document ~settings:options () =
+    let fieldset = Dom_html.createFieldset document in
+
+    let checkboxes =
+      List.map options ~f:(fun option ->
+          let checkbox_name =
+            "input_checkboxes[]"
+            (* The "[]" signs to browsers that this is a list, needed because the name will be reused *)
+          in
+          let checkbox =
+            Checkbox.make ~document ~value_name:option ~input_name:checkbox_name
+              ()
+          in
+          Checkbox.append_element_as_child ~parent:fieldset checkbox;
+          Dom.appendChild fieldset (Dom_html.createBr document);
+          checkbox)
+    in
+
+    { element = fieldset; checkboxes; options }
+end)

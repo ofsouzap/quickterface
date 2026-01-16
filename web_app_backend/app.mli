@@ -11,6 +11,7 @@ val input :
 val input_text : t -> unit -> string Lwt.t
 val input_integer : t -> unit -> int Lwt.t
 val input_single_selection : t -> string list -> unit -> string Lwt.t
+val input_multi_selection : t -> string list -> unit -> string list Lwt.t
 
 val output :
   ?options:'options ->

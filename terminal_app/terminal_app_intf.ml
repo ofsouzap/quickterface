@@ -60,6 +60,9 @@ module Terminal_io = struct
   let input_single_selection
       ({ in_channel; out_channel = _; error_channel = _ } as t) options () =
     (* Print the options *)
+    let%lwt () =
+      write_output_line t ~flush:true ~text:"[Select an option from the below]"
+    in
     let option_printers =
       List.mapi options ~f:(fun i option ->
           let i_string = string_of_int i in
@@ -69,22 +72,22 @@ module Terminal_io = struct
     let%lwt _ = Lwt.all option_printers in
 
     (* Helpers for parsing the input *)
-    let read_input_as_index input_string =
-      match Int.of_string_opt input_string with
-      | Some x -> (
-          match List.nth options x with
-          | Some value -> `Is_valid value
-          | None -> `Out_of_range)
-      | None -> `Not_integer
-    in
-    let read_input_as_value_name input_string =
-      List.fold_result options ~init:() ~f:(fun () option ->
-          if String.equal option input_string then Error option else Ok ())
-      |> function
-      | Ok () -> `No_match
-      | Error value -> `Is_valid value
-    in
     let read_input input_string =
+      let read_input_as_index input_string =
+        match Int.of_string_opt input_string with
+        | Some x -> (
+            match List.nth options x with
+            | Some value -> `Is_valid value
+            | None -> `Out_of_range)
+        | None -> `Not_integer
+      in
+      let read_input_as_value_name input_string =
+        List.fold_result options ~init:() ~f:(fun () option ->
+            if String.equal option input_string then Error option else Ok ())
+        |> function
+        | Ok () -> `No_match
+        | Error value -> `Is_valid value
+      in
       match read_input_as_index input_string with
       | `Is_valid value -> Ok value
       | `Out_of_range -> Error "index provided is out of range"
@@ -111,12 +114,97 @@ module Terminal_io = struct
 
     get_input ()
 
+  let input_multi_selection
+      ({ in_channel; out_channel = _; error_channel = _ } as t) options () =
+    (* Print instructions *)
+    let%lwt () =
+      write_output_line t ~flush:true
+        ~text:
+          "[Enter an option to toggle selecting it. Press ENTER without \
+           selecting anything to submit the selection]"
+    in
+
+    (* Printing the options *)
+    let print_options_state ~selected_options =
+      let option_printers =
+        List.mapi options ~f:(fun i option ->
+            let i_string = string_of_int i in
+            let selected_mark =
+              (if Set.mem selected_options option then 'X' else ' ')
+              |> String.of_char
+            in
+            write_output_line t ~flush:false
+              ~text:[%string "  [%{selected_mark}] [%{i_string}] %{option}"])
+      in
+      let%lwt _ = Lwt.all option_printers in
+      Lwt.return ()
+    in
+
+    (* Helpers for parsing the input *)
+    let read_input input_string =
+      let read_input_as_index input_string =
+        match Int.of_string_opt input_string with
+        | Some x -> (
+            match List.nth options x with
+            | Some value -> `Is_valid value
+            | None -> `Out_of_range)
+        | None -> `Not_integer
+      in
+      let read_input_as_value_name input_string =
+        List.fold_result options ~init:() ~f:(fun () option ->
+            if String.equal option input_string then Error option else Ok ())
+        |> function
+        | Ok () -> `No_match
+        | Error value -> `Is_valid value
+      in
+      match read_input_as_index input_string with
+      | `Is_valid value -> Ok value
+      | `Out_of_range -> Error "index provided is out of range"
+      | `Not_integer -> (
+          match read_input_as_value_name input_string with
+          | `Is_valid value -> Ok value
+          | `No_match -> Error "input is not name of option or index of option")
+    in
+
+    (* Get the selected options *)
+    let rec get_input ~selected_options () =
+      (* Get an input *)
+      let%lwt () = print_options_state ~selected_options in
+      let%lwt () = write_output ~flush:true t ~text:"> " in
+      let input_string = In_channel.input_line in_channel |> Option.value_exn in
+      match input_string with
+      | "" ->
+          (* If nothing entered, submit the selections *)
+          Lwt.return selected_options
+      | _ -> (
+          match read_input input_string with
+          | Ok selection_to_toggle ->
+              (* Toggle the selected option *)
+              let new_selected_options =
+                if Set.mem selected_options selection_to_toggle then
+                  Set.remove selected_options selection_to_toggle
+                else Set.add selected_options selection_to_toggle
+              in
+              get_input ~selected_options:new_selected_options ()
+          | Error error_message ->
+              let%lwt () =
+                write_output_line ~flush:true t
+                  ~text:[%string "[Invalid input: %{error_message}]"]
+              in
+              get_input ~selected_options ())
+    in
+    let%lwt selected_options =
+      get_input ~selected_options:String.Set.empty ()
+    in
+    Lwt.return (Set.to_list selected_options)
+
   let input : type settings a.
       _ -> (settings, a) Input.t -> settings -> unit -> a Lwt.t =
    fun t -> function
     | Text -> fun () -> input_text t
     | Integer -> fun () -> input_integer t
     | Single_selection -> fun options -> input_single_selection t options
+    | Multi_selection -> fun options -> input_multi_selection t options
 
   let output_text ?options t text () =
     let%lwt () = write_output_line ?options ~flush:true t ~text in
