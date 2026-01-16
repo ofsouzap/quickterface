@@ -30,6 +30,30 @@ let add_item ?(log_item_class = Class.Log_item_default_output_channel)
   Dom.appendChild container container_div;
   Lwt.return ()
 
+let input_text ({ document; container = _ } as t) () =
+  let input_text = Inputs.Text.make () ~document in
+  let%lwt () = add_item t ~item_element:(Inputs.Text.element input_text) () in
+  Inputs.Text.wait_for_input input_text ()
+
+let input_integer ({ document; container = _ } as t) () =
+  let input = Inputs.Integer.make () ~document in
+  let%lwt () = add_item t ~item_element:(Inputs.Integer.element input) () in
+  Inputs.Integer.wait_for_input input ()
+
+let input_single_selection ({ document; container = _ } as t) options () =
+  let input = Inputs.Single_selection.make options ~document in
+  let%lwt () =
+    add_item t ~item_element:(Inputs.Single_selection.element input) ()
+  in
+  Inputs.Single_selection.wait_for_input input ()
+
+let input_multi_selection ({ document; container = _ } as t) options () =
+  let input = Inputs.Multi_selection.make options ~document in
+  let%lwt () =
+    add_item t ~item_element:(Inputs.Multi_selection.element input) ()
+  in
+  Inputs.Multi_selection.wait_for_input input ()
+
 let add_output_text ?(options = Quickterface.Output_text_options.default)
     ({ document; container = _ } as t) ~value () =
   let%lwt output_text = Outputs.Text.make ~document ~options ~value in
@@ -41,11 +65,6 @@ let add_output_text ?(options = Quickterface.Output_text_options.default)
   in
   Lwt.return ()
 
-let read_input_text ({ document; container = _ } as t) () =
-  let input_text = Inputs.Text.make ~document in
-  let%lwt () = add_item t ~item_element:(Inputs.Text.element input_text) () in
-  Inputs.Text.wait_for_input input_text ()
-
 let add_output_math ?(options = Quickterface.Output_text_options.default)
     ({ document; container = _ } as t) ~value () =
   let%lwt output_math = Outputs.Math.make ~document ~options ~value in
@@ -54,6 +73,15 @@ let add_output_math ?(options = Quickterface.Output_text_options.default)
       ~item_element:(Outputs.Math.element output_math)
       ~log_item_class:(output_channel_options_class options)
       ()
+  in
+  Lwt.return ()
+
+let add_output_title ({ document; container = _ } as t) ~value () =
+  let%lwt output_title = Outputs.Title.make ~document ~options:() ~value in
+  let%lwt () =
+    add_item t
+      ~item_element:(Outputs.Title.element output_title)
+      ~log_item_class:Class.Log_item_default_output_channel ()
   in
   Lwt.return ()
 

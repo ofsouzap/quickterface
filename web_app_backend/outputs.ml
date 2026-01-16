@@ -81,6 +81,20 @@ module Math = struct
   let element t = t.element
 end
 
+module Title = struct
+  type t = { element : Dom_html.element Js.t }
+
+  let make ~document ~options:() ~value =
+    let itemDiv = Dom_html.createDiv document in
+    let newH = (Dom_html.createH1 document :> Dom_html.element Js.t) in
+    newH##.innerText := Js.string value;
+    Dom.appendChild itemDiv newH;
+
+    Lwt.return { element = itemDiv }
+
+  let element t = t.element
+end
+
 module Progress_bar = struct
   type t = {
     element : Dom_html.element Js.t;

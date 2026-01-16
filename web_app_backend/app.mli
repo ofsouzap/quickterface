@@ -1,24 +1,41 @@
 open! Core
 open! Js_of_ocaml
 
-type t = { log : Log.t }
+type t
 
 val make : unit -> t Lwt.t
-val read_text : t -> unit -> string Lwt.t
 
-val print_text :
+val input :
+  t -> ('settings, 'a) Quickterface.Io.Input.t -> 'settings -> unit -> 'a Lwt.t
+
+val input_text : t -> unit -> string Lwt.t
+val input_integer : t -> unit -> int Lwt.t
+val input_single_selection : t -> string list -> unit -> string Lwt.t
+val input_multi_selection : t -> string list -> unit -> string list Lwt.t
+
+val output :
+  ?options:'options ->
+  t ->
+  ('options, 'a) Quickterface.Io.Output.t ->
+  'a ->
+  unit ->
+  unit Lwt.t
+
+val output_text :
   ?options:Quickterface.Output_text_options.t ->
   t ->
   string ->
   unit ->
   unit Lwt.t
 
-val print_math :
+val output_math :
   ?options:Quickterface.Output_text_options.t ->
   t ->
   Quickterface.Math.t ->
   unit ->
   unit Lwt.t
+
+val output_title : t -> string -> unit -> unit Lwt.t
 
 val with_progress_bar :
   ?label:string ->

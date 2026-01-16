@@ -27,6 +27,8 @@ module Math :
     with type value := Quickterface.Math.t
      and type options := Quickterface.Output_text_options.t
 
+module Title : Output.S with type value := string and type options := unit
+
 module Progress_bar : sig
   type t
 
