@@ -44,3 +44,5 @@ val with_progress_bar :
   f:(increment_progress_bar:(unit -> unit Lwt.t) -> unit -> 'a Lwt.t) ->
   unit ->
   'a Lwt.t
+
+val console_log_error : string -> unit -> unit Lwt.t
