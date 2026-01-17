@@ -79,8 +79,10 @@ struct
         | Ok input_parsed_value ->
             Lwt.wakeup input_submit_handler input_parsed_value
         | Error error ->
-            (* TODO-someday: need to have some kind of error reporting that actually
-               shows to the user. Currently this will just crash the webapp *)
+            (* TODO-someday: since this is in the handler code given to the
+            submit event, and not part of the Lwt computation, this error isn't
+            caught by the error-handling logic and instead crashes the webapp.
+            It would be nice to fix this sometime *)
             failwith
               ([%message "Failed to parse input" (error : Error.t)]
               |> Sexp.to_string_hum)
@@ -223,7 +225,6 @@ module Multi_selection = Html_input (struct
     let value_name { value_name; _ } = value_name
 
     let make ~document ~value_name ~input_name () =
-      (* TODO - make this formatted much nicer *)
       let label_container = Dom_html.createLabel document in
       (label_container##.className
       := Class.(to_js_string Input_multiselect_container));

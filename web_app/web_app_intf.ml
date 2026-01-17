@@ -14,6 +14,10 @@ module Make (App : Quickterface.App.S) : S = struct
   module App = App (Web_app_io)
 
   let run () =
-    let%lwt io = Quickterface_web_app_backend.App.make () in
-    App.main ~io ()
+    let%lwt io = Web_app_io.make () in
+    try%lwt App.main ~io ()
+    with exn ->
+      Web_app_io.console_log_error
+        (sprintf "Fatal application error:\n%s" (Exn.to_string exn))
+        ()
 end
