@@ -1,0 +1,19 @@
+(library
+ (name my_app)
+ (modules app)
+ (libraries lwt quickterface)
+ (preprocess
+  (pps lwt_ppx)))
+
+(executable
+ (public_name my_terminal_app)
+ (name my_terminal_app)
+ (modes exe)
+ (libraries my_app quickterface.terminal_app)
+ (modules my_terminal_app))
+
+(executable
+ (name my_web_app)
+ (modes js)
+ (modules my_web_app)
+ (libraries my_app quickterface.web_app))

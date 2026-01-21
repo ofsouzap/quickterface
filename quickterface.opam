@@ -17,6 +17,8 @@ depends: [
   "cohttp-lwt"
   "cohttp-lwt-unix"
   "cohttp-lwt-jsoo"
+  "fpath"
+  "bos"
   "odoc" {with-doc}
 ]
 build: [
