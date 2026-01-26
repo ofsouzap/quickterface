@@ -1,12 +1,13 @@
 open! Core
 
 let package_name = "quickterface"
+let templates_dir_name = "templates"
 let lib_dir_name = "lib"
 let executable_template_template_path = Fpath.v "template-executable-directory"
 let default_executable_template_name = "my_app"
 let web_app_index_template_path = Fpath.v "web-app"
 
-let get_share_dir () =
+let get_templates_dir () =
   let open Fpath in
   (* [Findlib.package_directory] returns a path like [<prefix>/lib/quickterface] and we want [<prefix>/share/quickterface] *)
   let package_lib_dir = v (Findlib.package_directory package_name) in
@@ -28,11 +29,11 @@ let get_share_dir () =
   let parent_dir = parent lib_dir in
   let package_share_dir = parent_dir / "share" / package_name in
 
-  package_share_dir
+  package_share_dir / templates_dir_name
 
 let get_template_executable_dir () =
-  let share_dir = get_share_dir () in
-  Fpath.(share_dir // executable_template_template_path)
+  let templates_dir = get_templates_dir () in
+  Fpath.(templates_dir // executable_template_template_path)
 
 let map_rresult_msg_error_to_sexp ~msg_error_message v =
   Result.map_error v ~f:(fun (`Msg error_message) ->
@@ -103,7 +104,7 @@ let set_up_template_executable
   Ok ()
 
 let get_web_app_index_template_path () =
-  let share_dir = get_share_dir () in
+  let share_dir = get_templates_dir () in
   Fpath.(share_dir // web_app_index_template_path)
 
 let set_up_web_app_template () =
