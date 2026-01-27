@@ -6,9 +6,12 @@ Create the project skeleton and check it initially builds
   $ cd test_quickterface_app
   $ dune build
 
-Create an executable with the default name and check the project still builds
+Create an executable with the default name ("my_app") and check the project still builds
   $ quickterface-setup-script
   $ dune build
+
+Specifically check that the terminal executable exists
+  $ dune build ./my_app/my_app_terminal_app.exe
 
 Create an executable with a custom name in the same project and check the project still builds
   $ quickterface-setup-script --executable-name=custom_name_app
