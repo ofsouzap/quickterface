@@ -5,7 +5,6 @@ let templates_dir_name = "templates"
 let lib_dir_name = "lib"
 let executable_template_template_path = Fpath.v "template-executable-directory"
 let default_executable_template_name = "my_app"
-let web_app_index_template_path = Fpath.v "web-app"
 
 let get_templates_dir () =
   let open Fpath in
@@ -102,11 +101,3 @@ let set_up_template_executable
 
   let%bind () = copy_tree ~from:template_dir ~to_:target_directory in
   Ok ()
-
-let get_web_app_index_template_path () =
-  let share_dir = get_templates_dir () in
-  Fpath.(share_dir // web_app_index_template_path)
-
-let set_up_web_app_template () =
-  ignore get_web_app_index_template_path;
-  failwith "TODO"

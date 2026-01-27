@@ -17,3 +17,9 @@
  (modes js)
  (modules my_web_app)
  (libraries my_app quickterface.web_app))
+
+(install
+ (section share)
+ (files
+  index.html
+  (my_web_app.bc.js as main.js)))

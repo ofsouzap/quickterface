@@ -5,5 +5,3 @@ val set_up_template_executable :
   target_parent_dir:Fpath.t ->
   unit ->
   (unit, Sexp.t) Result.t
-
-val set_up_web_app_template : unit -> (unit, Sexp.t) Result.t
