@@ -1,25 +1,25 @@
 (library
- (name my_app)
- (modules app)
+ (name {app_name}_app)
+ (modules {app_name}_app)
  (libraries lwt quickterface)
  (preprocess
   (pps lwt_ppx)))
 
 (executable
- (public_name my_terminal_app)
- (name my_terminal_app)
+ (public_name {app_name})
+ (name {app_name}_terminal_app)
  (modes exe)
- (libraries my_app quickterface.terminal_app)
- (modules my_terminal_app))
+ (modules {app_name}_terminal_app)
+ (libraries {app_name}_app quickterface.terminal_app))
 
 (executable
- (name my_web_app)
+ (name {app_name}_web_app)
  (modes js)
- (modules my_web_app)
- (libraries my_app quickterface.web_app))
+ (modules {app_name}_web_app)
+ (libraries {app_name}_app quickterface.web_app))
 
 (install
  (section share)
  (files
-  index.html
-  (my_web_app.bc.js as main.js)))
+  (index.html as "{app_name}/index.html")
+  ({app_name}_web_app.bc.js as "{app_name}/main.js")))
