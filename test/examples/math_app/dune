@@ -1,22 +1,25 @@
 (library
- (name example_math_app)
- (modules app)
- (libraries core quickterface)
+ (name math_app_app)
+ (modules math_app_app)
+ (libraries lwt quickterface)
  (preprocess
-  (pps ppx_jane lwt_ppx)))
+  (pps lwt_ppx)))
 
 (executable
- (name terminal)
+ (public_name math_app)
+ (name math_app_terminal_app)
  (modes exe)
- (modules terminal)
- (libraries example_math_app quickterface.terminal_app core lwt)
- (preprocess
-  (pps ppx_jane lwt_ppx)))
+ (modules math_app_terminal_app)
+ (libraries math_app_app quickterface.terminal_app))
 
 (executable
- (name webapp)
+ (name math_app_web_app)
  (modes js)
- (modules webapp)
- (libraries example_math_app quickterface.web_app core lwt)
- (preprocess
-  (pps ppx_jane lwt_ppx)))
+ (modules math_app_web_app)
+ (libraries math_app_app quickterface.web_app))
+
+(install
+ (section share)
+ (files
+  (index.html as "math_app/index.html")
+  (math_app_web_app.bc.js as "math_app/main.js")))
