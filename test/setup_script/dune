@@ -1,0 +1,3 @@
+(cram
+ (deps ../../setup_script/main.exe)
+ (timeout 30))
