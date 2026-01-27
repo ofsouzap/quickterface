@@ -26,4 +26,6 @@
   lwt_ppx
   cohttp-lwt
   cohttp-lwt-unix
-  cohttp-lwt-jsoo))
+  cohttp-lwt-jsoo
+  fpath
+  bos))
