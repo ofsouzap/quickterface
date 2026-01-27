@@ -1,22 +1,25 @@
 (library
- (name example_weather_app_app)
- (modules app)
- (libraries core quickterface)
+ (name weather_app_app)
+ (modules weather_app_app)
+ (libraries lwt quickterface)
  (preprocess
-  (pps ppx_jane lwt_ppx)))
+  (pps lwt_ppx)))
 
 (executable
- (name terminal)
+ (public_name weather_app)
+ (name weather_app_terminal_app)
  (modes exe)
- (modules terminal)
- (libraries example_weather_app_app quickterface.terminal_app core lwt)
- (preprocess
-  (pps ppx_jane lwt_ppx)))
+ (modules weather_app_terminal_app)
+ (libraries weather_app_app quickterface.terminal_app))
 
 (executable
- (name webapp)
+ (name weather_app_web_app)
  (modes js)
- (modules webapp)
- (libraries example_weather_app_app quickterface.web_app core lwt)
- (preprocess
-  (pps ppx_jane lwt_ppx)))
+ (modules weather_app_web_app)
+ (libraries weather_app_app quickterface.web_app))
+
+(install
+ (section share)
+ (files
+  (index.html as "weather_app/index.html")
+  (weather_app_web_app.bc.js as "weather_app/main.js")))
