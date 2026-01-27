@@ -19,11 +19,8 @@ module Terminal_io = struct
       match channel_options with
       | Default_output_channel { color } ->
           ( out_channel,
-            let set_color = Quickterface.Color.ansi_color_code color in
-            let reset_color =
-              Quickterface.Color.(ansi_color_code default_foreground)
-            in
-            [%string "%{set_color}%{text}%{reset_color}"] )
+            Quickterface.Ansi_text_style.(
+              wrap_text (make ~foreground_color:color ()) ~text) )
       | Error_channel -> (error_channel, [%string "<!> %{text}"])
     in
     Out_channel.output_string output_channel_to_use formatted_text;
