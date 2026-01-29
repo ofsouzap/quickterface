@@ -14,5 +14,6 @@ let make ~text () =
 let attr = Notty.A.(fg lightwhite ++ bg blue ++ st bold)
 
 let render { text } =
-  let open Notty.I in
-  string attr text |> hsnap ~align:`Left 0 |> vsnap ~align:`Top 1
+  ignore text;
+  ignore attr;
+  failwith "TODO"

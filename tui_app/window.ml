@@ -37,7 +37,11 @@ let set_title t title_text =
 
 let render { title_bar; log; input_field_container } =
   let open Notty.I in
-  let title_bar_image = Title_bar.render title_bar in
+  let title_bar_image =
+    (* TODO - render title bar *)
+    ignore title_bar;
+    empty
+  in
   let log_image = Log.render log in
   let input_field_image =
     Input_field_container.render input_field_container |> vsnap ~align:`Bottom 0
