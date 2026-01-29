@@ -1,0 +1,31 @@
+(library
+ (name simple_text_io_app_app)
+ (modules simple_text_io_app_app)
+ (libraries lwt quickterface)
+ (preprocess
+  (pps lwt_ppx)))
+
+(executable
+ (public_name simple_text_io_app)
+ (name simple_text_io_app_terminal_app)
+ (modes exe)
+ (modules simple_text_io_app_terminal_app)
+ (libraries simple_text_io_app_app quickterface.terminal_app))
+
+(executable
+ (name simple_text_io_app_tui_app)
+ (modes exe)
+ (modules simple_text_io_app_tui_app)
+ (libraries simple_text_io_app_app quickterface.tui_app))
+
+(executable
+ (name simple_text_io_app_web_app)
+ (modes js)
+ (modules simple_text_io_app_web_app)
+ (libraries simple_text_io_app_app quickterface.web_app))
+
+(install
+ (section share)
+ (files
+  (index.html as "simple_text_io_app/index.html")
+  (simple_text_io_app_web_app.bc.js as "simple_text_io_app/main.js")))
