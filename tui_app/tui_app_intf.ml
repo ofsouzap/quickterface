@@ -11,6 +11,7 @@ module Tui_io = struct
 
   module Http_client = Cohttp_lwt_unix.Client
 
+  let input_any_key { window; _ } () = Window.input_any_key window ()
   let input_text { window; _ } () = Window.input_text window ()
   let input_integer _ () = failwith "TODO"
   let input_single_selection _ _ () = failwith "TODO"
@@ -75,5 +76,10 @@ end
 module Make (App : Quickterface.App.S) : S = struct
   module App = App (Tui_io)
 
-  let run = App.main ~io:(Tui_io.make ())
+  let run () =
+    let io = Tui_io.make () in
+    let%lwt () = App.main ~io () in
+    let%lwt () = Tui_io.output_text io "[Press any key to exit]" () in
+    let%lwt () = Tui_io.input_any_key io () in
+    Lwt.return ()
 end
