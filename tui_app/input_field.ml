@@ -17,6 +17,15 @@ module Variant = struct
     match t with
     | Any_key -> Lwt.return ()
     | Text -> Lwt.return (value ^ String.of_char char)
+
+  let injest_backspace : type a. a t -> a -> a Lwt.t =
+   fun t value ->
+    match t with
+    | Any_key -> Lwt.return ()
+    | Text ->
+        Lwt.return
+          (if String.is_empty value then value
+           else String.sub ~pos:0 ~len:(String.length value - 1) value)
 end
 
 module Unpacked = struct
@@ -56,6 +65,9 @@ let injest_key_event (Packed ({ variant; current_value; resolver } as t))
       Lwt.return `Ready_to_be_destroyed
   | Text, `ASCII c ->
       let%lwt new_value = Variant.injest_char variant current_value c in
+      Lwt.return (`Updated_to (Packed { t with current_value = new_value }))
+  | Text, `Backspace ->
+      let%lwt new_value = Variant.injest_backspace variant current_value in
       Lwt.return (`Updated_to (Packed { t with current_value = new_value }))
   | Text, `Enter ->
       (* Set wakeup to be run once the current process yields *)
