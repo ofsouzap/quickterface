@@ -11,6 +11,7 @@
   notty.lwt
   quickterface)
  (modules
+  theme
   log_item
   log
   input_field

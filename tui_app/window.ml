@@ -43,9 +43,7 @@ let render { title_bar; log; input_field_container } =
     empty
   in
   let log_image = Log.render log in
-  let input_field_image =
-    Input_field_container.render input_field_container |> vsnap ~align:`Bottom 0
-  in
+  let input_field_image = Input_field_container.render input_field_container in
   title_bar_image <-> log_image <-> input_field_image
 
 let handle_event { title_bar = _; log = _; input_field_container } = function

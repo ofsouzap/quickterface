@@ -11,9 +11,6 @@ let make ~text () =
   in
   { text = filtered_text }
 
-let attr = Notty.A.(fg lightwhite ++ bg blue ++ st bold)
-
 let render { text } =
   ignore text;
-  ignore attr;
   failwith "TODO"

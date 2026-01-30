@@ -4,11 +4,9 @@ type t = Output_text of string | Input_text of string
 
 let output_text ?options:_ text = (* TODO - use options *) Output_text text
 
-let attr =
-  let open Notty.A in
-  function
-  | Output_text _ -> fg white ++ bg black
-  | Input_text _ -> fg green ++ bg black
+let attr = function
+  | Output_text _ -> Theme.text_output
+  | Input_text _ -> Theme.text_input_frozen
 
 let render t =
   let open Notty.I in

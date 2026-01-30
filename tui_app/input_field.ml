@@ -3,14 +3,12 @@ open! Core
 module Variant = struct
   type _ t = Any_key : unit t | Text : string t
 
-  let attr_text =
-    let open Notty.A in
-    fg white ++ bg black
-
   let render : type a. a t -> a -> Notty.image =
    fun t value ->
     let open Notty.I in
-    match t with Any_key -> empty | Text -> string attr_text value
+    match t with
+    | Any_key -> empty
+    | Text -> string Theme.text_input_editable value
 
   let injest_char : type a. a t -> a -> _ -> a Lwt.t =
    fun t value char ->
