@@ -12,6 +12,7 @@
   quickterface)
  (modules
   theme
+  notty_utils
   log_item
   log
   input_field

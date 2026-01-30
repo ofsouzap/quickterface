@@ -11,9 +11,10 @@ let attr = function
 let render t =
   let open Notty.I in
   let t_attr = attr t in
-  match t with
-  | Output_text text -> string t_attr text
-  | Input_text text -> string t_attr text
+  (match t with
+    | Output_text text -> string t_attr text
+    | Input_text text -> string t_attr text)
+  |> Notty_utils.boxed
 
 (* TODO - remove these *)
 let () = ignore (Input_text "")
