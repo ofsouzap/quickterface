@@ -2,7 +2,7 @@ open! Core
 
 type t
 
-val render : t -> Notty.image
+val render : t Render_function.t
 val make_any_key : resolver:unit Lwt.u -> unit -> t
 val make_text : resolver:string Lwt.u -> unit -> t
 

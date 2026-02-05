@@ -4,9 +4,9 @@ type t = { mutable input_field : Input_field.t option }
 
 let make () = { input_field = None }
 
-let render { input_field } =
+let render ~render_info { input_field } =
   match input_field with
-  | Some input_field -> Input_field.render input_field
+  | Some input_field -> Input_field.render ~render_info input_field
   | None -> Notty.I.empty
 
 let handle_key_event t key_event =

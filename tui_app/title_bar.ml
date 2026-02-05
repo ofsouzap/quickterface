@@ -11,6 +11,6 @@ let make ~text () =
   in
   { text = filtered_text }
 
-let render { text } =
+let render ~render_info:_ { text } =
   ignore text;
   failwith "TODO"

@@ -35,15 +35,17 @@ let set_title t title_text =
   t.title_bar <- new_title_bar;
   Lwt.return ()
 
-let render { title_bar; log; input_field_container } =
+let render ~render_info { title_bar; log; input_field_container } =
   let open Notty.I in
   let title_bar_image =
     (* TODO - render title bar *)
     ignore title_bar;
     empty
   in
-  let log_image = Log.render log in
-  let input_field_image = Input_field_container.render input_field_container in
+  let log_image = Log.render ~render_info log in
+  let input_field_image =
+    Input_field_container.render ~render_info input_field_container
+  in
   title_bar_image <-> log_image <-> input_field_image
 
 let handle_event { title_bar = _; log = _; input_field_container } = function

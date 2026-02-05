@@ -6,7 +6,9 @@ module Tui_io = struct
   type t = { term : Notty_lwt.Term.t; window : Window.t }
 
   let refresh_render { term; window } () =
-    let image = Window.render window in
+    let screen_width, screen_height = Notty_lwt.Term.size term in
+    let render_info = { Render_info.screen_width; screen_height } in
+    let image = Window.render ~render_info window in
     Notty_lwt.Term.image term image
 
   module Http_client = Cohttp_lwt_unix.Client

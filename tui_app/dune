@@ -13,6 +13,8 @@
  (modules
   theme
   notty_utils
+  render_info
+  render_function
   log_item
   log
   input_field

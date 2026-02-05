@@ -8,7 +8,7 @@ let attr = function
   | Output_text _ -> Theme.text_output
   | Input_text _ -> Theme.text_input_frozen
 
-let render t =
+let render ~render_info:_ t =
   let open Notty.I in
   let t_attr = attr t in
   (match t with

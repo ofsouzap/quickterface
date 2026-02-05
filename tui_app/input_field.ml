@@ -42,7 +42,7 @@ let make_any_key ~resolver () =
 let make_text ~resolver () =
   Packed { variant = Text; current_value = ""; resolver }
 
-let render (Packed { variant; current_value; resolver = _ }) =
+let render ~render_info:_ (Packed { variant; current_value; resolver = _ }) =
   Variant.render variant current_value
 
 let injest_key_event (Packed ({ variant; current_value; resolver } as t))
