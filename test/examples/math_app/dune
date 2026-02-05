@@ -13,6 +13,13 @@
  (libraries math_app_app quickterface.terminal_app))
 
 (executable
+ (public_name math_app_tui)
+ (name math_app_tui_app)
+ (modes exe)
+ (modules math_app_tui_app)
+ (libraries math_app_app quickterface.tui_app))
+
+(executable
  (name math_app_web_app)
  (modes js)
  (modules math_app_web_app)
