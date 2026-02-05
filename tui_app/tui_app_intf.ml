@@ -25,7 +25,11 @@ module Tui_io = struct
     input_then_add_to_log ~window_input:Window.input_text
       ~log_item:Log_item.input_text t ()
 
-  let input_integer _ () = failwith "TODO"
+  let input_integer t () =
+    input_then_add_to_log ~window_input:Window.input_integer
+      ~log_item:(fun n -> Log_item.input_text (string_of_int n))
+      t ()
+
   let input_single_selection _ _ () = failwith "TODO"
   let input_multi_selection _ _ () = failwith "TODO"
 

@@ -40,3 +40,6 @@ let get_input_any_key t ~refresh_render () =
 
 let get_input_text t ~refresh_render () =
   get_input t ~refresh_render ~input_field_maker:Input_field.make_text
+
+let get_input_integer t ~refresh_render () =
+  get_input t ~refresh_render ~input_field_maker:Input_field.make_integer

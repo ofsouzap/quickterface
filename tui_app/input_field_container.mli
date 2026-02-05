@@ -17,3 +17,9 @@ val get_input_text :
   refresh_render:(unit -> unit Lwt.t) ->
   unit ->
   (string Lwt.t, Error.t) result
+
+val get_input_integer :
+  t ->
+  refresh_render:(unit -> unit Lwt.t) ->
+  unit ->
+  (int Lwt.t, Error.t) result

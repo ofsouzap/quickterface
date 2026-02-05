@@ -8,3 +8,4 @@ val log_item_border : attr
 val text_output : attr
 val text_input_editable : attr
 val text_input_frozen : attr
+val integer_input_editable : attr
