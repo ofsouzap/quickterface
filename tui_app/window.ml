@@ -20,13 +20,8 @@ let input_any_key { input_field_container; _ } ~refresh_render () =
   |> ok_or_raise
 
 let input_text { input_field_container; _ } ~refresh_render () =
-  let%lwt text =
-    Input_field_container.get_input_text input_field_container ~refresh_render
-      ()
-    |> ok_or_raise
-  in
-  ignore "TODO - add input text to log";
-  Lwt.return text
+  Input_field_container.get_input_text input_field_container ~refresh_render ()
+  |> ok_or_raise
 
 let add_log_item t item =
   let new_log = Log.add_log_item t.log item in

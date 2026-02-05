@@ -13,11 +13,17 @@ module Tui_io = struct
 
   module Http_client = Cohttp_lwt_unix.Client
 
+  let input_then_add_to_log ~window_input ~log_item ({ window; _ } as t) () =
+    let%lwt res = window_input window ~refresh_render:(refresh_render t) () in
+    let%lwt () = Window.add_log_item window (log_item res) in
+    Lwt.return res
+
   let input_any_key ({ window; _ } as t) () =
     Window.input_any_key window ~refresh_render:(refresh_render t) ()
 
-  let input_text ({ window; _ } as t) () =
-    Window.input_text window ~refresh_render:(refresh_render t) ()
+  let input_text t () =
+    input_then_add_to_log ~window_input:Window.input_text
+      ~log_item:Log_item.input_text t ()
 
   let input_integer _ () = failwith "TODO"
   let input_single_selection _ _ () = failwith "TODO"
@@ -61,7 +67,6 @@ module Tui_io = struct
     in
     let window = Window.make () in
     let t = { term; window } in
-    (* TODO - render initial window before any events have appeared *)
 
     (* Set up the event loop *)
     Lwt.async (fun () ->
