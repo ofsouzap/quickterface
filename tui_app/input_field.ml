@@ -47,13 +47,32 @@ module Variant = struct
       | Negative string -> -Int.of_string string
   end
 
+  module Single_selection_state = struct
+    type t = { options : string list; selected_index : int }
+
+    let make ~options ~selected_index = { options; selected_index }
+    let maximum_index { options; selected_index = _ } = List.length options - 1
+
+    let incr_selected_index state =
+      {
+        state with
+        selected_index = min (state.selected_index + 1) (maximum_index state);
+      }
+
+    let decr_selected_index state =
+      { state with selected_index = max (state.selected_index - 1) 0 }
+  end
+
+  (** [('a, 'b) t] is a variant which uses type ['a] for state and resolves with
+      a value of type ['b] *)
   type (_, _) t =
     | Any_key : (unit, unit) t
     | Text : (string, string) t
     | Integer : (Int_as_string.t, int) t
+    | Single_selection : (Single_selection_state.t, string) t
 
   let render : type a b. render_info:_ -> (a, b) t -> a -> Notty.image =
-   fun ~render_info t value ->
+   fun ~render_info t state ->
     let open Notty.I in
     let boxed_to_screen_width =
       Notty_utils.boxed
@@ -65,36 +84,63 @@ module Variant = struct
     match t with
     | Any_key -> empty
     | Text ->
-        string Theme.text_input_editable [%string "> %{value}"]
+        string Theme.text_input_editable [%string "> %{state}"]
         |> boxed_to_screen_width
     | Integer ->
-        let as_string = Int_as_string.to_string value in
+        let as_string = Int_as_string.to_string state in
         string Theme.integer_input_editable [%string "> %{as_string}"]
         |> boxed_to_screen_width
+    | Single_selection ->
+        let { Single_selection_state.options; selected_index } = state in
+        List.mapi options ~f:(fun index option ->
+            let is_selected = index = selected_index in
+            let attr =
+              if is_selected then Theme.single_selection_input_option_selected
+              else Theme.single_selection_input_option_not_selected
+            in
+            let text = (if is_selected then "> " else "  ") ^ option in
+            string attr text)
+        |>
+        (* Display the options starting at the bottom and growing upwards, as the index increases *)
+        List.rev |> vcat
 
-  let injest_char : type a b. (a, b) t -> a -> _ -> a Lwt.t =
-   fun t value char ->
+  let injest_char : type a b. (a, b) t -> a -> _ -> a =
+   fun t state char ->
     match t with
-    | Any_key -> Lwt.return ()
-    | Text -> Lwt.return (value ^ String.of_char char)
-    | Integer -> Lwt.return (Int_as_string.injest_char char value)
+    | Any_key | Single_selection -> state
+    | Text -> state ^ String.of_char char
+    | Integer -> Int_as_string.injest_char char state
 
-  let injest_backspace : type a b. (a, b) t -> a -> a Lwt.t =
-   fun t value ->
+  let injest_backspace : type a b. (a, b) t -> a -> a =
+   fun t state ->
     match t with
-    | Any_key -> Lwt.return ()
+    | Any_key | Single_selection -> state
     | Text ->
-        Lwt.return
-          (if String.is_empty value then value
-           else String.sub ~pos:0 ~len:(String.length value - 1) value)
-    | Integer -> Lwt.return (Int_as_string.injest_backspace value)
+        if String.is_empty state then state
+        else String.sub ~pos:0 ~len:(String.length state - 1) state
+    | Integer -> Int_as_string.injest_backspace state
+
+  let injest_arrow_key : type a b. (a, b) t -> a -> _ -> a =
+   fun t state direction ->
+    match t with
+    | Any_key | Text | Integer ->
+        (* TODO-someday: allow arrow keys to move the position being edited *)
+        state
+    | Single_selection -> (
+        match direction with
+        | `Left | `Right -> state
+        | `Up -> Single_selection_state.incr_selected_index state
+        | `Down -> Single_selection_state.decr_selected_index state)
 
   let to_resolvable_value : type a b. (a, b) t -> a -> b =
-   fun t value ->
+   fun t state ->
     match t with
     | Any_key -> ()
-    | Text -> value
-    | Integer -> Int_as_string.to_int value
+    | Text -> state
+    | Integer -> Int_as_string.to_int state
+    | Single_selection ->
+        let { Single_selection_state.options; selected_index } = state in
+        List.nth_exn options selected_index
 end
 
 module Unpacked = struct
@@ -121,6 +167,19 @@ let make_integer ~resolver () =
       resolver;
     }
 
+let make_single_selection ~resolver ~options () =
+  if List.is_empty options then
+    raise_s
+      [%message
+        "Options for single selection cannot be empty" (options : string List.t)];
+  Packed
+    {
+      variant = Single_selection;
+      current_value =
+        Variant.Single_selection_state.make ~options ~selected_index:0;
+      resolver;
+    }
+
 let render ~render_info (Packed { variant; current_value; resolver = _ }) =
   Variant.render ~render_info variant current_value
 
@@ -139,17 +198,22 @@ let injest_key_event (Packed ({ variant; current_value; resolver } as t))
   match (variant, key) with
   | Any_key, _ ->
       set_up_resolver_wakeup_for_later resolver () ();
-      Lwt.return `Ready_to_be_destroyed
-  | (Text | Integer), `ASCII c ->
-      let%lwt new_value = Variant.injest_char variant current_value c in
-      Lwt.return (`Updated_to (Packed { t with current_value = new_value }))
-  | (Text | Integer), `Backspace ->
-      let%lwt new_value = Variant.injest_backspace variant current_value in
-      Lwt.return (`Updated_to (Packed { t with current_value = new_value }))
-  | (Text | Integer), `Enter ->
+      `Ready_to_be_destroyed
+  | (Text | Integer | Single_selection), `ASCII c ->
+      let new_value = Variant.injest_char variant current_value c in
+      `Updated_to (Packed { t with current_value = new_value })
+  | (Text | Integer | Single_selection), `Backspace ->
+      let new_value = Variant.injest_backspace variant current_value in
+      `Updated_to (Packed { t with current_value = new_value })
+  | (Text | Integer | Single_selection), `Arrow direction ->
+      let new_value =
+        Variant.injest_arrow_key variant current_value direction
+      in
+      `Updated_to (Packed { t with current_value = new_value })
+  | (Text | Integer | Single_selection), `Enter ->
       (* Set wakeup to be run once the current process yields *)
       set_up_resolver_wakeup_for_later resolver
         (Variant.to_resolvable_value variant current_value)
         ();
-      Lwt.return `Ready_to_be_destroyed
-  | (Text | Integer), _ -> Lwt.return (`Updated_to (Packed t))
+      `Ready_to_be_destroyed
+  | (Text | Integer | Single_selection), _ -> `Updated_to (Packed t)

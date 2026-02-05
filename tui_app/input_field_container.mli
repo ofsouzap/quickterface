@@ -4,7 +4,7 @@ type t
 
 val make : unit -> t
 val render : t Render_function.t
-val handle_key_event : t -> Notty.Unescape.key -> unit Lwt.t
+val handle_key_event : t -> Notty.Unescape.key -> unit
 
 val get_input_any_key :
   t ->
@@ -23,3 +23,10 @@ val get_input_integer :
   refresh_render:(unit -> unit Lwt.t) ->
   unit ->
   (int Lwt.t, Error.t) result
+
+val get_input_single_selection :
+  t ->
+  refresh_render:(unit -> unit Lwt.t) ->
+  options:string list ->
+  unit ->
+  (string Lwt.t, Error.t) result

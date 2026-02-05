@@ -30,7 +30,11 @@ module Tui_io = struct
       ~log_item:(fun n -> Log_item.input_text (string_of_int n))
       t ()
 
-  let input_single_selection _ _ () = failwith "TODO"
+  let input_single_selection t options () =
+    input_then_add_to_log
+      ~window_input:(Window.input_single_selection ~options)
+      ~log_item:Log_item.input_text t ()
+
   let input_multi_selection _ _ () = failwith "TODO"
 
   let input : type settings a.
@@ -76,7 +80,7 @@ module Tui_io = struct
     Lwt.async (fun () ->
         Lwt_stream.iter_s
           (fun event ->
-            let%lwt () = Window.handle_event t.window event in
+            Window.handle_event t.window event;
             let%lwt () = refresh_render t () in
             Lwt.return ())
           (Notty_lwt.Term.events t.term));

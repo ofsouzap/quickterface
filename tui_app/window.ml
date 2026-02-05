@@ -28,6 +28,12 @@ let input_integer { input_field_container; _ } ~refresh_render () =
     ()
   |> ok_or_raise
 
+let input_single_selection { input_field_container; _ } ~refresh_render ~options
+    () =
+  Input_field_container.get_input_single_selection input_field_container
+    ~refresh_render ~options ()
+  |> ok_or_raise
+
 let add_log_item t item =
   let new_log = Log.add_log_item t.log item in
   t.log <- new_log;
@@ -59,4 +65,4 @@ let render ~render_info:({ Render_info.screen_height; _ } as render_info)
 let handle_event { title_bar = _; log = _; input_field_container } = function
   | `Key key_event ->
       Input_field_container.handle_key_event input_field_container key_event
-  | _ -> Lwt.return ()
+  | _ -> ()

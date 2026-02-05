@@ -12,14 +12,10 @@ let render ~render_info { input_field } =
 let handle_key_event t key_event =
   match t.input_field with
   | Some input_field -> (
-      match%lwt Input_field.injest_key_event input_field key_event with
-      | `Updated_to new_input_field ->
-          t.input_field <- Some new_input_field;
-          Lwt.return ()
-      | `Ready_to_be_destroyed ->
-          t.input_field <- None;
-          Lwt.return ())
-  | None -> Lwt.return ()
+      match Input_field.injest_key_event input_field key_event with
+      | `Updated_to new_input_field -> t.input_field <- Some new_input_field
+      | `Ready_to_be_destroyed -> t.input_field <- None)
+  | None -> ()
 
 let get_input ({ input_field } as t) ~refresh_render ~input_field_maker =
   match input_field with
@@ -43,3 +39,7 @@ let get_input_text t ~refresh_render () =
 
 let get_input_integer t ~refresh_render () =
   get_input t ~refresh_render ~input_field_maker:Input_field.make_integer
+
+let get_input_single_selection t ~refresh_render ~options () =
+  get_input t ~refresh_render
+    ~input_field_maker:(Input_field.make_single_selection ~options)
