@@ -2,7 +2,10 @@ open! Core
 
 type t = Output_text of string | Input_text of string
 
-let output_text ?options:_ text = (* TODO - use options *) Output_text text
+let output_text ?options:_ text =
+  (* TODO-soon - don't need to use options as I intend to change this system very soon *)
+  Output_text text
+
 let input_text text = Input_text text
 
 let attr = function
