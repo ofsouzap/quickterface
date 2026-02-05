@@ -81,7 +81,8 @@ let%expect_test "default box img2" =
       img2
   in
   Notty_unix.output_image boxed_img;
-  [%expect {|
+  [%expect
+    {|
     ┌─────────┐
     │         │
     │         │
@@ -103,7 +104,8 @@ let%expect_test "default box img3" =
       img3
   in
   Notty_unix.output_image boxed_img;
-  [%expect {|
+  [%expect
+    {|
     ┌──────────────┐
     │              │
     │              │
@@ -114,4 +116,64 @@ let%expect_test "default box img3" =
     │              │
     │              │
     └──────────────┘
+    |}]
+
+let%expect_test "min size box img1 - expand width only on left, no effect" =
+  let boxed_img =
+    Notty_utils.boxed
+      ~padding_control:(`To_min_boxed_size (Some (4, Left), None))
+      img1
+  in
+  Notty_unix.output_image boxed_img;
+  [%expect
+    {|
+    ┌─────────────┐
+    │Hello, World!│
+    └─────────────┘
+    |}]
+
+let%expect_test "min size box img1 - expand width only on left, should affect" =
+  let boxed_img =
+    Notty_utils.boxed
+      ~padding_control:(`To_min_boxed_size (Some (20, Left), None))
+      img1
+  in
+  Notty_unix.output_image boxed_img;
+  [%expect
+    {|
+    ┌──────────────────┐
+    │     Hello, World!│
+    └──────────────────┘
+    |}]
+
+let%expect_test "min size box img2 - expand height only on bottom" =
+  let boxed_img =
+    Notty_utils.boxed
+      ~padding_control:(`To_min_boxed_size (None, Some (5, Bottom)))
+      img2
+  in
+  Notty_unix.output_image boxed_img;
+  [%expect
+    {|
+    ┌──────┐
+    │top   │
+    │bottom│
+    │      │
+    └──────┘
+    |}]
+
+let%expect_test "min size box img3 - expand width on right and height on top" =
+  let boxed_img =
+    Notty_utils.boxed
+      ~padding_control:(`To_min_boxed_size (Some (25, Right), Some (5, Top)))
+      img3
+  in
+  Notty_unix.output_image boxed_img;
+  [%expect
+    {|
+    ┌───────────────────────┐
+    │                       │
+    │                       │
+    │left  right            │
+    └───────────────────────┘
     |}]

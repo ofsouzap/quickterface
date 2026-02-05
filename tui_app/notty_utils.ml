@@ -13,6 +13,14 @@ module Sides = struct
   type 'a t = { left : 'a; right : 'a; top : 'a; bottom : 'a }
 end
 
+module Width_side = struct
+  type t = Left | Right
+end
+
+module Height_side = struct
+  type t = Top | Bottom
+end
+
 let uchar_box_drawing_light_horizontal = Uchar.of_scalar_exn 0x2500
 let uchar_box_drawing_light_vertical = Uchar.of_scalar_exn 0x2502
 let uchar_box_drawing_light_down_and_right = Uchar.of_scalar_exn 0x250C
@@ -26,6 +34,39 @@ let boxed ?(padding_control = `None) raw_content =
     | `None -> raw_content
     | `Exact_padding { Sides.left; right; top; bottom } ->
         hpad left right (vpad top bottom raw_content)
+    | `To_min_boxed_size (width_options, height_options) ->
+        let raw_size_with_border =
+          Dimensions.(of_image raw_content + const 2)
+        in
+        let hpadder =
+          match width_options with
+          | None -> Fn.id
+          | Some (min_width, expand_width_on) ->
+              let width_to_add =
+                max 0 (min_width - raw_size_with_border.width)
+              in
+              let left, right =
+                match expand_width_on with
+                | Width_side.Left -> (width_to_add, 0)
+                | Right -> (0, width_to_add)
+              in
+              hpad left right
+        in
+        let vpadder =
+          match height_options with
+          | None -> Fn.id
+          | Some (min_height, expand_height_on) ->
+              let height_to_add =
+                max 0 (min_height - raw_size_with_border.height)
+              in
+              let top, bottom =
+                match expand_height_on with
+                | Height_side.Top -> (height_to_add, 0)
+                | Bottom -> (0, height_to_add)
+              in
+              vpad top bottom
+        in
+        vpadder (hpadder raw_content)
   in
 
   let border_size = Dimensions.(of_image content + const 2) in
