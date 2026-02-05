@@ -33,7 +33,7 @@ let boxed ?(padding_control = `None) raw_content =
     match padding_control with
     | `None -> raw_content
     | `Exact_padding { Sides.left; right; top; bottom } ->
-        hpad left right (vpad top bottom raw_content)
+        pad ~l:left ~r:right ~t:top ~b:bottom raw_content
     | `To_min_boxed_size (width_options, height_options) ->
         let raw_size_with_border =
           Dimensions.(of_image raw_content + const 2)
@@ -100,4 +100,4 @@ let boxed ?(padding_control = `None) raw_content =
     top_row <-> middle_rows <-> bottom_row
   in
 
-  vpad 1 1 (hpad 1 1 content) </> border
+  pad ~l:1 ~r:1 ~t:1 ~b:1 content </> border

@@ -35,11 +35,7 @@ let set_title t title_text =
 
 let render ~render_info { title_bar; log; input_field_container } =
   let open Notty.I in
-  let title_bar_image =
-    (* TODO - render title bar *)
-    ignore title_bar;
-    empty
-  in
+  let title_bar_image = Title_bar.render ~render_info title_bar in
   let log_image = Log.render ~render_info log in
   let input_field_image =
     Input_field_container.render ~render_info input_field_container
