@@ -50,17 +50,48 @@ module Variant = struct
   module Single_selection_state = struct
     type t = { options : string list; selected_index : int }
 
-    let make ~options ~selected_index = { options; selected_index }
+    let make ~options = { options; selected_index = 0 }
     let maximum_index { options; selected_index = _ } = List.length options - 1
 
-    let incr_selected_index state =
-      {
-        state with
-        selected_index = min (state.selected_index + 1) (maximum_index state);
-      }
+    let incr_selected_index t =
+      { t with selected_index = min (t.selected_index + 1) (maximum_index t) }
 
-    let decr_selected_index state =
-      { state with selected_index = max (state.selected_index - 1) 0 }
+    let decr_selected_index t =
+      { t with selected_index = max (t.selected_index - 1) 0 }
+  end
+
+  module Multi_selection_state = struct
+    type t = {
+      options : string list;
+      selected_option_indexes : Int.Set.t;
+      hovered_index : int;
+    }
+
+    let make ~options =
+      { options; selected_option_indexes = Int.Set.empty; hovered_index = 0 }
+
+    let maximum_index { options; _ } = List.length options - 1
+
+    let incr_hovered_index t =
+      { t with hovered_index = min (t.hovered_index + 1) (maximum_index t) }
+
+    let decr_hovered_index t =
+      { t with hovered_index = max (t.hovered_index - 1) 0 }
+
+    let toggle_current_index
+        ({ options = _; selected_option_indexes; hovered_index } as t) =
+      if Set.mem selected_option_indexes hovered_index then
+        {
+          t with
+          selected_option_indexes =
+            Set.remove selected_option_indexes hovered_index;
+        }
+      else
+        {
+          t with
+          selected_option_indexes =
+            Set.add selected_option_indexes hovered_index;
+        }
   end
 
   (** [('a, 'b) t] is a variant which uses type ['a] for state and resolves with
@@ -70,6 +101,7 @@ module Variant = struct
     | Text : (string, string) t
     | Integer : (Int_as_string.t, int) t
     | Single_selection : (Single_selection_state.t, string) t
+    | Multi_selection : (Multi_selection_state.t, string list) t
 
   let render : type a b. render_info:_ -> (a, b) t -> a -> Notty.image =
    fun ~render_info t state ->
@@ -103,18 +135,39 @@ module Variant = struct
         |>
         (* Display the options starting at the bottom and growing upwards, as the index increases *)
         List.rev |> vcat
+    | Multi_selection ->
+        let {
+          Multi_selection_state.options;
+          selected_option_indexes;
+          hovered_index;
+        } =
+          state
+        in
+        List.mapi options ~f:(fun index option ->
+            let is_selected = Set.mem selected_option_indexes index in
+            let is_hovered = index = hovered_index in
+            let attr =
+              if is_hovered then Theme.multi_selection_input_option_hovered
+              else Theme.multi_selection_input_option_not_hovered
+            in
+            let text = (if is_selected then "[X]" else "[ ]") ^ option in
+            string attr text)
+        |>
+        (* Display the options starting at the bottom and growing upwards, as the index increases *)
+        List.rev |> vcat
 
   let injest_char : type a b. (a, b) t -> a -> _ -> a =
    fun t state char ->
-    match t with
-    | Any_key | Single_selection -> state
-    | Text -> state ^ String.of_char char
-    | Integer -> Int_as_string.injest_char char state
+    match (t, char) with
+    | Text, char -> state ^ String.of_char char
+    | Integer, char -> Int_as_string.injest_char char state
+    | Multi_selection, ' ' -> Multi_selection_state.toggle_current_index state
+    | (Any_key | Single_selection | Multi_selection), _ -> state
 
   let injest_backspace : type a b. (a, b) t -> a -> a =
    fun t state ->
     match t with
-    | Any_key | Single_selection -> state
+    | Any_key | Single_selection | Multi_selection -> state
     | Text ->
         if String.is_empty state then state
         else String.sub ~pos:0 ~len:(String.length state - 1) state
@@ -131,6 +184,11 @@ module Variant = struct
         | `Left | `Right -> state
         | `Up -> Single_selection_state.incr_selected_index state
         | `Down -> Single_selection_state.decr_selected_index state)
+    | Multi_selection -> (
+        match direction with
+        | `Left | `Right -> state
+        | `Up -> Multi_selection_state.incr_hovered_index state
+        | `Down -> Multi_selection_state.decr_hovered_index state)
 
   let to_resolvable_value : type a b. (a, b) t -> a -> b =
    fun t state ->
@@ -141,6 +199,16 @@ module Variant = struct
     | Single_selection ->
         let { Single_selection_state.options; selected_index } = state in
         List.nth_exn options selected_index
+    | Multi_selection ->
+        let {
+          Multi_selection_state.options;
+          selected_option_indexes;
+          hovered_index = _;
+        } =
+          state
+        in
+        Set.to_list selected_option_indexes
+        |> List.map ~f:(List.nth_exn options)
 end
 
 module Unpacked = struct
@@ -175,8 +243,19 @@ let make_single_selection ~resolver ~options () =
   Packed
     {
       variant = Single_selection;
-      current_value =
-        Variant.Single_selection_state.make ~options ~selected_index:0;
+      current_value = Variant.Single_selection_state.make ~options;
+      resolver;
+    }
+
+let make_multi_selection ~resolver ~options () =
+  if List.is_empty options then
+    raise_s
+      [%message
+        "Options for multi selection cannot be empty" (options : string List.t)];
+  Packed
+    {
+      variant = Multi_selection;
+      current_value = Variant.Multi_selection_state.make ~options;
       resolver;
     }
 
@@ -199,21 +278,22 @@ let injest_key_event (Packed ({ variant; current_value; resolver } as t))
   | Any_key, _ ->
       set_up_resolver_wakeup_for_later resolver () ();
       `Ready_to_be_destroyed
-  | (Text | Integer | Single_selection), `ASCII c ->
+  | (Text | Integer | Single_selection | Multi_selection), `ASCII c ->
       let new_value = Variant.injest_char variant current_value c in
       `Updated_to (Packed { t with current_value = new_value })
-  | (Text | Integer | Single_selection), `Backspace ->
+  | (Text | Integer | Single_selection | Multi_selection), `Backspace ->
       let new_value = Variant.injest_backspace variant current_value in
       `Updated_to (Packed { t with current_value = new_value })
-  | (Text | Integer | Single_selection), `Arrow direction ->
+  | (Text | Integer | Single_selection | Multi_selection), `Arrow direction ->
       let new_value =
         Variant.injest_arrow_key variant current_value direction
       in
       `Updated_to (Packed { t with current_value = new_value })
-  | (Text | Integer | Single_selection), `Enter ->
+  | (Text | Integer | Single_selection | Multi_selection), `Enter ->
       (* Set wakeup to be run once the current process yields *)
       set_up_resolver_wakeup_for_later resolver
         (Variant.to_resolvable_value variant current_value)
         ();
       `Ready_to_be_destroyed
-  | (Text | Integer | Single_selection), _ -> `Updated_to (Packed t)
+  | (Text | Integer | Single_selection | Multi_selection), _ ->
+      `Updated_to (Packed t)

@@ -12,3 +12,9 @@ let single_selection_input_option_not_selected = fg white ++ st italic
 
 let single_selection_input_option_selected =
   single_selection_input_option_not_selected ++ bg yellow ++ st bold
+
+let multi_selection_input_option_not_hovered =
+  single_selection_input_option_not_selected
+
+let multi_selection_input_option_hovered =
+  single_selection_input_option_selected

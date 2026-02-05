@@ -34,6 +34,12 @@ let input_single_selection { input_field_container; _ } ~refresh_render ~options
     ~refresh_render ~options ()
   |> ok_or_raise
 
+let input_multi_selection { input_field_container; _ } ~refresh_render ~options
+    () =
+  Input_field_container.get_input_multi_selection input_field_container
+    ~refresh_render ~options ()
+  |> ok_or_raise
+
 let add_log_item t item =
   let new_log = Log.add_log_item t.log item in
   t.log <- new_log;

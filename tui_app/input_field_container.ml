@@ -43,3 +43,7 @@ let get_input_integer t ~refresh_render () =
 let get_input_single_selection t ~refresh_render ~options () =
   get_input t ~refresh_render
     ~input_field_maker:(Input_field.make_single_selection ~options)
+
+let get_input_multi_selection t ~refresh_render ~options () =
+  get_input t ~refresh_render
+    ~input_field_maker:(Input_field.make_multi_selection ~options)

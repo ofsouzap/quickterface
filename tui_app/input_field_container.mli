@@ -30,3 +30,10 @@ val get_input_single_selection :
   options:string list ->
   unit ->
   (string Lwt.t, Error.t) result
+
+val get_input_multi_selection :
+  t ->
+  refresh_render:(unit -> unit Lwt.t) ->
+  options:string list ->
+  unit ->
+  (string list Lwt.t, Error.t) result

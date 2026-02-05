@@ -35,7 +35,13 @@ module Tui_io = struct
       ~window_input:(Window.input_single_selection ~options)
       ~log_item:Log_item.input_text t ()
 
-  let input_multi_selection _ _ () = failwith "TODO"
+  let input_multi_selection t options () =
+    input_then_add_to_log
+      ~window_input:(Window.input_multi_selection ~options)
+      ~log_item:(fun selected_options ->
+        (* TODO-someday: perhaps this could be better done by separating them by line? *)
+        Log_item.input_text (String.concat ~sep:", " selected_options))
+      t ()
 
   let input : type settings a.
       _ -> (settings, a) Input.t -> settings -> unit -> a Lwt.t =
