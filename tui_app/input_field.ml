@@ -3,12 +3,17 @@ open! Core
 module Variant = struct
   type _ t = Any_key : unit t | Text : string t
 
-  let render : type a. a t -> a -> Notty.image =
-   fun t value ->
+  let render : type a. render_info:_ -> a t -> a -> Notty.image =
+   fun ~render_info t value ->
     let open Notty.I in
     match t with
     | Any_key -> empty
-    | Text -> string Theme.text_input_editable value
+    | Text ->
+        string Theme.text_input_editable [%string "> %{value}"]
+        |> Notty_utils.boxed
+             ~padding_control:
+               (`To_min_boxed_size
+                  (Some (render_info.Render_info.screen_width, Right), None))
 
   let injest_char : type a. a t -> a -> _ -> a Lwt.t =
    fun t value char ->
@@ -42,8 +47,8 @@ let make_any_key ~resolver () =
 let make_text ~resolver () =
   Packed { variant = Text; current_value = ""; resolver }
 
-let render ~render_info:_ (Packed { variant; current_value; resolver = _ }) =
-  Variant.render variant current_value
+let render ~render_info (Packed { variant; current_value; resolver = _ }) =
+  Variant.render ~render_info variant current_value
 
 let injest_key_event (Packed ({ variant; current_value; resolver } as t))
     (key, _mods) =
