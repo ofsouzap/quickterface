@@ -14,13 +14,16 @@ let make ?(title = "") () =
 
 let ok_or_raise = function Ok v -> v | Error e -> Error.raise e
 
-let input_any_key { input_field_container; _ } () =
-  Input_field_container.get_input_any_key input_field_container ()
+let input_any_key { input_field_container; _ } ~refresh_render () =
+  Input_field_container.get_input_any_key input_field_container ~refresh_render
+    ()
   |> ok_or_raise
 
-let input_text { input_field_container; _ } () =
+let input_text { input_field_container; _ } ~refresh_render () =
   let%lwt text =
-    Input_field_container.get_input_text input_field_container () |> ok_or_raise
+    Input_field_container.get_input_text input_field_container ~refresh_render
+      ()
+    |> ok_or_raise
   in
   ignore "TODO - add input text to log";
   Lwt.return text

@@ -13,8 +13,12 @@ module Tui_io = struct
 
   module Http_client = Cohttp_lwt_unix.Client
 
-  let input_any_key { window; _ } () = Window.input_any_key window ()
-  let input_text { window; _ } () = Window.input_text window ()
+  let input_any_key ({ window; _ } as t) () =
+    Window.input_any_key window ~refresh_render:(refresh_render t) ()
+
+  let input_text ({ window; _ } as t) () =
+    Window.input_text window ~refresh_render:(refresh_render t) ()
+
   let input_integer _ () = failwith "TODO"
   let input_single_selection _ _ () = failwith "TODO"
   let input_multi_selection _ _ () = failwith "TODO"

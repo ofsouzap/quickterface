@@ -21,16 +21,22 @@ let handle_key_event t key_event =
           Lwt.return ())
   | None -> Lwt.return ()
 
-let get_input ({ input_field } as t) ~input_field_maker =
+let get_input ({ input_field } as t) ~refresh_render ~input_field_maker =
   match input_field with
   | Some _ -> Error (Error.create_s [%message "Input field is already active"])
   | None ->
       let promise, resolver = Lwt.wait () in
       let new_input_field = input_field_maker ~resolver () in
       t.input_field <- Some new_input_field;
-      Ok promise
+      Ok
+        (let%lwt () =
+           (* Before waiting for the result, refresh the render to show the input box *)
+           refresh_render ()
+         in
+         promise)
 
-let get_input_any_key t () =
-  get_input t ~input_field_maker:Input_field.make_any_key
+let get_input_any_key t ~refresh_render () =
+  get_input t ~refresh_render ~input_field_maker:Input_field.make_any_key
 
-let get_input_text t () = get_input t ~input_field_maker:Input_field.make_text
+let get_input_text t ~refresh_render () =
+  get_input t ~refresh_render ~input_field_maker:Input_field.make_text
