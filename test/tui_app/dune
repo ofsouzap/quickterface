@@ -1,5 +1,5 @@
 (library
- (name test_notty_utils)
+ (name test_tui_app)
  (inline_tests)
  (libraries core quickterface.tui_app)
  (preprocess

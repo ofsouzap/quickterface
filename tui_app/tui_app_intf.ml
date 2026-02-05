@@ -59,7 +59,9 @@ module Tui_io = struct
     Window.add_log_item window (Log_item.output_text ?options text)
     |> then_refresh_render ~t
 
-  let output_math ?options:_ _ _ () = failwith "TODO"
+  let output_math ?options ({ window; _ } as t) math () =
+    Window.add_log_item window (Log_item.output_math ?options math)
+    |> then_refresh_render ~t
 
   let output_title ({ window; _ } as t) text () =
     Window.set_title window text |> then_refresh_render ~t

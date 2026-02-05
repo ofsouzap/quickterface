@@ -27,6 +27,12 @@ let uchar_box_drawing_light_down_and_right = Uchar.of_scalar_exn 0x250C
 let uchar_box_drawing_light_down_and_left = Uchar.of_scalar_exn 0x2510
 let uchar_box_drawing_light_up_and_right = Uchar.of_scalar_exn 0x2514
 let uchar_box_drawing_light_up_and_left = Uchar.of_scalar_exn 0x2518
+let uchar_paren_drawing_light_top_left = Uchar.of_scalar_exn 0x239B
+let uchar_paren_drawing_light_mid_left = Uchar.of_scalar_exn 0x239C
+let uchar_paren_drawing_light_bottom_left = Uchar.of_scalar_exn 0x239D
+let uchar_paren_drawing_light_top_right = Uchar.of_scalar_exn 0x239E
+let uchar_paren_drawing_light_mid_right = Uchar.of_scalar_exn 0x239F
+let uchar_paren_drawing_light_bottom_right = Uchar.of_scalar_exn 0x23A0
 
 let boxed ?(padding_control = `None) raw_content =
   let content =
@@ -101,3 +107,17 @@ let boxed ?(padding_control = `None) raw_content =
   in
 
   pad ~l:1 ~r:1 ~t:1 ~b:1 content </> border
+
+let align_vert_center imgs =
+  match imgs with
+  | [] -> []
+  | _ :: _ ->
+      let max_height =
+        List.max_elt (List.map imgs ~f:height) ~compare:Int.compare
+        |> Option.value_exn
+        |> fun x ->
+        (* Round up to an odd number so that centering works well *)
+        if x % 2 = 0 then x + 1 else x
+      in
+      List.map imgs ~f:(fun img ->
+          vpad (max 0 ((max_height - height img) / 2)) 0 img)

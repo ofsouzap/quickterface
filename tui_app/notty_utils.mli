@@ -20,6 +20,19 @@ module Height_side : sig
   type t = Top | Bottom
 end
 
+val uchar_box_drawing_light_horizontal : Uchar.t
+val uchar_box_drawing_light_vertical : Uchar.t
+val uchar_box_drawing_light_down_and_right : Uchar.t
+val uchar_box_drawing_light_down_and_left : Uchar.t
+val uchar_box_drawing_light_up_and_right : Uchar.t
+val uchar_box_drawing_light_up_and_left : Uchar.t
+val uchar_paren_drawing_light_top_left : Uchar.t
+val uchar_paren_drawing_light_mid_left : Uchar.t
+val uchar_paren_drawing_light_bottom_left : Uchar.t
+val uchar_paren_drawing_light_top_right : Uchar.t
+val uchar_paren_drawing_light_mid_right : Uchar.t
+val uchar_paren_drawing_light_bottom_right : Uchar.t
+
 val boxed :
   ?padding_control:
     [ `None
@@ -28,3 +41,5 @@ val boxed :
       (int * Width_side.t) option * (int * Height_side.t) option ] ->
   img ->
   img
+
+val align_vert_center : img list -> img list
