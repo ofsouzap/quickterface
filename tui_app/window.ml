@@ -33,14 +33,23 @@ let set_title t title_text =
   t.title_bar <- new_title_bar;
   Lwt.return ()
 
-let render ~render_info { title_bar; log; input_field_container } =
+let render ~render_info:({ Render_info.screen_height; _ } as render_info)
+    { title_bar; log; input_field_container } =
   let open Notty.I in
   let title_bar_image = Title_bar.render ~render_info title_bar in
   let log_image = Log.render ~render_info log in
   let input_field_image =
     Input_field_container.render ~render_info input_field_container
   in
-  title_bar_image <-> log_image <-> input_field_image
+
+  let title_bar_height = height title_bar_image in
+  let input_field_height = height input_field_image in
+  let log_height = screen_height - title_bar_height - input_field_height in
+  let log_height_to_crop_off = max 0 (height log_image - log_height) in
+
+  title_bar_image
+  <-> vcrop log_height_to_crop_off 0 log_image
+  <-> input_field_image
 
 let handle_event { title_bar = _; log = _; input_field_container } = function
   | `Key key_event ->
