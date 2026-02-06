@@ -8,8 +8,8 @@ type t =
   | Plus
   | Star
   | C_dot
-  | Superscript of t
-  | Subscript of t
+  | Superscript of { base : t; superscript : t }
+  | Subscript of { base : t; subscript : t }
   | Exp
   | Ln
   | List of t list
@@ -26,8 +26,11 @@ let rec latex_string_of_t = function
   | Plus -> "+"
   | Star -> "*"
   | C_dot -> "\\cdot"
-  | Superscript inner -> sprintf "^{%s}" (latex_string_of_t inner)
-  | Subscript inner -> sprintf "_{%s}" (latex_string_of_t inner)
+  | Superscript { base; superscript } ->
+      sprintf "{%s}^{%s}" (latex_string_of_t base)
+        (latex_string_of_t superscript)
+  | Subscript { base; subscript } ->
+      sprintf "{%s}_{%s}" (latex_string_of_t base) (latex_string_of_t subscript)
   | Exp -> "\\exp"
   | Ln -> "\\ln"
   | List elements ->

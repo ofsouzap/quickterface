@@ -30,8 +30,8 @@ module Math_renderer = struct
       | Plus -> plain_string "+"
       | Star -> plain_string "*"
       | C_dot -> plain_string "·"
-      | Superscript _inner -> failwith "TODO"
-      | Subscript _inner -> failwith "TODO"
+      | Superscript { base = _; superscript = _ } -> failwith "TODO"
+      | Subscript { base = _; subscript = _ } -> failwith "TODO"
       | Exp -> plain_string "exp"
       | Ln -> plain_string "ln"
       | List elements ->

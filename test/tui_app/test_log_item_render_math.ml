@@ -63,12 +63,12 @@ let%expect_test "partial" =
   [%expect {| ∂ |}]
 
 let%expect_test "superscript" =
-  let img = render_math (Superscript (Literal "x")) in
+  let img = render_math (Superscript { base = Pi; superscript = E }) in
   Notty_unix.output_image img;
   [%expect {| x |}]
 
 let%expect_test "subscript" =
-  let img = render_math (Subscript (Literal "x")) in
+  let img = render_math (Subscript { base = Pi; subscript = E }) in
   Notty_unix.output_image img;
   [%expect {| x |}]
 
@@ -78,7 +78,10 @@ let%expect_test "list - flat elements" =
   [%expect {| ∂πe |}]
 
 let%expect_test "list - non-flat elements superscript" =
-  let img = render_math (List [ Pi; Superscript (Literal "x") ]) in
+  let img =
+    render_math
+      (List [ Pi; Superscript { base = Literal "x"; superscript = E } ])
+  in
   Notty_unix.output_image img;
   [%expect {|
      x
@@ -86,7 +89,9 @@ let%expect_test "list - non-flat elements superscript" =
     |}]
 
 let%expect_test "list - non-flat elements subscript" =
-  let img = render_math (List [ Pi; Subscript (Literal "x") ]) in
+  let img =
+    render_math (List [ Pi; Subscript { base = Literal "x"; subscript = E } ])
+  in
   Notty_unix.output_image img;
   [%expect {|
     π
@@ -94,7 +99,15 @@ let%expect_test "list - non-flat elements subscript" =
     |}]
 
 let%expect_test "list - non-flat elements mixture" =
-  let img = render_math (List [ Pi; Subscript (Literal "x"); Superscript E ]) in
+  let img =
+    render_math
+      (List
+         [
+           Pi;
+           Superscript { base = Literal "x"; superscript = E };
+           Subscript { base = Literal "x"; subscript = E };
+         ])
+  in
   Notty_unix.output_image img;
   [%expect {|
       e
@@ -104,7 +117,8 @@ let%expect_test "list - non-flat elements mixture" =
 
 let%expect_test "fraction" =
   let img =
-    render_math (Frac (Literal "x", List [ Pi; Superscript (Literal "2") ]))
+    render_math
+      (Frac (Literal "x", Superscript { base = Pi; superscript = Literal "2" }))
   in
   Notty_unix.output_image img;
   [%expect {|
