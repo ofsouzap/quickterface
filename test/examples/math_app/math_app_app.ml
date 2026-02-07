@@ -37,11 +37,11 @@ module App (Io : Quickterface.Io.S) = struct
             }
         io
         (let open Quickterface.Math in
-         List
-           [
-             E;
-             Superscript (List [ Literal "i"; Frac (Literal "π", Literal "2") ]);
-           ])
+         Superscript
+           {
+             base = E;
+             superscript = List [ Literal "i"; Frac (Literal "π", Literal "2") ];
+           })
         ()
     in
     let%lwt () =
@@ -54,7 +54,8 @@ module App (Io : Quickterface.Io.S) = struct
     let%lwt () =
       Io.output_math io
         (let open Quickterface.Math in
-         List [ E; Superscript (Literal (string_of_int x)) ])
+         Superscript
+           { base = Literal (string_of_int x); superscript = Literal "1" })
         ()
     in
     Lwt.return ()

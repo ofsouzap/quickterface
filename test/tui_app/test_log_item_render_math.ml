@@ -65,12 +65,18 @@ let%expect_test "partial" =
 let%expect_test "superscript" =
   let img = render_math (Superscript { base = Pi; superscript = E }) in
   Notty_unix.output_image img;
-  [%expect {| x |}]
+  [%expect {|
+     e
+    π
+    |}]
 
 let%expect_test "subscript" =
   let img = render_math (Subscript { base = Pi; subscript = E }) in
   Notty_unix.output_image img;
-  [%expect {| x |}]
+  [%expect {|
+    π
+     e
+    |}]
 
 let%expect_test "list - flat elements" =
   let img = render_math (List [ Partial; Pi; E ]) in
@@ -84,8 +90,8 @@ let%expect_test "list - non-flat elements superscript" =
   in
   Notty_unix.output_image img;
   [%expect {|
-     x
-    π
+      e
+    πx
     |}]
 
 let%expect_test "list - non-flat elements subscript" =
@@ -94,8 +100,8 @@ let%expect_test "list - non-flat elements subscript" =
   in
   Notty_unix.output_image img;
   [%expect {|
-    π
-     x
+    πx
+      e
     |}]
 
 let%expect_test "list - non-flat elements mixture" =
@@ -111,8 +117,8 @@ let%expect_test "list - non-flat elements mixture" =
   Notty_unix.output_image img;
   [%expect {|
       e
-    π
-     x
+    πx x
+        e
     |}]
 
 let%expect_test "fraction" =

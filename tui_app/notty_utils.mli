@@ -41,5 +41,3 @@ val boxed :
       (int * Width_side.t) option * (int * Height_side.t) option ] ->
   img ->
   img
-
-val align_vert_center : img list -> img list

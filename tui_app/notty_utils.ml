@@ -107,17 +107,3 @@ let boxed ?(padding_control = `None) raw_content =
   in
 
   pad ~l:1 ~r:1 ~t:1 ~b:1 content </> border
-
-let align_vert_center imgs =
-  match imgs with
-  | [] -> []
-  | _ :: _ ->
-      let max_height =
-        List.max_elt (List.map imgs ~f:height) ~compare:Int.compare
-        |> Option.value_exn
-        |> fun x ->
-        (* Round up to an odd number so that centering works well *)
-        if x % 2 = 0 then x + 1 else x
-      in
-      List.map imgs ~f:(fun img ->
-          vpad (max 0 ((max_height - height img) / 2)) 0 img)

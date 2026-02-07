@@ -217,8 +217,12 @@ module Terminal_io = struct
       | Plus -> "+"
       | Star -> "*"
       | C_dot -> "·"
-      | Superscript inner -> Printf.sprintf "^(%s)" (math_to_string inner)
-      | Subscript inner -> Printf.sprintf "_(%s)" (math_to_string inner)
+      | Superscript { base; superscript } ->
+          Printf.sprintf "(%s)^(%s)" (math_to_string base)
+            (math_to_string superscript)
+      | Subscript { base; subscript } ->
+          Printf.sprintf "(%s)_(%s)" (math_to_string base)
+            (math_to_string subscript)
       | Exp -> "exp"
       | Ln -> "ln"
       | List elements ->
