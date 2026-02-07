@@ -25,27 +25,20 @@ module Math_renderer = struct
   module Horizontally_aligned_image : sig
     type t
 
-    val make : ?top:image -> ?center:image -> ?bottom:image -> unit -> t
     val make_from_single_image : image -> center_line_index:int -> unit -> t
+
+    val make_from_parts :
+      ?top:image -> ?center:image -> ?bottom:image -> unit -> t
+
     val to_notty : t -> image
     val hcat : t list -> t
   end = struct
     open I
 
-    type t = { top : image; center : image; bottom : image }
-    (** The bottom of top is aligned with the top of center, and the top of
-        bottom is aligned with the bottom of center.
+    type t = { image : image; center_line_index : int }
 
-        The images are horizontally left-aligned. *)
-
-    let make ?(top = empty) ?(center = void 1 1) ?(bottom = empty) () =
-      if not (height center = 1) then
-        raise_s [%message "Center image must be single row"];
-
-      { top; center; bottom }
-
-    let make_from_single_image img ~center_line_index () =
-      if not (center_line_index < height img) then
+    let make ~image ~center_line_index =
+      if not (center_line_index < height image) then
         raise_s
           [%message
             "Center line index must be less than image height"
@@ -55,49 +48,62 @@ module Math_renderer = struct
           [%message
             "Center line index must be non-negative" (center_line_index : int)];
 
-      let top_rows = center_line_index in
-      let bottom_rows = height img - top_rows - 1 in
+      { image; center_line_index }
 
-      let top = crop ~b:(bottom_rows + 1) img in
-      let center = crop ~t:top_rows ~b:bottom_rows img in
-      let bottom = crop ~t:(top_rows + 1) img in
-
-      { top; center; bottom }
-
-    let apply_left_alignment_to_make_parts_equal_width { top; center; bottom } =
-      let open I in
+    let left_align_parts top center bottom =
       let max_width = max (width top) (max (width center) (width bottom)) in
       let padder img = pad ~r:(max_width - width img) img in
-      { top = padder top; center = padder center; bottom = padder bottom }
+      (padder top, padder center, padder bottom)
 
-    let to_notty { top; center; bottom } = top <-> center <-> bottom
+    let make_from_single_image image ~center_line_index () =
+      make ~image ~center_line_index
+
+    let make_from_parts ?(top = empty) ?(center = void 1 1) ?(bottom = empty) ()
+        =
+      if not (height center = 1) then
+        raise_s [%message "Center image must be single row"];
+
+      let padded_top, padded_center, padded_bottom =
+        left_align_parts top center bottom
+      in
+
+      make
+        ~image:(padded_top <-> padded_center <-> padded_bottom)
+        ~center_line_index:(height padded_top)
+
+    let to_parts { image; center_line_index } =
+      let top_height = center_line_index in
+      let bottom_height = height image - center_line_index - 1 in
+
+      let top = I.crop ~b:(1 + bottom_height) image in
+      let center = I.crop ~t:top_height ~b:bottom_height image in
+      let bottom = I.crop ~t:(1 + top_height) image in
+
+      (top, center, bottom)
+
+    let to_notty { image; center_line_index = _ } = image
 
     let ( <|> ) img_x img_y =
-      let img_x = apply_left_alignment_to_make_parts_equal_width img_x in
-      let img_y = apply_left_alignment_to_make_parts_equal_width img_y in
-      {
-        top = img_x.top <|> img_y.top;
-        center = img_x.center <|> img_y.center;
-        bottom = img_x.bottom <|> img_y.bottom;
-      }
+      let img_x_top, img_x_center, img_x_bottom = to_parts img_x in
+      let img_y_top, img_y_center, img_y_bottom = to_parts img_y in
+
+      make_from_parts ~top:(img_x_top <|> img_y_top)
+        ~center:(img_x_center <|> img_y_center)
+        ~bottom:(img_x_bottom <|> img_y_bottom)
+        ()
 
     let hcat = function
-      | [] -> make ()
+      | [] -> make_from_parts ()
       | h :: ts -> List.fold ts ~init:h ~f:( <|> )
   end
-
-  (* Note to self:
-     - Need horizontally-aligned image for list so that things are aligned with their main line
-     - Can't use horizontally-aligned image for brackets as bracketed things will be taller than one line
-     - Maybe a new implementation of horizontally-aligned image that doesn't require single-row center,
-         but instead just can vertically align things
-   *)
 
   let render_math ~render_info:_ attr math =
     let open I in
     let open Horizontally_aligned_image in
     let rec render_math =
-      let plain_string s = make ~center:(string attr s) () in
+      let plain_string s =
+        make_from_single_image (string attr s) ~center_line_index:0 ()
+      in
       let super_sub_script_helper ~base ~script ~side =
         let base_img = render_math base |> to_notty in
         let script_img = render_math script |> to_notty in
@@ -147,7 +153,7 @@ module Math_renderer = struct
               1
           in
 
-          make ~top:num_img ~center:line_img ~bottom:denom_img ()
+          make_from_parts ~top:num_img ~center:line_img ~bottom:denom_img ()
       | Bracketed inner ->
           let inner_img = render_math inner |> to_notty in
           let bracket_height = I.height inner_img in
