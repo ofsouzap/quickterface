@@ -11,6 +11,8 @@ end
 
 module Sides = struct
   type 'a t = { left : 'a; right : 'a; top : 'a; bottom : 'a }
+
+  let pad { left; right; top; bottom } = pad ~l:left ~r:right ~t:top ~b:bottom
 end
 
 module Width_side = struct
@@ -36,13 +38,20 @@ let uchar_paren_drawing_light_bottom_right = Uchar.of_scalar_exn 0x23A0
 let uchar_paren_top_half_integral = Uchar.of_scalar_exn 0x2320
 let uchar_paren_bottom_half_integral = Uchar.of_scalar_exn 0x2321
 let uchar_paren_integral_extender = Uchar.of_scalar_exn 0x23AE
+let uchar_left_block_one_eighth = Uchar.of_scalar_exn 0x258F
+let uchar_left_block_one_quarter = Uchar.of_scalar_exn 0x258E
+let uchar_left_block_three_eighths = Uchar.of_scalar_exn 0x258D
+let uchar_left_block_half = Uchar.of_scalar_exn 0x258C
+let uchar_left_block_five_eighths = Uchar.of_scalar_exn 0x258B
+let uchar_left_block_three_quarters = Uchar.of_scalar_exn 0x258A
+let uchar_left_block_seven_eighths = Uchar.of_scalar_exn 0x2589
+let uchar_left_block_full = Uchar.of_scalar_exn 0x2588
 
 let boxed ?(padding_control = `None) raw_content =
   let content =
     match padding_control with
     | `None -> raw_content
-    | `Exact_padding { Sides.left; right; top; bottom } ->
-        pad ~l:left ~r:right ~t:top ~b:bottom raw_content
+    | `Exact_padding padding -> Sides.pad padding raw_content
     | `To_min_boxed_size (width_options, height_options) ->
         let raw_size_with_border =
           Dimensions.(of_image raw_content + const 2)

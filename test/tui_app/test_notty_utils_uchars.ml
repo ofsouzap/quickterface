@@ -65,3 +65,35 @@ let%expect_test "paren_bottom_half_integral" =
 let%expect_test "paren_integral_extender" =
   print_uchar Notty_utils.uchar_paren_integral_extender;
   [%expect {| ⎮ |}]
+
+let%expect_test "left_block_one_eighth" =
+  print_uchar Notty_utils.uchar_left_block_one_eighth;
+  [%expect {| ▏ |}]
+
+let%expect_test "left_block_one_quarter" =
+  print_uchar Notty_utils.uchar_left_block_one_quarter;
+  [%expect {| ▎ |}]
+
+let%expect_test "left_block_three_eighths" =
+  print_uchar Notty_utils.uchar_left_block_three_eighths;
+  [%expect {| ▍ |}]
+
+let%expect_test "left_block_half" =
+  print_uchar Notty_utils.uchar_left_block_half;
+  [%expect {| ▌ |}]
+
+let%expect_test "left_block_five_eighths" =
+  print_uchar Notty_utils.uchar_left_block_five_eighths;
+  [%expect {| ▋ |}]
+
+let%expect_test "left_block_three_quarters" =
+  print_uchar Notty_utils.uchar_left_block_three_quarters;
+  [%expect {| ▊ |}]
+
+let%expect_test "left_block_seven_eighths" =
+  print_uchar Notty_utils.uchar_left_block_seven_eighths;
+  [%expect {| ▉ |}]
+
+let%expect_test "left_block_full" =
+  print_uchar Notty_utils.uchar_left_block_full;
+  [%expect {| █ |}]
