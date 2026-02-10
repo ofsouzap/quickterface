@@ -1,7 +1,7 @@
 open! Core
 
 module type S = sig
-  val run : mode:[ `Default | `Minimal | `Tui ] -> unit -> unit Lwt.t
+  val run : ?mode:[ `Minimal | `Tui ] -> unit -> unit Lwt.t
 end
 
 module Make (App : Quickterface.App.S) : S = struct
@@ -19,8 +19,6 @@ module Make (App : Quickterface.App.S) : S = struct
     let%lwt () = Tui_terminal_io.input_any_key io () in
     Lwt.return ()
 
-  let run ~mode =
-    match mode with
-    | `Default | `Tui -> run_tui_app
-    | `Minimal -> run_minimal_app
+  let run ?(mode = `Tui) =
+    match mode with `Tui -> run_tui_app | `Minimal -> run_minimal_app
 end
