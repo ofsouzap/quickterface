@@ -2,6 +2,6 @@
  (public_name quickterface)
  (name quickterface)
  (libraries core lwt lwt_ppx cohttp-lwt)
- (modules math color ansi_text_style output_text_options io app)
+ (modules math color output_text_options io app)
  (preprocess
   (pps ppx_jane lwt_ppx)))

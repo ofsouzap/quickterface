@@ -6,17 +6,11 @@ type t = { in_channel : In_channel.t; out_channel : Out_channel.t }
 module Http_client = Cohttp_lwt_unix.Client
 
 let write_output
-    ?options:({ Quickterface.Output_text_options.color } =
+    ?options:({ Quickterface.Output_text_options.color = _ } =
         Quickterface.Output_text_options.default) ?(flush = true)
     { in_channel = _; out_channel } ~text =
-  let formatted_text =
-    match color with
-    | `Default -> text
-    | `Custom color ->
-        Quickterface.Ansi_text_style.(
-          wrap_text (make ~foreground_color:color ()) ~text)
-  in
-  Out_channel.output_string out_channel formatted_text;
+  (* Keeping this terminal interface minimal, we ignore color options as these would require ANSI escape codes *)
+  Out_channel.output_string out_channel text;
   if flush then Out_channel.flush out_channel;
   Lwt.return ()
 
