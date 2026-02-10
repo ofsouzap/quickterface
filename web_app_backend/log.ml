@@ -13,18 +13,9 @@ let make ~document ~main_container : t =
 
   { document; container }
 
-let output_channel_options_class
-    Quickterface.
-      { Output_text_options.channel_options = output_channel_options } =
-  match output_channel_options with
-  | Quickterface.Output_channel_options.Default_output_channel _ ->
-      Class.Log_item_default_output_channel
-  | Error_channel -> Class.Log_item_error_channel
-
-let add_item ?(log_item_class = Class.Log_item_default_output_channel)
-    { document; container } ~item_element () =
+let add_item { document; container } ~item_element () =
   let container_div = Dom_html.createDiv document in
-  container_div##.className := Class.to_js_string log_item_class;
+  container_div##.className := Class.to_js_string Class.Log_item;
   Dom.appendChild container_div item_element;
 
   Dom.appendChild container container_div;
@@ -57,31 +48,19 @@ let input_multi_selection ({ document; container = _ } as t) options () =
 let add_output_text ?(options = Quickterface.Output_text_options.default)
     ({ document; container = _ } as t) ~value () =
   let%lwt output_text = Outputs.Text.make ~document ~options ~value in
-  let%lwt () =
-    add_item t
-      ~item_element:(Outputs.Text.element output_text)
-      ~log_item_class:(output_channel_options_class options)
-      ()
-  in
+  let%lwt () = add_item t ~item_element:(Outputs.Text.element output_text) () in
   Lwt.return ()
 
 let add_output_math ?(options = Quickterface.Output_text_options.default)
     ({ document; container = _ } as t) ~value () =
   let%lwt output_math = Outputs.Math.make ~document ~options ~value in
-  let%lwt () =
-    add_item t
-      ~item_element:(Outputs.Math.element output_math)
-      ~log_item_class:(output_channel_options_class options)
-      ()
-  in
+  let%lwt () = add_item t ~item_element:(Outputs.Math.element output_math) () in
   Lwt.return ()
 
 let add_output_title ({ document; container = _ } as t) ~value () =
   let%lwt output_title = Outputs.Title.make ~document ~options:() ~value in
   let%lwt () =
-    add_item t
-      ~item_element:(Outputs.Title.element output_title)
-      ~log_item_class:Class.Log_item_default_output_channel ()
+    add_item t ~item_element:(Outputs.Title.element output_title) ()
   in
   Lwt.return ()
 

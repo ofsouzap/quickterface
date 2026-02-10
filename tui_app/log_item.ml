@@ -1,20 +1,27 @@
 open! Core
 
 type t =
-  | Output_text of string
-  | Output_math of Quickterface.Math.t
+  | Output_text of {
+      text : string;
+      options : Quickterface.Output_text_options.t;
+    }
+  | Output_math of {
+      math : Quickterface.Math.t;
+      options : Quickterface.Output_text_options.t;
+    }
   | Input_text of string
 
-let output_text ?options:_ text =
-  (* TODO-soon - don't need to use options as I intend to change this system very soon *)
-  Output_text text
+let output_text ?(options = Quickterface.Output_text_options.default) text =
+  Output_text { text; options }
 
-let output_math ?options:_ text = Output_math text
+let output_math ?(options = Quickterface.Output_text_options.default) math =
+  Output_math { math; options }
+
 let input_text text = Input_text text
 
 let attr = function
-  | Output_text _ -> Theme.text_output
-  | Output_math _ -> Theme.math_output
+  | Output_text { options; _ } -> Theme.text_output_from_options options
+  | Output_math { options; _ } -> Theme.math_output_from_options options
   | Input_text _ -> Theme.text_input_frozen
 
 module Math_renderer = struct
@@ -235,8 +242,8 @@ let render ~render_info t =
   let open Notty.I in
   let t_attr = attr t in
   (match t with
-    | Output_text text -> string t_attr text
-    | Output_math math -> render_math ~render_info t_attr math
+    | Output_text { text; _ } -> string t_attr text
+    | Output_math { math; _ } -> render_math ~render_info t_attr math
     | Input_text text -> string t_attr [%string "> %{text}"])
   |> Notty_utils.boxed
        ~padding_control:

@@ -131,14 +131,10 @@ module Entry = struct
             { name = "padding"; value = "8px" };
           ]
     | Text_prompt_label -> Style [ { name = "width"; value = "10px" } ]
-    | Log_item_default_output_channel ->
+    | Log_item ->
         Style
           (log_item_style_items
           @ [ { name = "background-color"; value = "#444" } ])
-    | Log_item_error_channel ->
-        Style
-          (log_item_style_items
-          @ [ { name = "background-color"; value = "#a44" } ])
     | Input_container_form ->
         Style
           [
