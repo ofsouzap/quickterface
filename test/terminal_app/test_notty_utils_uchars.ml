@@ -1,5 +1,5 @@
 open! Core
-open Quickterface_tui_app
+open Quickterface_terminal_app
 
 let print_uchar uchar =
   let buf = Buffer.create 4 in

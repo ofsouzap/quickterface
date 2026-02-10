@@ -1,10 +1,10 @@
 open! Core
 open Notty
 open Quickterface.Math
-open Quickterface_tui_app
+open Quickterface_terminal_app
 
 include struct
-  open Quickterface_tui_app.Log_item.For_testing
+  open Quickterface_terminal_app.Log_item.For_testing
 
   let render_math =
     render_math

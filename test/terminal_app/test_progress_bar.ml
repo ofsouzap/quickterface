@@ -1,5 +1,5 @@
 open! Core
-open Quickterface_tui_app
+open Quickterface_terminal_app
 
 let bar ?label current_value maximum_value =
   Progress_bar.make ~config:{ label; maximum_value } ~current_value ()

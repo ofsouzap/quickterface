@@ -1,6 +1,6 @@
 (library
  (name test_tui_app)
  (inline_tests)
- (libraries core quickterface.tui_app)
+ (libraries core quickterface.terminal_app)
  (preprocess
   (pps ppx_jane ppx_expect)))
