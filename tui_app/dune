@@ -1,0 +1,28 @@
+(library
+ (public_name quickterface.tui_app)
+ (name quickterface_tui_app)
+ (libraries
+  core
+  lwt
+  lwt_ppx
+  cohttp-lwt
+  cohttp-lwt-unix
+  notty
+  notty.lwt
+  quickterface)
+ (modules
+  theme
+  notty_utils
+  render_info
+  render_function
+  log_item
+  log
+  input_field
+  input_field_container
+  title_bar
+  progress_bar_config
+  progress_bar
+  window
+  tui_app_intf)
+ (preprocess
+  (pps ppx_jane lwt_ppx)))

@@ -28,4 +28,5 @@
   cohttp-lwt-unix
   cohttp-lwt-jsoo
   fpath
-  bos))
+  bos
+  notty))

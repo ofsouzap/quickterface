@@ -19,11 +19,8 @@ module Terminal_io = struct
       match channel_options with
       | Default_output_channel { color } ->
           ( out_channel,
-            let set_color = Quickterface.Color.ansi_color_code color in
-            let reset_color =
-              Quickterface.Color.(ansi_color_code default_foreground)
-            in
-            [%string "%{set_color}%{text}%{reset_color}"] )
+            Quickterface.Ansi_text_style.(
+              wrap_text (make ~foreground_color:color ()) ~text) )
       | Error_channel -> (error_channel, [%string "<!> %{text}"])
     in
     Out_channel.output_string output_channel_to_use formatted_text;
@@ -220,8 +217,12 @@ module Terminal_io = struct
       | Plus -> "+"
       | Star -> "*"
       | C_dot -> "·"
-      | Superscript inner -> Printf.sprintf "^(%s)" (math_to_string inner)
-      | Subscript inner -> Printf.sprintf "_(%s)" (math_to_string inner)
+      | Superscript { base; superscript } ->
+          Printf.sprintf "(%s)^(%s)" (math_to_string base)
+            (math_to_string superscript)
+      | Subscript { base; subscript } ->
+          Printf.sprintf "(%s)_(%s)" (math_to_string base)
+            (math_to_string subscript)
       | Exp -> "exp"
       | Ln -> "ln"
       | List elements ->
@@ -230,7 +231,7 @@ module Terminal_io = struct
           Printf.sprintf "(%s)/(%s)" (math_to_string num) (math_to_string denom)
       | Bracketed inner -> Printf.sprintf "(%s)" (math_to_string inner)
       | Partial -> "∂"
-      | Integral { lower; upper } ->
+      | Integral { lower; upper; body } ->
           let lower_str =
             match lower with
             | None -> ""
@@ -241,7 +242,7 @@ module Terminal_io = struct
             | None -> ""
             | Some u -> Printf.sprintf "^(%s)" (math_to_string u)
           in
-          Printf.sprintf "∫%s%s" lower_str upper_str
+          Printf.sprintf "∫%s%s %s" lower_str upper_str (math_to_string body)
     in
     let math_string = math_to_string math in
     let%lwt () = write_output_line ?options ~flush:true t ~text:math_string in

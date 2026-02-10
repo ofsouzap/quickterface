@@ -13,6 +13,12 @@
  (libraries string_concatenator_app quickterface.terminal_app))
 
 (executable
+ (name string_concatenator_tui_app)
+ (modes exe)
+ (modules string_concatenator_tui_app)
+ (libraries string_concatenator_app quickterface.tui_app))
+
+(executable
  (name string_concatenator_web_app)
  (modes js)
  (modules string_concatenator_web_app)
