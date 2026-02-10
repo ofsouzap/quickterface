@@ -16,7 +16,7 @@ type t =
   | Frac of t * t
   | Bracketed of t
   | Partial
-  | Integral of { lower : t option; upper : t option }
+  | Integral of { lower : t option; upper : t option; body : t }
 
 let rec latex_string_of_t = function
   | Literal s -> s
@@ -39,7 +39,7 @@ let rec latex_string_of_t = function
       sprintf "\\frac{%s}{%s}" (latex_string_of_t num) (latex_string_of_t denom)
   | Bracketed inner -> sprintf "\\left(%s\\right)" (latex_string_of_t inner)
   | Partial -> "\\partial"
-  | Integral { lower; upper } ->
+  | Integral { lower; upper; body } ->
       let lower_str =
         match lower with
         | None -> ""
@@ -50,4 +50,4 @@ let rec latex_string_of_t = function
         | None -> ""
         | Some u -> sprintf "^{%s}" (latex_string_of_t u)
       in
-      sprintf "\\int%s%s" lower_str upper_str
+      sprintf "\\int%s%s %s" lower_str upper_str (latex_string_of_t body)

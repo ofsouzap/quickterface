@@ -10,10 +10,20 @@ module App (Io : Quickterface.Io.S) = struct
            [
              Pi;
              C_dot;
-             Integral { lower = Some (Literal "0"); upper = Some Infinity };
-             Frac
-               (Literal "x", Bracketed (List [ Literal "1"; Plus; Literal "x" ]));
-             Literal "dx";
+             Integral
+               {
+                 lower = Some (Literal "0");
+                 upper = Some Infinity;
+                 body =
+                   List
+                     [
+                       Frac
+                         ( Literal "x",
+                           Bracketed (List [ Literal "1"; Plus; Literal "x" ])
+                         );
+                       Literal "dx";
+                     ];
+               };
            ])
         ()
     in

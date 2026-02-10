@@ -231,7 +231,7 @@ module Terminal_io = struct
           Printf.sprintf "(%s)/(%s)" (math_to_string num) (math_to_string denom)
       | Bracketed inner -> Printf.sprintf "(%s)" (math_to_string inner)
       | Partial -> "∂"
-      | Integral { lower; upper } ->
+      | Integral { lower; upper; body } ->
           let lower_str =
             match lower with
             | None -> ""
@@ -242,7 +242,7 @@ module Terminal_io = struct
             | None -> ""
             | Some u -> Printf.sprintf "^(%s)" (math_to_string u)
           in
-          Printf.sprintf "∫%s%s" lower_str upper_str
+          Printf.sprintf "∫%s%s %s" lower_str upper_str (math_to_string body)
     in
     let math_string = math_to_string math in
     let%lwt () = write_output_line ?options ~flush:true t ~text:math_string in
