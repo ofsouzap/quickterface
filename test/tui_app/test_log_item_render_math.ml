@@ -133,3 +133,62 @@ let%expect_test "fraction" =
       2
      π
     |}]
+
+let%expect_test "integral - single line, no limits" =
+  let img =
+    render_math (Integral { lower = None; upper = None; body = Literal "x" })
+  in
+  Notty_unix.output_image img;
+  [%expect {| ∫x |}]
+
+let%expect_test "integral - multi line, no limits" =
+  let img =
+    render_math
+      (Integral
+         { lower = None; upper = None; body = Frac (Literal "1", Literal "x") })
+  in
+  Notty_unix.output_image img;
+  [%expect {|
+    ⌠ 1
+    ⎮───
+    ⌡ x
+    |}]
+
+let%expect_test "integral - single line, upper limit" =
+  let img =
+    render_math
+      (Integral { lower = None; upper = Some Infinity; body = Literal "x" })
+  in
+  Notty_unix.output_image img;
+  [%expect {|
+     ∞
+    ∫ x
+    |}]
+
+let%expect_test "integral - single line, lower limit" =
+  let img =
+    render_math
+      (Integral { lower = Some (Literal "0"); upper = None; body = Literal "x" })
+  in
+  Notty_unix.output_image img;
+  [%expect {|
+    ∫ x
+     0
+    |}]
+
+let%expect_test "integral - multi line, both limits" =
+  let img =
+    render_math
+      (Integral
+         {
+           lower = Some (Literal "0");
+           upper = Some Infinity;
+           body = Frac (Literal "1", Literal "x");
+         })
+  in
+  Notty_unix.output_image img;
+  [%expect {|
+    ⌠∞ 1
+    ⎮ ───
+    ⌡0 x
+    |}]

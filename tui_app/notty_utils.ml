@@ -33,6 +33,9 @@ let uchar_paren_drawing_light_bottom_left = Uchar.of_scalar_exn 0x239D
 let uchar_paren_drawing_light_top_right = Uchar.of_scalar_exn 0x239E
 let uchar_paren_drawing_light_mid_right = Uchar.of_scalar_exn 0x239F
 let uchar_paren_drawing_light_bottom_right = Uchar.of_scalar_exn 0x23A0
+let uchar_paren_top_half_integral = Uchar.of_scalar_exn 0x2320
+let uchar_paren_bottom_half_integral = Uchar.of_scalar_exn 0x2321
+let uchar_paren_integral_extender = Uchar.of_scalar_exn 0x23AE
 
 let boxed ?(padding_control = `None) raw_content =
   let content =

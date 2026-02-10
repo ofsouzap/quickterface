@@ -30,7 +30,9 @@ module Math_renderer = struct
     val make_from_parts :
       ?top:image -> ?center:image -> ?bottom:image -> unit -> t
 
+    val height : t -> int
     val to_notty : t -> image
+    val ( <|> ) : t -> t -> t
     val hcat : t list -> t
   end = struct
     open I
@@ -71,9 +73,11 @@ module Math_renderer = struct
         ~image:(padded_top <-> padded_center <-> padded_bottom)
         ~center_line_index:(height padded_top)
 
+    let height { image; center_line_index = _ } = height image
+
     let to_parts { image; center_line_index } =
       let top_height = center_line_index in
-      let bottom_height = height image - center_line_index - 1 in
+      let bottom_height = I.height image - center_line_index - 1 in
 
       let top = I.crop ~b:(1 + bottom_height) image in
       let center = I.crop ~t:top_height ~b:bottom_height image in
@@ -185,8 +189,40 @@ module Math_renderer = struct
           make_from_single_image notty_image
             ~center_line_index:(bracket_height / 2) ()
       | Partial -> plain_string "∂"
-      | Integral { lower = _; upper = _ } ->
-          failwith "TODO - lower and upper and integral symbol"
+      | Integral { lower; upper; body } ->
+          let lower_img_notty_opt =
+            Option.(lower >>| render_math >>| to_notty)
+          in
+          let upper_img_notty_opt =
+            Option.(upper >>| render_math >>| to_notty)
+          in
+          let body_img = render_math body in
+
+          let body_height = height body_img in
+
+          let integral_symbol_img =
+            if body_height <= 1 then plain_string "∫"
+            else
+              let notty_image =
+                uchar attr Notty_utils.uchar_paren_top_half_integral 1 1
+                <-> uchar attr Notty_utils.uchar_paren_integral_extender 1
+                      (body_height - 2)
+                <-> uchar attr Notty_utils.uchar_paren_bottom_half_integral 1 1
+              in
+              make_from_single_image notty_image
+                ~center_line_index:(body_height / 2) ()
+          in
+
+          let limits_image =
+            let upper = Option.value ~default:I.empty upper_img_notty_opt in
+            let lower = Option.value ~default:I.empty lower_img_notty_opt in
+            let notty_image = I.(upper <-> void 0 1 <-> lower) in
+
+            make_from_single_image notty_image
+              ~center_line_index:(I.height upper) ()
+          in
+
+          integral_symbol_img <|> limits_image <|> body_img
     in
     render_math math
 end

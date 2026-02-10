@@ -32,6 +32,9 @@ val uchar_paren_drawing_light_bottom_left : Uchar.t
 val uchar_paren_drawing_light_top_right : Uchar.t
 val uchar_paren_drawing_light_mid_right : Uchar.t
 val uchar_paren_drawing_light_bottom_right : Uchar.t
+val uchar_paren_top_half_integral : Uchar.t
+val uchar_paren_bottom_half_integral : Uchar.t
+val uchar_paren_integral_extender : Uchar.t
 
 val boxed :
   ?padding_control:
