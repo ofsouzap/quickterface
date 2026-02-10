@@ -25,8 +25,11 @@ module Text = struct
     let itemDiv = Dom_html.createDiv document in
     let newP = (Dom_html.createP document :> Dom_html.element Js.t) in
     newP##.innerText := Js.string value;
-    newP##.style##.color
-    := Js.string (Quickterface.Color.css_color_string color);
+    (match color with
+    | `Default -> ()
+    | `Custom color ->
+        newP##.style##.color
+        := Js.string (Quickterface.Color.css_color_string color));
     Dom.appendChild itemDiv newP;
 
     Lwt.return { element = itemDiv }
@@ -56,8 +59,11 @@ module Math = struct
       =
     let itemDiv = Dom_html.createDiv document in
     (itemDiv##.className := Class.(to_js_string Output_math));
-    itemDiv##.style##.color
-    := Js.string (Quickterface.Color.css_color_string color);
+    (match color with
+    | `Default -> ()
+    | `Custom color ->
+        itemDiv##.style##.color
+        := Js.string (Quickterface.Color.css_color_string color));
 
     let%lwt () =
       katex_render

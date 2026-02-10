@@ -29,7 +29,7 @@ module App (Io : Quickterface.Io.S) = struct
     in
     let%lwt () =
       Io.output_math
-        ~options:{ color = Quickterface.Color.blue }
+        ~options:{ color = `Custom Quickterface.Color.blue }
         io
         (let open Quickterface.Math in
          Superscript

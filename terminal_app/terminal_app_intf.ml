@@ -12,8 +12,11 @@ module Terminal_io = struct
           Quickterface.Output_text_options.default) ?(flush = true)
       { in_channel = _; out_channel } ~text =
     let formatted_text =
-      Quickterface.Ansi_text_style.(
-        wrap_text (make ~foreground_color:color ()) ~text)
+      match color with
+      | `Default -> text
+      | `Custom color ->
+          Quickterface.Ansi_text_style.(
+            wrap_text (make ~foreground_color:color ()) ~text)
     in
     Out_channel.output_string out_channel formatted_text;
     if flush then Out_channel.flush out_channel;

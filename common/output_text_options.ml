@@ -1,5 +1,5 @@
 open! Core
 
-type t = { color : Color.t }
+type t = { color : [ `Default | `Custom of Color.t ] }
 
-let default = { color = Color.default_foreground }
+let default = { color = `Default }
