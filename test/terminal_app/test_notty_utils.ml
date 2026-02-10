@@ -1,7 +1,7 @@
 open! Core
 open Notty
 open Notty.I
-open Quickterface_tui_app
+open Quickterface_terminal_app
 
 let no_attr = A.empty
 let img1 = string no_attr "Hello, World!"
