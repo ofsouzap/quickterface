@@ -13,13 +13,6 @@
  (libraries multiselect_app_app quickterface.terminal_app))
 
 (executable
- (public_name multiselect_app_tui)
- (name multiselect_app_tui_app)
- (modes exe)
- (modules multiselect_app_tui_app)
- (libraries multiselect_app_app quickterface.tui_app))
-
-(executable
  (name multiselect_app_web_app)
  (modes js)
  (modules multiselect_app_web_app)
