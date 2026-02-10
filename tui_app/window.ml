@@ -98,4 +98,6 @@ let with_progress_bar t ~config ~refresh_render ~f =
         do_increment ();
         refresh_render ()
       in
-      f ~increment_progress_bar ()
+      let%lwt result = f ~increment_progress_bar () in
+      t.progress_bar <- None;
+      Lwt.return result
