@@ -3,39 +3,30 @@ open! Core
 module Terminal_io = struct
   open Quickterface.Io
 
-  type t = {
-    in_channel : In_channel.t;
-    out_channel : Out_channel.t;
-    error_channel : Out_channel.t;
-  }
+  type t = { in_channel : In_channel.t; out_channel : Out_channel.t }
 
   module Http_client = Cohttp_lwt_unix.Client
 
   let write_output
-      ?options:({ Quickterface.Output_text_options.channel_options } =
+      ?options:({ Quickterface.Output_text_options.color } =
           Quickterface.Output_text_options.default) ?(flush = true)
-      { in_channel = _; out_channel; error_channel } ~text =
-    let output_channel_to_use, formatted_text =
-      match channel_options with
-      | Default_output_channel { color } ->
-          ( out_channel,
-            Quickterface.Ansi_text_style.(
-              wrap_text (make ~foreground_color:color ()) ~text) )
-      | Error_channel -> (error_channel, [%string "<!> %{text}"])
+      { in_channel = _; out_channel } ~text =
+    let formatted_text =
+      Quickterface.Ansi_text_style.(
+        wrap_text (make ~foreground_color:color ()) ~text)
     in
-    Out_channel.output_string output_channel_to_use formatted_text;
-    if flush then Out_channel.flush output_channel_to_use;
+    Out_channel.output_string out_channel formatted_text;
+    if flush then Out_channel.flush out_channel;
     Lwt.return ()
 
   let write_output_line ?options ?flush t ~text =
     write_output ?options ?flush t ~text:(text ^ "\n")
 
-  let input_text ({ in_channel; out_channel = _; error_channel = _ } as t) () =
+  let input_text ({ in_channel; out_channel = _ } as t) () =
     let%lwt () = write_output ~flush:true t ~text:"> " in
     In_channel.input_line in_channel |> Option.value_exn |> Lwt.return
 
-  let input_integer ({ in_channel; out_channel = _; error_channel = _ } as t) ()
-      =
+  let input_integer ({ in_channel; out_channel = _ } as t) () =
     let rec get_input_integer () =
       (* Get an input *)
       let%lwt () = write_output ~flush:true t ~text:"> " in
@@ -54,8 +45,7 @@ module Terminal_io = struct
 
     get_input_integer ()
 
-  let input_single_selection
-      ({ in_channel; out_channel = _; error_channel = _ } as t) options () =
+  let input_single_selection ({ in_channel; out_channel = _ } as t) options () =
     (* Print the options *)
     let%lwt () =
       write_output_line t ~flush:true ~text:"[Select an option from the below]"
@@ -111,8 +101,7 @@ module Terminal_io = struct
 
     get_input ()
 
-  let input_multi_selection
-      ({ in_channel; out_channel = _; error_channel = _ } as t) options () =
+  let input_multi_selection ({ in_channel; out_channel = _ } as t) options () =
     (* Print instructions *)
     let%lwt () =
       write_output_line t ~flush:true
@@ -305,9 +294,5 @@ module Make (App : Quickterface.App.S) : S = struct
     App.main
       ~io:
         Terminal_io.
-          {
-            in_channel = In_channel.stdin;
-            out_channel = Out_channel.stdout;
-            error_channel = Out_channel.stderr;
-          }
+          { in_channel = In_channel.stdin; out_channel = Out_channel.stdout }
 end

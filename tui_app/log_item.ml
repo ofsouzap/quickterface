@@ -6,7 +6,7 @@ type t =
   | Input_text of string
 
 let output_text ?options:_ text =
-  (* TODO-soon - don't need to use options as I intend to change this system very soon *)
+  (* TODO - use options *)
   Output_text text
 
 let output_math ?options:_ text = Output_math text
