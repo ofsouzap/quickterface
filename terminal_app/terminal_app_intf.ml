@@ -43,5 +43,5 @@ module Make (App : Quickterface.App.S) : S = struct
       Cmd.v info run_term
     in
 
-    ignore (Cmd.eval ~argv cmd)
+    exit (Cmd.eval ~argv cmd)
 end
