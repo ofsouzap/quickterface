@@ -9,6 +9,7 @@
   cohttp-lwt-unix
   notty
   notty.lwt
+  cmdliner
   quickterface)
  (modules
   theme
