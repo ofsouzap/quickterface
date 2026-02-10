@@ -19,3 +19,8 @@ let multi_selection_input_option_not_hovered =
 
 let multi_selection_input_option_hovered =
   single_selection_input_option_selected
+
+let loading_bar_title = fg white ++ st bold
+let loading_bar_text = fg white
+let loading_bar_bar_cells = fg white ++ bg lightblue
+let loading_bar_bar_edges = loading_bar_bar_cells

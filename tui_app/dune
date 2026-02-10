@@ -20,6 +20,8 @@
   input_field
   input_field_container
   title_bar
+  progress_bar_config
+  progress_bar
   window
   tui_app_intf)
  (preprocess
