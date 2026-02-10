@@ -31,3 +31,10 @@ val add_log_item : t -> Log_item.t -> unit Lwt.t
 val set_title : t -> string -> unit Lwt.t
 val render : t Render_function.t
 val handle_event : t -> [ Notty.Unescape.event | `Resize of int * int ] -> unit
+
+val with_progress_bar :
+  t ->
+  config:Progress_bar_config.t ->
+  refresh_render:(unit -> unit Lwt.t) ->
+  f:(increment_progress_bar:(unit -> unit Lwt.t) -> unit -> 'a Lwt.t) ->
+  'a Lwt.t

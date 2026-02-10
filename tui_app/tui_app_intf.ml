@@ -75,7 +75,10 @@ module Tui_io = struct
     | Title -> (
         fun x -> match options with None | Some () -> output_title t x)
 
-  let with_progress_bar ?label:_ _ ~maximum:_ ~f:_ () = failwith "TODO"
+  let with_progress_bar ?label ({ window; _ } as t) ~maximum ~f () =
+    Window.with_progress_bar window
+      ~config:{ Progress_bar_config.label; maximum_value = maximum }
+      ~refresh_render:(refresh_render t) ~f
 
   let make () =
     let term =
