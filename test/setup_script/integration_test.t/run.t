@@ -16,3 +16,8 @@ Specifically check that the terminal executable exists
 Create an executable with a custom name in the same project and check the project still builds
   $ quickterface-setup-script --executable-name=custom_name_app
   $ dune build
+
+  $ echo "NAME" | dune exec ./my_app/my_app_terminal_app.exe -- --mode=minimal
+  What is your name?
+  > Hello, NAME!
+  
