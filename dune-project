@@ -5,7 +5,7 @@
 (generate_opam_files true)
 
 (source
- (github ofsouzap/quickiterface))
+ (github ofsouzap/quickterface))
 
 (authors "Ofsouzap <ofsouzap@gmail.com>")
 

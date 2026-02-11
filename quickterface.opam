@@ -4,8 +4,8 @@ synopsis: "Quick-to-program app interfaces in OCaml for terminal and web"
 maintainer: ["Ofsouzap <ofsouzap@gmail.com>"]
 authors: ["Ofsouzap <ofsouzap@gmail.com>"]
 license: "MIT"
-homepage: "https://github.com/ofsouzap/quickiterface"
-bug-reports: "https://github.com/ofsouzap/quickiterface/issues"
+homepage: "https://github.com/ofsouzap/quickterface"
+bug-reports: "https://github.com/ofsouzap/quickterface/issues"
 depends: [
   "dune" {>= "3.20"}
   "ocaml"
@@ -36,5 +36,5 @@ build: [
     "@doc" {with-doc}
   ]
 ]
-dev-repo: "git+https://github.com/ofsouzap/quickiterface.git"
+dev-repo: "git+https://github.com/ofsouzap/quickterface.git"
 x-maintenance-intent: ["(latest)"]
