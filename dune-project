@@ -21,7 +21,8 @@
   (ocaml
    (>= 5.1.0))
   core
-  js_of_ocaml
+  (js_of_ocaml
+   (>= 6.0.0))
   js_of_ocaml-ppx
   lwt
   lwt_ppx
