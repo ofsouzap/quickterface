@@ -3,6 +3,16 @@ open! Core
 module App (Io : Quickterface.Io.S) = struct
   type empty = |
 
+  module Concat_mode = struct
+    type t = First_first | First_last
+
+    let all = [ First_first; First_last ]
+
+    let to_string = function
+      | First_first -> "first first"
+      | First_last -> "first last"
+  end
+
   let main ~io () =
     let%lwt () = Io.output_text io "message1" () in
     let%lwt () = Io.output_text io "message2" () in
@@ -20,13 +30,12 @@ module App (Io : Quickterface.Io.S) = struct
       let%lwt x = Io.input_text io () in
       let%lwt y = Io.input_text io () in
       let%lwt mode =
-        Io.input_single_selection io [ "first first"; "first last" ] ()
+        Io.input_single_selection io Concat_mode.all Concat_mode.to_string ()
       in
       let f =
         match mode with
-        | "first first" -> fun x y -> x ^ y
-        | "first last" -> fun x y -> y ^ x
-        | _ -> assert false
+        | First_first -> fun x y -> x ^ y
+        | First_last -> fun x y -> y ^ x
       in
       let%lwt res =
         Io.with_progress_bar io ~label:"Concatenating" ~maximum:10

@@ -4,8 +4,8 @@ module Input = struct
   type (_, _) t =
     | Text : (unit, string) t
     | Integer : (unit, int) t
-    | Single_selection : (string list, string) t
-    | Multi_selection : (string list, string list) t
+    | Single_selection : ('a list * ('a -> string), 'a) t
+    | Multi_selection : ('a list * ('a -> string), 'a list) t
 end
 
 module Output = struct
@@ -23,8 +23,17 @@ module type S = sig
   val input : t -> ('settings, 'a) Input.t -> 'settings -> unit -> 'a Lwt.t
   val input_text : t -> unit -> string Lwt.t
   val input_integer : t -> unit -> int Lwt.t
-  val input_single_selection : t -> string list -> unit -> string Lwt.t
-  val input_multi_selection : t -> string list -> unit -> string list Lwt.t
+
+  val input_single_selection :
+    t -> 'a list -> ('a -> string) -> unit -> 'a Lwt.t
+
+  val input_single_selection_string : t -> string list -> unit -> string Lwt.t
+
+  val input_multi_selection :
+    t -> 'a list -> ('a -> string) -> unit -> 'a list Lwt.t
+
+  val input_multi_selection_string :
+    t -> string list -> unit -> string list Lwt.t
 
   val output :
     ?options:'options ->

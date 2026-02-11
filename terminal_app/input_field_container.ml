@@ -40,10 +40,12 @@ let get_input_text t ~refresh_render () =
 let get_input_integer t ~refresh_render () =
   get_input t ~refresh_render ~input_field_maker:Input_field.make_integer
 
-let get_input_single_selection t ~refresh_render ~options () =
+let get_input_single_selection t ~refresh_render ~options ~option_to_string () =
   get_input t ~refresh_render
-    ~input_field_maker:(Input_field.make_single_selection ~options)
+    ~input_field_maker:
+      (Input_field.make_single_selection ~options ~option_to_string)
 
-let get_input_multi_selection t ~refresh_render ~options () =
+let get_input_multi_selection t ~refresh_render ~options ~option_to_string () =
   get_input t ~refresh_render
-    ~input_field_maker:(Input_field.make_multi_selection ~options)
+    ~input_field_maker:
+      (Input_field.make_multi_selection ~options ~option_to_string)

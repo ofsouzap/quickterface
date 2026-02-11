@@ -48,10 +48,16 @@ module Variant = struct
   end
 
   module Single_selection_state = struct
-    type t = { options : string list; selected_index : int }
+    type 'a t = {
+      options : 'a list;
+      option_to_string : 'a -> string;
+      selected_index : int;
+    }
 
-    let make ~options = { options; selected_index = 0 }
-    let maximum_index { options; selected_index = _ } = List.length options - 1
+    let make ~options ~option_to_string =
+      { options; option_to_string; selected_index = 0 }
+
+    let maximum_index { options; _ } = List.length options - 1
 
     let incr_selected_index t =
       { t with selected_index = min (t.selected_index + 1) (maximum_index t) }
@@ -61,14 +67,20 @@ module Variant = struct
   end
 
   module Multi_selection_state = struct
-    type t = {
-      options : string list;
+    type 'a t = {
+      options : 'a list;
+      option_to_string : 'a -> string;
       selected_option_indexes : Int.Set.t;
       hovered_index : int;
     }
 
-    let make ~options =
-      { options; selected_option_indexes = Int.Set.empty; hovered_index = 0 }
+    let make ~options ~option_to_string =
+      {
+        options;
+        option_to_string;
+        selected_option_indexes = Int.Set.empty;
+        hovered_index = 0;
+      }
 
     let maximum_index { options; _ } = List.length options - 1
 
@@ -79,7 +91,12 @@ module Variant = struct
       { t with hovered_index = max (t.hovered_index - 1) 0 }
 
     let toggle_current_index
-        ({ options = _; selected_option_indexes; hovered_index } as t) =
+        ({
+           options = _;
+           option_to_string = _;
+           selected_option_indexes;
+           hovered_index;
+         } as t) =
       if Set.mem selected_option_indexes hovered_index then
         {
           t with
@@ -100,8 +117,8 @@ module Variant = struct
     | Any_key : (unit, unit) t
     | Text : (string, string) t
     | Integer : (Int_as_string.t, int) t
-    | Single_selection : (Single_selection_state.t, string) t
-    | Multi_selection : (Multi_selection_state.t, string list) t
+    | Single_selection : ('a Single_selection_state.t, 'a) t
+    | Multi_selection : ('a Multi_selection_state.t, 'a list) t
 
   let render : type a b. render_info:_ -> (a, b) t -> a -> Notty.image =
    fun ~render_info t state ->
@@ -123,14 +140,19 @@ module Variant = struct
         string Theme.integer_input_editable [%string "> %{as_string}"]
         |> boxed_to_screen_width
     | Single_selection ->
-        let { Single_selection_state.options; selected_index } = state in
+        let { Single_selection_state.options; option_to_string; selected_index }
+            =
+          state
+        in
         List.mapi options ~f:(fun index option ->
             let is_selected = index = selected_index in
             let attr =
               if is_selected then Theme.single_selection_input_option_selected
               else Theme.single_selection_input_option_not_selected
             in
-            let text = (if is_selected then "> " else "  ") ^ option in
+            let text =
+              (if is_selected then "> " else "  ") ^ option_to_string option
+            in
             string attr text)
         |>
         (* Display the options starting at the bottom and growing upwards, as the index increases *)
@@ -138,6 +160,7 @@ module Variant = struct
     | Multi_selection ->
         let {
           Multi_selection_state.options;
+          option_to_string;
           selected_option_indexes;
           hovered_index;
         } =
@@ -150,7 +173,9 @@ module Variant = struct
               if is_hovered then Theme.multi_selection_input_option_hovered
               else Theme.multi_selection_input_option_not_hovered
             in
-            let text = (if is_selected then "[X]" else "[ ]") ^ option in
+            let text =
+              (if is_selected then "[X]" else "[ ]") ^ option_to_string option
+            in
             string attr text)
         |>
         (* Display the options starting at the bottom and growing upwards, as the index increases *)
@@ -197,11 +222,18 @@ module Variant = struct
     | Text -> state
     | Integer -> Int_as_string.to_int state
     | Single_selection ->
-        let { Single_selection_state.options; selected_index } = state in
+        let {
+          Single_selection_state.options;
+          option_to_string = _;
+          selected_index;
+        } =
+          state
+        in
         List.nth_exn options selected_index
     | Multi_selection ->
         let {
           Multi_selection_state.options;
+          option_to_string = _;
           selected_option_indexes;
           hovered_index = _;
         } =
@@ -235,27 +267,33 @@ let make_integer ~resolver () =
       resolver;
     }
 
-let make_single_selection ~resolver ~options () =
-  if List.is_empty options then
-    raise_s
-      [%message
-        "Options for single selection cannot be empty" (options : string List.t)];
+let make_single_selection ~resolver ~options ~option_to_string () =
+  (if List.is_empty options then
+     let options_as_strings = List.map options ~f:option_to_string in
+     raise_s
+       [%message
+         "Options for single selection cannot be empty"
+           (options_as_strings : string list)]);
   Packed
     {
       variant = Single_selection;
-      current_value = Variant.Single_selection_state.make ~options;
+      current_value =
+        Variant.Single_selection_state.make ~options ~option_to_string;
       resolver;
     }
 
-let make_multi_selection ~resolver ~options () =
-  if List.is_empty options then
-    raise_s
-      [%message
-        "Options for multi selection cannot be empty" (options : string List.t)];
+let make_multi_selection ~resolver ~options ~option_to_string () =
+  (if List.is_empty options then
+     let options_as_strings = List.map options ~f:option_to_string in
+     raise_s
+       [%message
+         "Options for multi selection cannot be empty"
+           (options_as_strings : string list)]);
   Packed
     {
       variant = Multi_selection;
-      current_value = Variant.Multi_selection_state.make ~options;
+      current_value =
+        Variant.Multi_selection_state.make ~options ~option_to_string;
       resolver;
     }
 

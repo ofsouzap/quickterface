@@ -40,7 +40,8 @@ let input_integer ({ in_channel; out_channel = _ } as t) () =
 
   get_input_integer ()
 
-let input_single_selection ({ in_channel; out_channel = _ } as t) options () =
+let input_single_selection ({ in_channel; out_channel = _ } as t) options
+    option_to_string () =
   (* Print the options *)
   let%lwt () =
     write_output_line t ~flush:true ~text:"[Select an option from the below]"
@@ -48,8 +49,9 @@ let input_single_selection ({ in_channel; out_channel = _ } as t) options () =
   let option_printers =
     List.mapi options ~f:(fun i option ->
         let i_string = string_of_int i in
+        let option_string = option_to_string option in
         write_output_line t ~flush:false
-          ~text:[%string "  [%{i_string}] %{option}"])
+          ~text:[%string "  [%{i_string}] %{option_string}"])
   in
   let%lwt _ = Lwt.all option_printers in
 
@@ -65,7 +67,9 @@ let input_single_selection ({ in_channel; out_channel = _ } as t) options () =
     in
     let read_input_as_value_name input_string =
       List.fold_result options ~init:() ~f:(fun () option ->
-          if String.equal option input_string then Error option else Ok ())
+          if String.equal (option_to_string option) input_string then
+            Error option
+          else Ok ())
       |> function
       | Ok () -> `No_match
       | Error value -> `Is_valid value
@@ -96,7 +100,11 @@ let input_single_selection ({ in_channel; out_channel = _ } as t) options () =
 
   get_input ()
 
-let input_multi_selection ({ in_channel; out_channel = _ } as t) options () =
+let input_single_selection_string t options () =
+  input_single_selection t options Fn.id ()
+
+let input_multi_selection ({ in_channel; out_channel = _ } as t) options
+    option_to_string () =
   (* Print instructions *)
   let%lwt () =
     write_output_line t ~flush:true
@@ -106,16 +114,18 @@ let input_multi_selection ({ in_channel; out_channel = _ } as t) options () =
   in
 
   (* Printing the options *)
-  let print_options_state ~selected_options =
+  let print_options_state ~selection_option_indexes =
     let option_printers =
       List.mapi options ~f:(fun i option ->
           let i_string = string_of_int i in
+          let option_string = option_to_string option in
           let selected_mark =
-            (if Set.mem selected_options option then 'X' else ' ')
+            (if Set.mem selection_option_indexes i then 'X' else ' ')
             |> String.of_char
           in
           write_output_line t ~flush:false
-            ~text:[%string "  [%{selected_mark}] [%{i_string}] %{option}"])
+            ~text:
+              [%string "  [%{selected_mark}] [%{i_string}] %{option_string}"])
     in
     let%lwt _ = Lwt.all option_printers in
     Lwt.return ()
@@ -127,13 +137,15 @@ let input_multi_selection ({ in_channel; out_channel = _ } as t) options () =
       match Int.of_string_opt input_string with
       | Some x -> (
           match List.nth options x with
-          | Some value -> `Is_valid value
+          | Some _ -> `Is_valid x
           | None -> `Out_of_range)
       | None -> `Not_integer
     in
     let read_input_as_value_name input_string =
-      List.fold_result options ~init:() ~f:(fun () option ->
-          if String.equal option input_string then Error option else Ok ())
+      List.mapi options ~f:(fun i option -> (i, option))
+      |> List.fold_result ~init:() ~f:(fun () (i, option) ->
+          if String.equal (option_to_string option) input_string then Error i
+          else Ok ())
       |> function
       | Ok () -> `No_match
       | Error value -> `Is_valid value
@@ -148,42 +160,52 @@ let input_multi_selection ({ in_channel; out_channel = _ } as t) options () =
   in
 
   (* Get the selected options *)
-  let rec get_input ~selected_options () =
+  let rec get_input ~selection_option_indexes () =
     (* Get an input *)
-    let%lwt () = print_options_state ~selected_options in
+    let%lwt () = print_options_state ~selection_option_indexes in
     let%lwt () = write_output ~flush:true t ~text:"> " in
     let input_string = In_channel.input_line in_channel |> Option.value_exn in
     match input_string with
     | "" ->
         (* If nothing entered, submit the selections *)
-        Lwt.return selected_options
+        Lwt.return selection_option_indexes
     | _ -> (
         match read_input input_string with
         | Ok selection_to_toggle ->
             (* Toggle the selected option *)
-            let new_selected_options =
-              if Set.mem selected_options selection_to_toggle then
-                Set.remove selected_options selection_to_toggle
-              else Set.add selected_options selection_to_toggle
+            let new_selection_option_indexes =
+              if Set.mem selection_option_indexes selection_to_toggle then
+                Set.remove selection_option_indexes selection_to_toggle
+              else Set.add selection_option_indexes selection_to_toggle
             in
-            get_input ~selected_options:new_selected_options ()
+            get_input ~selection_option_indexes:new_selection_option_indexes ()
         | Error error_message ->
             let%lwt () =
               write_output_line ~flush:true t
                 ~text:[%string "[Invalid input: %{error_message}]"]
             in
-            get_input ~selected_options ())
+            get_input ~selection_option_indexes ())
   in
-  let%lwt selected_options = get_input ~selected_options:String.Set.empty () in
-  Lwt.return (Set.to_list selected_options)
+  let%lwt selection_option_indexes =
+    get_input ~selection_option_indexes:Int.Set.empty ()
+  in
+  Lwt.return
+    (Set.to_list selection_option_indexes |> List.map ~f:(List.nth_exn options))
+
+let input_multi_selection_string t options () =
+  input_multi_selection t options Fn.id ()
 
 let input : type settings a.
     _ -> (settings, a) Input.t -> settings -> unit -> a Lwt.t =
  fun t -> function
   | Text -> fun () -> input_text t
   | Integer -> fun () -> input_integer t
-  | Single_selection -> fun options -> input_single_selection t options
-  | Multi_selection -> fun options -> input_multi_selection t options
+  | Single_selection ->
+      fun (options, option_to_string) ->
+        input_single_selection t options option_to_string
+  | Multi_selection ->
+      fun (options, option_to_string) ->
+        input_multi_selection t options option_to_string
 
 let output_text ?options t text () =
   let%lwt () = write_output_line ?options ~flush:true t ~text in

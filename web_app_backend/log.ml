@@ -31,19 +31,31 @@ let input_integer ({ document; container = _ } as t) () =
   let%lwt () = add_item t ~item_element:(Inputs.Integer.element input) () in
   Inputs.Integer.wait_for_input input ()
 
-let input_single_selection ({ document; container = _ } as t) options () =
-  let input = Inputs.Single_selection.make options ~document in
+let input_single_selection ({ document; container = _ } as t) options
+    option_to_string () =
+  let input =
+    Inputs.Single_selection.make (options, option_to_string) ~document
+  in
   let%lwt () =
     add_item t ~item_element:(Inputs.Single_selection.element input) ()
   in
   Inputs.Single_selection.wait_for_input input ()
 
-let input_multi_selection ({ document; container = _ } as t) options () =
-  let input = Inputs.Multi_selection.make options ~document in
+let input_single_selection_string t options =
+  input_single_selection t options Fn.id
+
+let input_multi_selection ({ document; container = _ } as t) options
+    option_to_string () =
+  let input =
+    Inputs.Multi_selection.make (options, option_to_string) ~document
+  in
   let%lwt () =
     add_item t ~item_element:(Inputs.Multi_selection.element input) ()
   in
   Inputs.Multi_selection.wait_for_input input ()
+
+let input_multi_selection_string t options =
+  input_multi_selection t options Fn.id
 
 let add_output_text ?(options = Quickterface.Output_text_options.default)
     ({ document; container = _ } as t) ~value () =

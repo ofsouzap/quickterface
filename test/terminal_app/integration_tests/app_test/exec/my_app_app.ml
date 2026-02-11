@@ -17,7 +17,7 @@ functor
       in
       let%lwt () = Io.output_text io "Input single selection" () in
       let%lwt single_selection_input =
-        Io.input_single_selection io [ "A"; "B"; "C"; "D" ] ()
+        Io.input_single_selection_string io [ "A"; "B"; "C"; "D" ] ()
       in
       let%lwt () =
         Io.output_text io
@@ -25,7 +25,7 @@ functor
           ()
       in
       let%lwt multi_selection_inputs =
-        Io.input_multi_selection io [ "A"; "B"; "C"; "D" ] ()
+        Io.input_multi_selection_string io [ "A"; "B"; "C"; "D" ] ()
       in
       let%lwt () =
         Io.output_text io
