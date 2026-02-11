@@ -338,6 +338,7 @@ module Multi_selection = Html_input1 (struct
         else
           (* Don't add as not checked *)
           Ok acc)
+    |> Result.map ~f:List.rev
 
   let make ~document ~settings:(options, option_to_string) () =
     let fieldset = Dom_html.createFieldset document in
