@@ -1,37 +1,69 @@
-name: Build and Test
+name: Builds, tests & co
 
 on:
   push:
-    branches: [ main ]
+     branches:
+       - main
   pull_request:
-    branches: [ main ]
+     branches:
+       - main
+
+permissions: read-all
 
 jobs:
-  build-and-test:
-    runs-on: ubuntu-latest
-
+  build:
     strategy:
+      fail-fast: false
       matrix:
-        ocaml-compiler:
-          - 4.14.x
-          - 5.1.x
+        os:
+          - ubuntu-latest
+
+    runs-on: ${{ matrix.os }}
 
     steps:
-    - name: Checkout code
-      uses: actions/checkout@v3
+      - name: Checkout tree
+        uses: actions/checkout@v6
 
-    - name: Set up OCaml
-      uses: ocaml/setup-ocaml@v2
-      with:
-        ocaml-compiler: ${{ matrix.ocaml-compiler }}
-        dune-cache: true
-        opam-disable-sandboxing: true
+      - name: Set-up OCaml
+        uses: ocaml/setup-ocaml@v3
+        with:
+          ocaml-compiler: 5
 
-    - name: Install dependencies
-      run: opam install . --deps-only --with-test
+      - run: opam install . --deps-only --with-test
 
-    - name: Build
-      run: opam exec -- dune build @all
+      - run: opam exec -- dune build
 
-    - name: Run tests
-      run: opam exec -- dune runtest
+      - run: opam exec -- dune runtest
+
+  lint-doc:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout tree
+        uses: actions/checkout@v6
+      - name: Set-up OCaml
+        uses: ocaml/setup-ocaml@v3
+        with:
+          ocaml-compiler: 5
+      - uses: ocaml/setup-ocaml/lint-doc@v3
+
+  lint-fmt:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout tree
+        uses: actions/checkout@v6
+      - name: Set-up OCaml
+        uses: ocaml/setup-ocaml@v3
+        with:
+          ocaml-compiler: 5
+      - uses: ocaml/setup-ocaml/lint-fmt@v3
+
+  lint-opam:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout tree
+        uses: actions/checkout@v6
+      - name: Set-up OCaml
+        uses: ocaml/setup-ocaml@v3
+        with:
+          ocaml-compiler: 5
+      - uses: ocaml/setup-ocaml/lint-opam@v3
