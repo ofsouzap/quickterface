@@ -192,3 +192,25 @@ let%expect_test "integral - multi line, both limits" =
     ⎮ ───
     ⌡0 x
     |}]
+
+let%expect_test "new symbols" =
+  let img =
+    render_math
+      (List
+         [
+           Times;
+           Divide;
+           Plus_minus;
+           Sin;
+           Cos;
+           Less_than;
+           Less_than_or_equal_to;
+           Greater_than;
+           Greater_than_or_equal_to;
+           Not_equal;
+           Approximately_equals;
+           Equivalent_to;
+         ])
+  in
+  Notty_unix.output_image img;
+  [%expect {| ×÷±sincos<≤>≥≠≈≡ |}]

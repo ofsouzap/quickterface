@@ -40,9 +40,9 @@ functor
             List
               [
                 Superscript { base = E; superscript = List [ Literal "i"; Pi ] };
-                Literal "-";
+                Minus;
                 Literal "1";
-                Literal "=";
+                Equals;
                 Literal "0";
               ])
           ()
