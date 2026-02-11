@@ -253,13 +253,18 @@ let render_math ~render_info attr img =
   Math_renderer.(
     Horizontally_aligned_image.to_notty (render_math ~render_info attr img))
 
+let render_string_handling_newlines attr string =
+  string |> String.split ~on:'\n'
+  |> List.map ~f:(fun x -> Notty.I.string attr x)
+  |> Notty.I.vcat
+
 let render ~render_info t =
-  let open Notty.I in
   let t_attr = attr t in
   (match t with
-    | Output_text { text; _ } -> string t_attr text
+    | Output_text { text; _ } -> render_string_handling_newlines t_attr text
     | Output_math { math; _ } -> render_math ~render_info t_attr math
-    | Input_text text -> string t_attr [%string "> %{text}"])
+    | Input_text text ->
+        render_string_handling_newlines t_attr [%string "> %{text}"])
   |> Notty_utils.boxed
        ~padding_control:
          (`To_min_boxed_size
