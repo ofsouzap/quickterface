@@ -79,9 +79,12 @@ let render ~render_info:({ Render_info.screen_height; _ } as render_info)
 let handle_event
     { title_bar = _; log = _; input_field_container; progress_bar = _ } =
   function
+  | `Key (`ASCII ('c' | 'C' | 'd' | 'D'), [ `Ctrl ]) ->
+      (* Ctrl+C and Ctrl+D terminate the program *) `Terminate_program
   | `Key key_event ->
-      Input_field_container.handle_key_event input_field_container key_event
-  | _ -> ()
+      Input_field_container.handle_key_event input_field_container key_event;
+      `Done
+  | _ -> `Done
 
 let with_progress_bar t ~config ~refresh_render ~f =
   match t.progress_bar with

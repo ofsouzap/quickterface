@@ -192,13 +192,19 @@ let output_text ?options t text () =
 let output_math ?options t (math : Quickterface.Math.t) () =
   let open Quickterface.Math in
   let rec math_to_string = function
+    | Char c -> Char.to_string c
     | Literal s -> s
     | Infinity -> "∞"
     | Pi -> "π"
     | E -> "e"
+    | Equals -> "="
     | Plus -> "+"
+    | Minus -> "-"
     | Star -> "*"
     | C_dot -> "·"
+    | Times -> "×"
+    | Divide -> "÷"
+    | Plus_minus -> "±"
     | Superscript { base; superscript } ->
         Printf.sprintf "(%s)^(%s)" (math_to_string base)
           (math_to_string superscript)
@@ -207,6 +213,8 @@ let output_math ?options t (math : Quickterface.Math.t) () =
           (math_to_string subscript)
     | Exp -> "exp"
     | Ln -> "ln"
+    | Sin -> "sin"
+    | Cos -> "cos"
     | List elements ->
         elements |> List.map ~f:math_to_string |> String.concat ~sep:" "
     | Frac (num, denom) ->
@@ -225,6 +233,13 @@ let output_math ?options t (math : Quickterface.Math.t) () =
           | Some u -> Printf.sprintf "^(%s)" (math_to_string u)
         in
         Printf.sprintf "∫%s%s %s" lower_str upper_str (math_to_string body)
+    | Less_than -> "<"
+    | Less_than_or_equal_to -> "≤"
+    | Greater_than -> ">"
+    | Greater_than_or_equal_to -> "≥"
+    | Not_equal -> "≠"
+    | Approximately_equals -> "≈"
+    | Equivalent_to -> "≡"
   in
   let math_string = math_to_string math in
   let%lwt () = write_output_line ?options ~flush:true t ~text:math_string in

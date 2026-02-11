@@ -1,0 +1,12 @@
+(library
+ (name my_app_app)
+ (modules my_app_app)
+ (libraries lwt quickterface)
+ (preprocess
+  (pps lwt_ppx)))
+
+(executable
+ (name my_app_terminal_app)
+ (modes exe)
+ (modules my_app_terminal_app)
+ (libraries my_app_app quickterface.terminal_app))

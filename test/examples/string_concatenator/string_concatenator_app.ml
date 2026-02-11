@@ -11,6 +11,7 @@ module App (Io : Quickterface.Io.S) = struct
         "retwuogsfdouqheoifefjsernfljsnfglsdnfsdljkfsdljkflsdkflkjsefsdhlfjksdkfjslfjkds"
         ()
     in
+    let%lwt () = Io.output_text io "Thingy1\nAnother thing\nmore" () in
     let rec run_looping ?(i = 0) () : empty Lwt.t =
       let i_str = string_of_int i in
       let%lwt () =

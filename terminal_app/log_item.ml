@@ -138,19 +138,27 @@ module Math_renderer = struct
         make_from_single_image whole_image ~center_line_index ()
       in
       function
-      | Quickterface.Math.Literal s -> plain_string s
+      | Quickterface.Math.Char c -> plain_string (Char.to_string c)
+      | Literal s -> plain_string s
       | Infinity -> plain_string "∞"
       | Pi -> plain_string "π"
       | E -> plain_string "e"
+      | Equals -> plain_string "="
       | Plus -> plain_string "+"
+      | Minus -> plain_string "-"
       | Star -> plain_string "*"
       | C_dot -> plain_string "·"
+      | Times -> plain_string "×"
+      | Divide -> plain_string "÷"
+      | Plus_minus -> plain_string "±"
       | Superscript { base; superscript } ->
           super_sub_script_helper ~base ~script:superscript ~side:`Superscript
       | Subscript { base; subscript } ->
           super_sub_script_helper ~base ~script:subscript ~side:`Subscript
       | Exp -> plain_string "exp"
       | Ln -> plain_string "ln"
+      | Sin -> plain_string "sin"
+      | Cos -> plain_string "cos"
       | List elements ->
           let element_imgs = List.map elements ~f:render_math in
           hcat element_imgs
@@ -196,6 +204,13 @@ module Math_renderer = struct
           make_from_single_image notty_image
             ~center_line_index:(bracket_height / 2) ()
       | Partial -> plain_string "∂"
+      | Less_than -> plain_string "<"
+      | Less_than_or_equal_to -> plain_string "≤"
+      | Greater_than -> plain_string ">"
+      | Greater_than_or_equal_to -> plain_string "≥"
+      | Not_equal -> plain_string "≠"
+      | Approximately_equals -> plain_string "≈"
+      | Equivalent_to -> plain_string "≡"
       | Integral { lower; upper; body } ->
           let lower_img_notty_opt =
             Option.(lower >>| render_math >>| to_notty)
@@ -238,13 +253,18 @@ let render_math ~render_info attr img =
   Math_renderer.(
     Horizontally_aligned_image.to_notty (render_math ~render_info attr img))
 
+let render_string_handling_newlines attr string =
+  string |> String.split ~on:'\n'
+  |> List.map ~f:(fun x -> Notty.I.string attr x)
+  |> Notty.I.vcat
+
 let render ~render_info t =
-  let open Notty.I in
   let t_attr = attr t in
   (match t with
-    | Output_text { text; _ } -> string t_attr text
+    | Output_text { text; _ } -> render_string_handling_newlines t_attr text
     | Output_math { math; _ } -> render_math ~render_info t_attr math
-    | Input_text text -> string t_attr [%string "> %{text}"])
+    | Input_text text ->
+        render_string_handling_newlines t_attr [%string "> %{text}"])
   |> Notty_utils.boxed
        ~padding_control:
          (`To_min_boxed_size

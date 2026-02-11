@@ -30,7 +30,11 @@ val input_multi_selection :
 val add_log_item : t -> Log_item.t -> unit Lwt.t
 val set_title : t -> string -> unit Lwt.t
 val render : t Render_function.t
-val handle_event : t -> [ Notty.Unescape.event | `Resize of int * int ] -> unit
+
+val handle_event :
+  t ->
+  [ Notty.Unescape.event | `Resize of int * int ] ->
+  [ `Done | `Terminate_program ]
 
 val with_progress_bar :
   t ->
