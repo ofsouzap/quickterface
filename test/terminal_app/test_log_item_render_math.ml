@@ -134,6 +134,30 @@ let%expect_test "fraction" =
      π
     |}]
 
+let%expect_test "fraction centering - big top" =
+  let img =
+    render_math
+      (Frac (List (List.init 10 ~f:(Fn.const (Literal "x"))), Literal "2"))
+  in
+  Notty_unix.output_image img;
+  [%expect {|
+     xxxxxxxxxx
+    ────────────
+         2
+    |}]
+
+let%expect_test "fraction centering - big bottom" =
+  let img =
+    render_math
+      (Frac (Literal "2", List (List.init 10 ~f:(Fn.const (Literal "x")))))
+  in
+  Notty_unix.output_image img;
+  [%expect {|
+         2
+    ────────────
+     xxxxxxxxxx
+    |}]
+
 let%expect_test "integral - single line, no limits" =
   let img =
     render_math (Integral { lower = None; upper = None; body = Literal "x" })

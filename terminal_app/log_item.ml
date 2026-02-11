@@ -172,7 +172,15 @@ module Math_renderer = struct
               1
           in
 
-          make_from_parts ~top:num_img ~center:line_img ~bottom:denom_img ()
+          let centered_num_img =
+            pad ~l:((max_width - I.width num_img) / 2) num_img
+          in
+          let centered_denom_img =
+            pad ~l:((max_width - I.width denom_img) / 2) denom_img
+          in
+
+          make_from_parts ~top:centered_num_img ~center:line_img
+            ~bottom:centered_denom_img ()
       | Bracketed inner ->
           let inner_img = render_math inner |> to_notty in
           let bracket_height = I.height inner_img in
