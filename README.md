@@ -9,6 +9,7 @@ Quickterface is an OCaml library that lets you write interactive applications on
 ## Features
 
 - **Write Once, Run Anywhere**: Same code runs in terminal and browser
+- **Easy Setup**: Includes a setup script executable to quickly create a Quickterface app in an existing Dune projects
 - **Rich Terminal UI**: Built on Notty with full TUI support
 - **Web Applications**: Automatically generates web interfaces using js_of_ocaml
 - **Input Types**: Text, integers, single/multi-selection
