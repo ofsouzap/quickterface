@@ -31,4 +31,8 @@
   fpath
   bos
   (notty
-   (>= 0.2.3))))
+   (>= 0.2.3))
+  (ocamlformat
+   (and
+    :with-dev-setup
+    (>= 0.26.0)))))
