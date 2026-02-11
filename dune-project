@@ -19,7 +19,7 @@
  (synopsis "Quick-to-program app interfaces in OCaml for terminal and web")
  (depends
   (ocaml
-   (>= 5.1.0))
+   (>= 5.0))
   core
   js_of_ocaml
   js_of_ocaml-ppx
