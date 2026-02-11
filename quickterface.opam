@@ -20,7 +20,7 @@ depends: [
   "cohttp-lwt-jsoo"
   "fpath"
   "bos"
-  "notty" {>= "0.2.0"}
+  "notty" {>= "0.2.3"}
   "odoc" {with-doc}
 ]
 build: [
