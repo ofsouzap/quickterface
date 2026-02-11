@@ -9,7 +9,7 @@ homepage: "https://github.com/ofsouzap/quickterface"
 bug-reports: "https://github.com/ofsouzap/quickterface/issues"
 depends: [
   "dune" {>= "3.20"}
-  "ocaml" {>= "5.0"}
+  "ocaml" {>= "5.1.0"}
   "core"
   "js_of_ocaml"
   "js_of_ocaml-ppx"
