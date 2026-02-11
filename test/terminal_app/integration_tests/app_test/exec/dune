@@ -6,7 +6,6 @@
   (pps lwt_ppx)))
 
 (executable
- (public_name my_app)
  (name my_app_terminal_app)
  (modes exe)
  (modules my_app_terminal_app)
