@@ -11,29 +11,41 @@ module Input = struct
     val element : t -> Dom_html.element Js.t
     val wait_for_input : ?auto_focus:bool -> t -> unit -> result Lwt.t
   end
+
+  module type S1 = sig
+    type 'a t
+    type 'a settings
+    type 'a result
+
+    val make : 'a settings -> document:Dom_html.document Js.t -> 'a t
+    val element : 'a t -> Dom_html.element Js.t
+    val wait_for_input : ?auto_focus:bool -> 'a t -> unit -> 'a result Lwt.t
+  end
 end
 
-module Html_input (Element : sig
-  type t
-  type settings
-  type value
+module Html_input1 (Element : sig
+  type 'a t
+  type 'a settings
+  type 'a value
 
-  val append_element_as_child : t -> parent:#Dom.node Js.t -> unit
-  val reset : t -> unit -> unit Lwt.t
-  val make_readonly : t -> unit -> unit Lwt.t
-  val focus : t -> unit -> unit Lwt.t
-  val read_value_result : t -> unit -> (value, Error.t) Result.t
-  val make : document:Dom_html.document Js.t -> settings:settings -> unit -> t
+  val append_element_as_child : 'a t -> parent:#Dom.node Js.t -> unit
+  val reset : 'a t -> unit -> unit Lwt.t
+  val make_readonly : 'a t -> unit -> unit Lwt.t
+  val focus : 'a t -> unit -> unit Lwt.t
+  val read_value_result : 'a t -> unit -> ('a value, Error.t) Result.t
+
+  val make :
+    document:Dom_html.document Js.t -> settings:'a settings -> unit -> 'a t
 end) =
 struct
-  type t = {
+  type 'a t = {
     element : Dom_html.element Js.t;
     form : Dom_html.formElement Js.t;
-    input_element : Element.t;
+    input_element : 'a Element.t;
     submit_button : Dom_html.buttonElement Js.t;
   }
 
-  let make settings ~document : t =
+  let make settings ~document : 'a t =
     let container = Dom_html.createDiv document in
 
     let form = Dom_html.createForm document in
@@ -107,6 +119,37 @@ struct
     Lwt.return input
 end
 
+(** This should be just the same as [Html_input1] but ignoring the type
+    parameters. It's inconvenient I need to write the code like this but I can't
+    think of another way *)
+module Html_input (Element : sig
+  type t
+  type settings
+  type value
+
+  val append_element_as_child : t -> parent:#Dom.node Js.t -> unit
+  val reset : t -> unit -> unit Lwt.t
+  val make_readonly : t -> unit -> unit Lwt.t
+  val focus : t -> unit -> unit Lwt.t
+  val read_value_result : t -> unit -> (value, Error.t) Result.t
+  val make : document:Dom_html.document Js.t -> settings:settings -> unit -> t
+end) =
+struct
+  module M = Html_input1 (struct
+    include Element
+
+    type _ t = Element.t
+    type _ settings = Element.settings
+    type _ value = Element.value
+  end)
+
+  include M
+
+  (* Since I know that type parameter is ignored, I just give the empty type to it to make the signature work out *)
+  type empty = |
+  type t = empty M.t
+end
+
 module Simple_html_input (M : sig
   type t
 
@@ -163,21 +206,21 @@ module Integer = Simple_html_input (struct
     | None -> Error (Error.of_string "Unable to parse string as int")
 end)
 
-module Single_selection = Html_input (struct
-  type t = {
+module Single_selection = Html_input1 (struct
+  type 'a t = {
     element : Dom_html.selectElement Js.t;
-    options : string list;
-    default : string;
+    options : 'a list;
+    option_to_string : 'a -> string;
   }
 
-  type settings = string list
-  type value = string
+  type 'a settings = 'a list * ('a -> string)
+  type 'a value = 'a
 
   let append_element_as_child { element; _ } ~parent =
     Dom.appendChild parent element
 
-  let reset { element; options = _; default } () =
-    element##.value := Js.string default;
+  let reset { element; options; option_to_string } () =
+    element##.value := Js.string (option_to_string (List.hd_exn options));
     Lwt.return ()
 
   let make_readonly { element; _ } () =
@@ -188,32 +231,38 @@ module Single_selection = Html_input (struct
     element##focus;
     Lwt.return ()
 
-  let read_value_result { element; options; default = _ } () =
-    let input = Js.to_string element##.value in
-    if List.mem options input ~equal:String.equal then Ok input
-    else Error (Error.of_string "Input value is not one of allowed options")
+  let read_value_result { element; options; option_to_string = _ } () =
+    let open Result.Let_syntax in
+    let%bind input_index =
+      Js.to_string element##.value
+      |> Int.of_string_opt
+      |> Result.of_option ~error:(Error.of_string "Input value was not integer")
+    in
+    List.nth options input_index
+    |> Result.of_option ~error:(Error.of_string "Input index out of range")
 
-  let make ~document ~settings:options () =
+  let make ~document ~settings:(options, option_to_string) () =
     match options with
     | [] -> failwith "No options provided"
-    | default :: _ ->
+    | _ :: _ ->
         let input_field_name_string = Js.string "select_input" in
         let element =
           Dom_html.createSelect document ~name:input_field_name_string
         in
-        List.iter options ~f:(fun option ->
+        List.iteri options ~f:(fun i option ->
             let option_element = Dom_html.createOption document in
-            option_element##.innerText := Js.string option;
+            option_element##.innerText := Js.string (option_to_string option);
+            option_element##.value := Js.string (string_of_int i);
             Dom.appendChild element option_element);
-        { element; options; default }
+        { element; options; option_to_string }
 end)
 
-module Multi_selection = Html_input (struct
+module Multi_selection = Html_input1 (struct
   module Checkbox = struct
     type t = {
       element : Dom_html.element Js.t;
       checkbox : Dom_html.inputElement Js.t;
-      value_name : string;
+      value_index : int;
     }
 
     let append_element_as_child { element; _ } ~parent =
@@ -222,9 +271,9 @@ module Multi_selection = Html_input (struct
     let reset { checkbox; _ } () = checkbox##.checked := Js._false
     let make_readonly { checkbox; _ } () = checkbox##.disabled := Js._true
     let is_checked { checkbox; _ } () = Js.to_bool checkbox##.checked
-    let value_name { value_name; _ } = value_name
+    let value_index { value_index; _ } = value_index
 
-    let make ~document ~value_name ~input_name () =
+    let make ~document ~value_name ~input_name ~value_index () =
       let label_container = Dom_html.createLabel document in
       (label_container##.className
       := Class.(to_js_string Input_multiselect_container));
@@ -242,18 +291,19 @@ module Multi_selection = Html_input (struct
       {
         element = (label_container :> Dom_html.element Js.t);
         checkbox;
-        value_name;
+        value_index;
       }
   end
 
-  type t = {
+  type 'a t = {
     element : Dom_html.fieldSetElement Js.t;
     checkboxes : Checkbox.t list;
-    options : string list;
+    options : 'a list;
+    option_to_string : 'a -> string;
   }
 
-  type settings = string list
-  type value = string list
+  type 'a settings = 'a list * ('a -> string)
+  type 'a value = 'a list
 
   let append_element_as_child { element; _ } ~parent =
     Dom.appendChild parent element
@@ -272,38 +322,39 @@ module Multi_selection = Html_input (struct
     | first_checkbox :: _ -> first_checkbox.element##focus);
     Lwt.return ()
 
-  let read_value_result { element = _; checkboxes; options } () =
+  let read_value_result
+      { element = _; checkboxes; options; option_to_string = _ } () =
     List.fold_result checkboxes ~init:[] ~f:(fun acc checkbox ->
         if Checkbox.is_checked checkbox () then
-          let value = Checkbox.value_name checkbox in
-          if List.mem options value ~equal:String.equal then
-            (* Add on the checked, correct value *)
-            Ok (value :: acc)
-          else
-            Error
-              (Error.of_string
-                 [%string
-                   "Checkbox value \"${value}\" is not one of allowed options"])
+          let value_index = Checkbox.value_index checkbox in
+          let%bind.Result option =
+            List.nth options value_index
+            |> Result.of_option
+                 ~error:
+                   (Error.of_string
+                      (sprintf "Checkbox index %d is not in range" value_index))
+          in
+          Ok (option :: acc)
         else
           (* Don't add as not checked *)
           Ok acc)
 
-  let make ~document ~settings:options () =
+  let make ~document ~settings:(options, option_to_string) () =
     let fieldset = Dom_html.createFieldset document in
 
     let checkboxes =
-      List.map options ~f:(fun option ->
+      List.mapi options ~f:(fun i option ->
           let checkbox_name =
             "input_checkboxes[]"
             (* The "[]" signs to browsers that this is a list, needed because the name will be reused *)
           in
           let checkbox =
-            Checkbox.make ~document ~value_name:option ~input_name:checkbox_name
-              ()
+            Checkbox.make ~document ~value_name:(option_to_string option)
+              ~input_name:checkbox_name ~value_index:i ()
           in
           Checkbox.append_element_as_child ~parent:fieldset checkbox;
           checkbox)
     in
 
-    { element = fieldset; checkboxes; options }
+    { element = fieldset; checkboxes; options; option_to_string }
 end)
