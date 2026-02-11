@@ -18,7 +18,8 @@
  (version 0.1.0)
  (synopsis "Quick-to-program app interfaces in OCaml for terminal and web")
  (depends
-  ocaml
+  (ocaml
+   (>= 5.1.0))
   core
   js_of_ocaml
   js_of_ocaml-ppx
@@ -29,4 +30,5 @@
   cohttp-lwt-jsoo
   fpath
   bos
-  notty))
+  (notty
+   (>= 0.2.0))))
