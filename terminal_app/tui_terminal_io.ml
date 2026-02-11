@@ -77,7 +77,7 @@ let with_progress_bar ?label ({ window; _ } as t) ~maximum ~f () =
     ~refresh_render:(refresh_render t) ~f
 
 let make () =
-  let term = Notty_lwt.Term.create ~nosig:false ~mouse:false ~bpaste:false () in
+  let term = Notty_lwt.Term.create ~nosig:true ~mouse:false ~bpaste:false () in
   let window = Window.make () in
   let t = { term; window } in
 
@@ -85,9 +85,12 @@ let make () =
   Lwt.async (fun () ->
       Lwt_stream.iter_s
         (fun event ->
-          Window.handle_event t.window event;
-          let%lwt () = refresh_render t () in
-          Lwt.return ())
+          match Window.handle_event t.window event with
+          | `Done ->
+              let%lwt () = refresh_render t () in
+              Lwt.return ()
+          | `Terminate_program ->
+              raise_s [%message "Program terminated by user input"])
         (Notty_lwt.Term.events t.term));
 
   t
