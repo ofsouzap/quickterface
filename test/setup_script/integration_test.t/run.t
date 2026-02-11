@@ -20,4 +20,3 @@ Create an executable with a custom name in the same project and check the projec
   $ echo "NAME" | dune exec ./my_app/my_app_terminal_app.exe -- --mode=minimal
   What is your name?
   > Hello, NAME!
-  
