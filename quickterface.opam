@@ -21,7 +21,7 @@ depends: [
   "fpath"
   "bos"
   "notty" {>= "0.2.3"}
-  "ocamlformat" {with-dev-setup & >= "0.26.0"}
+  "ocamlformat" {with-dev-setup & = "0.28.1"}
   "odoc" {with-doc}
 ]
 build: [

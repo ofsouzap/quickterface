@@ -36,4 +36,4 @@
   (ocamlformat
    (and
     :with-dev-setup
-    (>= 0.26.0)))))
+    (= 0.28.1)))))
