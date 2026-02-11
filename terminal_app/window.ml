@@ -30,15 +30,15 @@ let input_integer { input_field_container; _ } ~refresh_render () =
   |> ok_or_raise
 
 let input_single_selection { input_field_container; _ } ~refresh_render ~options
-    () =
+    ~option_to_string () =
   Input_field_container.get_input_single_selection input_field_container
-    ~refresh_render ~options ()
+    ~refresh_render ~options ~option_to_string ()
   |> ok_or_raise
 
 let input_multi_selection { input_field_container; _ } ~refresh_render ~options
-    () =
+    ~option_to_string () =
   Input_field_container.get_input_multi_selection input_field_container
-    ~refresh_render ~options ()
+    ~refresh_render ~options ~option_to_string ()
   |> ok_or_raise
 
 let add_log_item t item =

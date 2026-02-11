@@ -28,26 +28,41 @@ let input_integer t () =
     ~log_item:(fun n -> Log_item.input_text (string_of_int n))
     t ()
 
-let input_single_selection t options () =
+let input_single_selection t options option_to_string () =
   input_then_add_to_log
-    ~window_input:(Window.input_single_selection ~options)
-    ~log_item:Log_item.input_text t ()
+    ~window_input:(Window.input_single_selection ~options ~option_to_string)
+    ~log_item:(fun selected_option ->
+      Log_item.input_text (option_to_string selected_option))
+    t ()
 
-let input_multi_selection t options () =
+let input_single_selection_string t options () =
+  input_single_selection t options Fn.id ()
+
+let input_multi_selection t options option_to_string () =
   input_then_add_to_log
-    ~window_input:(Window.input_multi_selection ~options)
+    ~window_input:(Window.input_multi_selection ~options ~option_to_string)
     ~log_item:(fun selected_options ->
       (* TODO-someday: perhaps this could be better done by separating them by line? *)
-      Log_item.input_text (String.concat ~sep:", " selected_options))
+      Log_item.input_text
+        (selected_options
+        |> List.map ~f:option_to_string
+        |> String.concat ~sep:", "))
     t ()
+
+let input_multi_selection_string t options () =
+  input_multi_selection t options Fn.id ()
 
 let input : type settings a.
     _ -> (settings, a) Input.t -> settings -> unit -> a Lwt.t =
  fun t -> function
   | Text -> fun () -> input_text t
   | Integer -> fun () -> input_integer t
-  | Single_selection -> fun options -> input_single_selection t options
-  | Multi_selection -> fun options -> input_multi_selection t options
+  | Single_selection ->
+      fun (options, option_to_string) ->
+        input_single_selection t options option_to_string
+  | Multi_selection ->
+      fun (options, option_to_string) ->
+        input_multi_selection t options option_to_string
 
 let then_refresh_render ~t f =
   let%lwt () = f in

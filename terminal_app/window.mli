@@ -16,16 +16,18 @@ val input_integer :
 val input_single_selection :
   t ->
   refresh_render:(unit -> unit Lwt.t) ->
-  options:string list ->
+  options:'a list ->
+  option_to_string:('a -> string) ->
   unit ->
-  string Lwt.t
+  'a Lwt.t
 
 val input_multi_selection :
   t ->
   refresh_render:(unit -> unit Lwt.t) ->
-  options:string list ->
+  options:'a list ->
+  option_to_string:('a -> string) ->
   unit ->
-  string list Lwt.t
+  'a list Lwt.t
 
 val add_log_item : t -> Log_item.t -> unit Lwt.t
 val set_title : t -> string -> unit Lwt.t

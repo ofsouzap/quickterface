@@ -19,15 +19,26 @@ let make () =
 let input_text t () = Log.input_text t.log ()
 let input_integer t () = Log.input_integer t.log ()
 let input_single_selection t = Log.input_single_selection t.log
+
+let input_single_selection_string t options =
+  Log.input_single_selection t.log options Fn.id
+
 let input_multi_selection t = Log.input_multi_selection t.log
+
+let input_multi_selection_string t options =
+  Log.input_multi_selection t.log options Fn.id
 
 let input : type settings a.
     _ -> (settings, a) Input.t -> settings -> unit -> a Lwt.t =
  fun t -> function
   | Text -> fun () -> input_text t
   | Integer -> fun () -> input_integer t
-  | Single_selection -> input_single_selection t
-  | Multi_selection -> input_multi_selection t
+  | Single_selection ->
+      fun (options, option_to_string) ->
+        input_single_selection t options option_to_string
+  | Multi_selection ->
+      fun (options, option_to_string) ->
+        input_multi_selection t options option_to_string
 
 let output_text ?options t value () =
   Log.add_output_text ?options t.log ~value ()

@@ -9,8 +9,10 @@ type t = {
 val make : document:Dom_html.document Js.t -> main_container:#Dom.node Js.t -> t
 val input_text : t -> unit -> string Lwt.t
 val input_integer : t -> unit -> int Lwt.t
-val input_single_selection : t -> string list -> unit -> string Lwt.t
-val input_multi_selection : t -> string list -> unit -> string list Lwt.t
+val input_single_selection : t -> 'a list -> ('a -> string) -> unit -> 'a Lwt.t
+
+val input_multi_selection :
+  t -> 'a list -> ('a -> string) -> unit -> 'a list Lwt.t
 
 val add_output_text :
   ?options:Quickterface.Output_text_options.t ->

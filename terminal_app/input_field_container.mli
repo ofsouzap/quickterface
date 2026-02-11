@@ -27,13 +27,15 @@ val get_input_integer :
 val get_input_single_selection :
   t ->
   refresh_render:(unit -> unit Lwt.t) ->
-  options:string list ->
+  options:'a list ->
+  option_to_string:('a -> string) ->
   unit ->
-  (string Lwt.t, Error.t) result
+  ('a Lwt.t, Error.t) result
 
 val get_input_multi_selection :
   t ->
   refresh_render:(unit -> unit Lwt.t) ->
-  options:string list ->
+  options:'a list ->
+  option_to_string:('a -> string) ->
   unit ->
-  (string list Lwt.t, Error.t) result
+  ('a list Lwt.t, Error.t) result
