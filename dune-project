@@ -21,7 +21,8 @@
   (ocaml
    (>= 5.1.0))
   core
-  js_of_ocaml
+  (js_of_ocaml
+   (>= 6.0.0))
   js_of_ocaml-ppx
   lwt
   lwt_ppx
@@ -31,4 +32,14 @@
   fpath
   bos
   (notty
-   (>= 0.2.0))))
+   (>= 0.2.3))
+  (cmdliner
+   (>= 2.1.0))
+  (ocamlfind
+   (>= 1.9.8))
+  (ppx_jane
+   (>= v0.17.0))
+  (ocamlformat
+   (and
+    :with-dev-setup
+    (= 0.28.1)))))
