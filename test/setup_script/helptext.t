@@ -1,6 +1,4 @@
-  $ quickterface-setup-script --help
-  SETUP(1)                         Setup Manual                         SETUP(1)
-  
+  $ quickterface-setup-script --help=plain
   NAME
          setup - Set up a new executable in an existing dune project
   
@@ -20,8 +18,8 @@
   
   COMMON OPTIONS
          --help[=FMT] (default=auto)
-             Show  this  help  in format FMT. The value FMT must be one of auto,
-             pager, groff or plain. With auto, the  format  is  pager  or  plain
+             Show this help in format FMT. The value FMT must be one of auto,
+             pager, groff or plain. With auto, the format is pager or plain
              whenever the TERM env var is dumb or undefined.
   
   EXIT STATUS
@@ -35,4 +33,15 @@
   
          125 on unexpected internal errors (bugs).
   
-  Setup                                                                 SETUP(1)
+
+
+
+
+
+
+
+
+
+
+
+
