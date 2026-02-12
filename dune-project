@@ -33,6 +33,12 @@
   bos
   (notty
    (>= 0.2.3))
+  (cmdliner
+   (>= 2.1.0))
+  (ocamlfind
+   (>= 1.9.8))
+  (ppx_jane
+   (>= v0.17.0))
   (ocamlformat
    (and
     :with-dev-setup
