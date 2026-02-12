@@ -62,5 +62,5 @@ let with_progress_bar ?label { head = _; log } =
   Log.with_progress_bar ?label log
 
 let console_log_error message () =
-  Js_of_ocaml.Console.console##error (Js.string message);
+  Console.console##error (Js.string message);
   Lwt.return ()
