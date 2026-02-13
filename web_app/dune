@@ -6,6 +6,7 @@
   lwt
   lwt_ppx
   js_of_ocaml
+  js_of_ocaml-compiler
   cohttp-lwt
   cohttp-lwt-jsoo
   quickterface
