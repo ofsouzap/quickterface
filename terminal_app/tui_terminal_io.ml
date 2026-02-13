@@ -19,9 +19,11 @@ let input_then_add_to_log ~window_input ~log_item ({ window; _ } as t) () =
 let input_any_key ({ window; _ } as t) () =
   Window.input_any_key window ~refresh_render:(refresh_render t) ()
 
-let input_text t () =
-  input_then_add_to_log ~window_input:Window.input_text
-    ~log_item:Log_item.input_text t ()
+let input_text ?(prompt = "> ") t () =
+  input_then_add_to_log
+    ~window_input:(Window.input_text ~prompt)
+    ~log_item:(Log_item.input_text ~prompt)
+    t ()
 
 let input_integer t () =
   input_then_add_to_log ~window_input:Window.input_integer
@@ -55,7 +57,7 @@ let input_multi_selection_string t options () =
 let input : type settings a.
     _ -> (settings, a) Input.t -> settings -> unit -> a Lwt.t =
  fun t -> function
-  | Text -> fun () -> input_text t
+  | Text -> fun prompt -> input_text ?prompt t
   | Integer -> fun () -> input_integer t
   | Single_selection ->
       fun (options, option_to_string) ->

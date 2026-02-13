@@ -34,8 +34,8 @@ let get_input ({ input_field } as t) ~refresh_render ~input_field_maker =
 let get_input_any_key t ~refresh_render () =
   get_input t ~refresh_render ~input_field_maker:Input_field.make_any_key
 
-let get_input_text t ~refresh_render () =
-  get_input t ~refresh_render ~input_field_maker:Input_field.make_text
+let get_input_text ~prompt t ~refresh_render () =
+  get_input t ~refresh_render ~input_field_maker:(Input_field.make_text ~prompt)
 
 let get_input_integer t ~refresh_render () =
   get_input t ~refresh_render ~input_field_maker:Input_field.make_integer

@@ -1,6 +1,13 @@
 open! Core
 
 module Variant = struct
+  module Text_state = struct
+    type t = { prompt : string; value : string }
+
+    let make ~prompt () = { prompt; value = "" }
+    let set_value t value = { t with value }
+  end
+
   module Int_as_string = struct
     type t = Empty | Just_minus | Positive of string | Negative of string
 
@@ -115,7 +122,7 @@ module Variant = struct
       a value of type ['b] *)
   type (_, _) t =
     | Any_key : (unit, unit) t
-    | Text : (string, string) t
+    | Text : (Text_state.t, string) t
     | Integer : (Int_as_string.t, int) t
     | Single_selection : ('a Single_selection_state.t, 'a) t
     | Multi_selection : ('a Multi_selection_state.t, 'a list) t
@@ -133,7 +140,8 @@ module Variant = struct
     match t with
     | Any_key -> empty
     | Text ->
-        string Theme.text_input_editable [%string "> %{state}"]
+        string Theme.text_input_editable
+          [%string "%{state.prompt}%{state.value}"]
         |> boxed_to_screen_width
     | Integer ->
         let as_string = Int_as_string.to_string state in
@@ -184,7 +192,8 @@ module Variant = struct
   let injest_char : type a b. (a, b) t -> a -> _ -> a =
    fun t state char ->
     match (t, char) with
-    | Text, char -> state ^ String.of_char char
+    | Text, char ->
+        Text_state.set_value state (state.value ^ String.of_char char)
     | Integer, char -> Int_as_string.injest_char char state
     | Multi_selection, ' ' -> Multi_selection_state.toggle_current_index state
     | (Any_key | Single_selection | Multi_selection), _ -> state
@@ -194,8 +203,11 @@ module Variant = struct
     match t with
     | Any_key | Single_selection | Multi_selection -> state
     | Text ->
-        if String.is_empty state then state
-        else String.sub ~pos:0 ~len:(String.length state - 1) state
+        let value = state.value in
+        if String.is_empty value then state
+        else
+          Text_state.set_value state
+            (String.sub ~pos:0 ~len:(String.length value - 1) value)
     | Integer -> Int_as_string.injest_backspace state
 
   let injest_arrow_key : type a b. (a, b) t -> a -> _ -> a =
@@ -219,7 +231,7 @@ module Variant = struct
    fun t state ->
     match t with
     | Any_key -> ()
-    | Text -> state
+    | Text -> state.value
     | Integer -> Int_as_string.to_int state
     | Single_selection ->
         let {
@@ -256,8 +268,13 @@ type t = Packed : ('a, 'b) Unpacked.t -> t
 let make_any_key ~resolver () =
   Packed { variant = Any_key; current_value = (); resolver }
 
-let make_text ~resolver () =
-  Packed { variant = Text; current_value = ""; resolver }
+let make_text ~prompt ~resolver () =
+  Packed
+    {
+      variant = Text;
+      current_value = Variant.Text_state.make ~prompt ();
+      resolver;
+    }
 
 let make_integer ~resolver () =
   Packed

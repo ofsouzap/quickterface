@@ -17,8 +17,8 @@ let write_output
 let write_output_line ?options ?flush t ~text =
   write_output ?options ?flush t ~text:(text ^ "\n")
 
-let input_text ({ in_channel; out_channel = _ } as t) () =
-  let%lwt () = write_output ~flush:true t ~text:"> " in
+let input_text ?(prompt = "> ") ({ in_channel; out_channel = _ } as t) () =
+  let%lwt () = write_output ~flush:true t ~text:prompt in
   In_channel.input_line in_channel |> Option.value_exn |> Lwt.return
 
 let input_integer ({ in_channel; out_channel = _ } as t) () =
@@ -198,7 +198,7 @@ let input_multi_selection_string t options () =
 let input : type settings a.
     _ -> (settings, a) Input.t -> settings -> unit -> a Lwt.t =
  fun t -> function
-  | Text -> fun () -> input_text t
+  | Text -> fun prompt -> input_text ?prompt t
   | Integer -> fun () -> input_integer t
   | Single_selection ->
       fun (options, option_to_string) ->

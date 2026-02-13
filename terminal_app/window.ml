@@ -22,8 +22,9 @@ let input_any_key { input_field_container; _ } ~refresh_render () =
     ()
   |> ok_or_raise
 
-let input_text { input_field_container; _ } ~refresh_render () =
-  Input_field_container.get_input_text input_field_container ~refresh_render ()
+let input_text ~prompt { input_field_container; _ } ~refresh_render () =
+  Input_field_container.get_input_text ~prompt input_field_container
+    ~refresh_render ()
   |> ok_or_raise
 
 let input_integer { input_field_container; _ } ~refresh_render () =
