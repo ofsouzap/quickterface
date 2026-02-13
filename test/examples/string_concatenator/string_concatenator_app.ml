@@ -53,5 +53,6 @@ module App (Io : Quickterface.Io.S) = struct
       let%lwt () = Io.output_text io res () in
       run_looping ~i:(i + 1) ()
     in
-    match%lwt run_looping () with _ -> .
+    match%lwt run_looping () with
+    | _ -> .
 end

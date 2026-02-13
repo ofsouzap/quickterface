@@ -7,7 +7,10 @@ let green = Green
 let blue = Blue
 
 let css_color_string color =
-  match color with Red -> "red" | Green -> "green" | Blue -> "blue"
+  match color with
+  | Red -> "red"
+  | Green -> "green"
+  | Blue -> "blue"
 
 let to_rgb color =
   match color with

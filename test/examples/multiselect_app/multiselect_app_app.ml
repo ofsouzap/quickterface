@@ -4,7 +4,11 @@ module App (Io : Quickterface.Io.S) = struct
   type empty = |
   type selection = A | B | C | D
 
-  let selection_to_string = function A -> "A" | B -> "B" | C -> "C" | D -> "D"
+  let selection_to_string = function
+    | A -> "A"
+    | B -> "B"
+    | C -> "C"
+    | D -> "D"
 
   let main ~io () =
     let rec run_looping () : empty Lwt.t =
@@ -20,5 +24,6 @@ module App (Io : Quickterface.Io.S) = struct
       in
       run_looping ()
     in
-    match%lwt run_looping () with _ -> .
+    match%lwt run_looping () with
+    | _ -> .
 end

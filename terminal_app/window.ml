@@ -13,7 +13,9 @@ let make ?(title = "") () =
   let input_field_container = Input_field_container.make () in
   { title_bar; log; input_field_container; progress_bar = None }
 
-let ok_or_raise = function Ok v -> v | Error e -> Error.raise e
+let ok_or_raise = function
+  | Ok v -> v
+  | Error e -> Error.raise e
 
 let input_any_key { input_field_container; _ } ~refresh_render () =
   Input_field_container.get_input_any_key input_field_container ~refresh_render

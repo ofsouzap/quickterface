@@ -21,7 +21,9 @@ module Make (App : Quickterface.App.S) : S = struct
     Lwt.return ()
 
   let run ~mode =
-    match mode with `Tui -> run_tui_app | `Minimal -> run_minimal_app
+    match mode with
+    | `Tui -> run_tui_app
+    | `Minimal -> run_minimal_app
 
   let command ~argv () =
     let open Cmdliner in

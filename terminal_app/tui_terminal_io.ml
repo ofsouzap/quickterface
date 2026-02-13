@@ -84,7 +84,10 @@ let output : type options a.
  fun ?options t -> function
   | Text -> fun x -> output_text ?options t x
   | Math -> fun x -> output_math ?options t x
-  | Title -> ( fun x -> match options with None | Some () -> output_title t x)
+  | Title -> (
+      fun x ->
+        match options with
+        | None | Some () -> output_title t x)
 
 let with_progress_bar ?label ({ window; _ } as t) ~maximum ~f () =
   Window.with_progress_bar window

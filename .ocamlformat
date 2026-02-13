@@ -1,2 +1,8 @@
 version = 0.28.1
 margin = 80
+break-cases = fit-or-vertical
+break-fun-decl = wrap
+break-fun-sig = wrap
+break-infix = wrap
+break-separators = after
+module-item-spacing = compact
