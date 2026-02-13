@@ -24,6 +24,8 @@
   (js_of_ocaml
    (>= 6.0.0))
   js_of_ocaml-ppx
+  (js_of_ocaml-compiler
+   (>= 6.2.0))
   lwt
   lwt_ppx
   cohttp-lwt
