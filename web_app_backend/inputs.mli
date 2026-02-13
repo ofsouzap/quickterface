@@ -26,7 +26,9 @@ module Input : sig
   end
 end
 
-module Text : Input.S with type settings := string option and type result := string
+module Text :
+  Input.S with type settings := string option and type result := string
+
 module Integer : Input.S with type settings := unit and type result := int
 
 module Single_selection :
