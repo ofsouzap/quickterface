@@ -188,11 +188,51 @@ Html_input (struct
       ~name:input_field_name_string
 end)
 
-module Text = Simple_html_input (struct
-  type t = string
+module Text = Html_input (struct
+  type t = {
+    container : Dom_html.divElement Js.t;
+    input : Dom_html.inputElement Js.t;
+  }
 
-  let html_input_type = "text"
-  let t_of_string_result s = Ok s
+  type settings = string option
+  type value = string
+
+  let append_element_as_child { container; _ } ~parent =
+    Dom.appendChild parent container
+
+  let reset { input; _ } () =
+    input##.value := Js.string "";
+    Lwt.return ()
+
+  let make_readonly { input; _ } () =
+    input##.readOnly := Js._true;
+    Lwt.return ()
+
+  let focus { input; _ } () =
+    input##focus;
+    Lwt.return ()
+
+  let read_value_result { input; _ } () = Ok (Js.to_string input##.value)
+
+  let make ~document ~settings:prompt () =
+    let container = Dom_html.createDiv document in
+    let input_field_name_string = Js.string "text_input_field" in
+    let input =
+      Dom_html.createInput document ~_type:(Js.string "text")
+        ~name:input_field_name_string
+    in
+
+    (match prompt with
+    | None -> ()
+    | Some prompt ->
+        let label = Dom_html.createSpan document in
+        (label##.className := Class.(to_js_string Text_prompt_label));
+        label##.innerText := Js.string prompt;
+        Dom.appendChild container label);
+
+    Dom.appendChild container input;
+
+    { container; input }
 end)
 
 module Integer = Simple_html_input (struct

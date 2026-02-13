@@ -13,6 +13,7 @@ val get_input_any_key :
   (unit Lwt.t, Error.t) result
 
 val get_input_text :
+  prompt:string ->
   t ->
   refresh_render:(unit -> unit Lwt.t) ->
   unit ->

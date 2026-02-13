@@ -27,8 +27,8 @@ module App (Io : Quickterface.Io.S) = struct
       let%lwt () =
         Io.output_title io [%string "String Concatenator App (run %{i_str})"] ()
       in
-      let%lwt x = Io.input_text io () in
-      let%lwt y = Io.input_text io () in
+      let%lwt x = Io.input_text ~prompt:"First string> " io () in
+      let%lwt y = Io.input_text ~prompt:"Second string> " io () in
       let%lwt mode =
         Io.input_single_selection io Concat_mode.all Concat_mode.to_string ()
       in

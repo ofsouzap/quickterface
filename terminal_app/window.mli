@@ -8,7 +8,11 @@ val input_any_key :
   t -> refresh_render:(unit -> unit Lwt.t) -> unit -> unit Lwt.t
 
 val input_text :
-  t -> refresh_render:(unit -> unit Lwt.t) -> unit -> string Lwt.t
+  prompt:string ->
+  t ->
+  refresh_render:(unit -> unit Lwt.t) ->
+  unit ->
+  string Lwt.t
 
 val input_integer :
   t -> refresh_render:(unit -> unit Lwt.t) -> unit -> int Lwt.t

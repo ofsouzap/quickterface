@@ -2,7 +2,7 @@ open! Core
 
 module Input = struct
   type (_, _) t =
-    | Text : (unit, string) t
+    | Text : (string option, string) t
     | Integer : (unit, int) t
     | Single_selection : ('a list * ('a -> string), 'a) t
     | Multi_selection : ('a list * ('a -> string), 'a list) t
@@ -21,7 +21,7 @@ module type S = sig
   module Http_client : Cohttp_lwt.S.Client
 
   val input : t -> ('settings, 'a) Input.t -> 'settings -> unit -> 'a Lwt.t
-  val input_text : t -> unit -> string Lwt.t
+  val input_text : ?prompt:string -> t -> unit -> string Lwt.t
   val input_integer : t -> unit -> int Lwt.t
 
   val input_single_selection :

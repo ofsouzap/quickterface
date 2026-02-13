@@ -16,7 +16,7 @@ let make () =
 
   Lwt.return { head; log }
 
-let input_text t () = Log.input_text t.log ()
+let input_text ?prompt t () = Log.input_text ?prompt t.log ()
 let input_integer t () = Log.input_integer t.log ()
 let input_single_selection t = Log.input_single_selection t.log
 
@@ -31,7 +31,7 @@ let input_multi_selection_string t options =
 let input : type settings a.
     _ -> (settings, a) Input.t -> settings -> unit -> a Lwt.t =
  fun t -> function
-  | Text -> fun () -> input_text t
+  | Text -> fun prompt -> input_text ?prompt t
   | Integer -> fun () -> input_integer t
   | Single_selection ->
       fun (options, option_to_string) ->

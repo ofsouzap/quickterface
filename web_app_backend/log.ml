@@ -21,8 +21,8 @@ let add_item { document; container } ~item_element () =
   Dom.appendChild container container_div;
   Lwt.return ()
 
-let input_text ({ document; container = _ } as t) () =
-  let input_text = Inputs.Text.make () ~document in
+let input_text ?prompt ({ document; container = _ } as t) () =
+  let input_text = Inputs.Text.make prompt ~document in
   let%lwt () = add_item t ~item_element:(Inputs.Text.element input_text) () in
   Inputs.Text.wait_for_input input_text ()
 

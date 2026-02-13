@@ -9,7 +9,7 @@ type t =
       math : Quickterface.Math.t;
       options : Quickterface.Output_text_options.t;
     }
-  | Input_text of string
+  | Input_text of { prompt : string; text : string }
 
 let output_text ?(options = Quickterface.Output_text_options.default) text =
   Output_text { text; options }
@@ -17,7 +17,7 @@ let output_text ?(options = Quickterface.Output_text_options.default) text =
 let output_math ?(options = Quickterface.Output_text_options.default) math =
   Output_math { math; options }
 
-let input_text text = Input_text text
+let input_text ?(prompt = "> ") text = Input_text { prompt; text }
 
 let attr = function
   | Output_text { options; _ } -> Theme.text_output_from_options options
@@ -271,8 +271,8 @@ let render ~render_info t =
   (match t with
     | Output_text { text; _ } -> render_string_handling_newlines t_attr text
     | Output_math { math; _ } -> render_math ~render_info t_attr math
-    | Input_text text ->
-        render_string_handling_newlines t_attr [%string "> %{text}"])
+    | Input_text { prompt; text } ->
+        render_string_handling_newlines t_attr [%string "%{prompt}%{text}"])
   |> Notty_utils.boxed
        ~padding_control:
          (`To_min_boxed_size
