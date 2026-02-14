@@ -15,7 +15,7 @@
 
 (package
  (name quickterface)
- (version 0.1.1)
+ (version 0.1.0)
  (synopsis "Quick-to-program app interfaces in OCaml for terminal and web")
  (depends
   (ocaml
