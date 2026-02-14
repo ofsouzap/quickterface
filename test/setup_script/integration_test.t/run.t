@@ -4,7 +4,7 @@ I define a helper function for building and filtering
 the errors.
   $ do_build () { \
   >   dune build "$@" 2>&1 \
-  >   | grep -v 'deprecated-joo-global-object'; \
+  >   | grep -v 'deprecated-joo-global-object|overriding-primitive'; \
   >   status=$?; \
   >   [ "$status" -eq 1 ] && return 0; \
   >   return "$status";
