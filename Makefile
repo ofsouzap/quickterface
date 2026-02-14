@@ -33,7 +33,8 @@ dune-clean-build-test-clean:
 	$(OPAM_IN_SWITCH) dune clean
 
 ci-switch:
-	opam switch create $(SWITCH_NAME) "5.1.0" --no-switch
+	@test -n "$(OCAML_VERSION)" || { echo "Error: OCAML_VERSION is not set" >&2; exit 1; }
+	opam switch create $(SWITCH_NAME) "$(OCAML_VERSION)" --no-switch
 
 ci-clean-switch:
 	if opam switch list --short | grep -Fxq "$(SWITCH_NAME)"; then \
