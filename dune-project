@@ -44,4 +44,6 @@
   (ocamlformat
    (and
     :with-dev-setup
-    (= 0.28.1)))))
+    (= 0.28.1)))
+  (bigstringaf
+   (>= 0.6.1))))

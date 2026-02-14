@@ -36,6 +36,3 @@ setup.log
 _opam/
 
 notes.md
-
-# At the moment, I'm using a Makefile for dev stuff
-Makefile
