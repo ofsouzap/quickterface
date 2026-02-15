@@ -70,3 +70,24 @@ jobs:
         with:
           ocaml-compiler: 5.1
       - uses: ocaml/setup-ocaml/lint-opam@v3
+
+  minimal-version-test:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout tree
+        uses: actions/checkout@v6
+
+      - name: Set-up OCaml
+        uses: ocaml/setup-ocaml@v3
+        with:
+          ocaml-compiler: 5.1.0
+
+      - run: opam option solver=builtin-0install
+
+      - run: opam pin add -yn quickterface .
+
+      - run: opam reinstall quickterface --yes --criteria="+removed,+count[version-lag,solution]"
+
+      - run: opam exec -- dune build
+
+      - run: opam exec -- dune runtest
