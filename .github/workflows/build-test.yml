@@ -82,4 +82,12 @@ jobs:
         with:
           ocaml-compiler: 5.1.0
 
-      - run: make minimal-version-test OCAML_VERSION=5.1.0
+      - run: opam option solver=builtin-0install
+
+      - run: opam pin add -yn quickterface .
+
+      - run: opam reinstall quickterface --yes --criteria="+removed,+count[version-lag,solution]"
+
+      - run: opam exec -- dune build
+
+      - run: opam exec -- dune runtest
