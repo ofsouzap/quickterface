@@ -22,7 +22,7 @@ minimal-version-test:
 	$(MAKE) ci-switch
 	opam option solver=builtin-0install
 	$(OPAM_WITH_SWITCH) opam pin add -yn quickterface .
-	$(OPAM_WITH_SWITCH) $(MINIMAL_VERSION_OPTIONS) opam reinstall --yes quickterface
+	$(OPAM_WITH_SWITCH) $(MINIMAL_VERSION_OPTIONS) opam reinstall --yes quickterface --with-test
 	opam option solver=
 	$(MAKE) dune-clean-build-test-clean
 
