@@ -47,3 +47,15 @@
     (= 0.28.1)))
   (bigstringaf
    (>= 0.6.1))))
+
+(package
+ (name quickterface-setup-script-tests)
+ (allow_empty)
+ (version 0.1.0)
+ (synopsis
+  "Tests for quickterface setup script (requires quickterface installed)")
+ (depends
+  (ocaml
+   (>= 5.1.0))
+  (quickterface
+   (= 0.1.0))))

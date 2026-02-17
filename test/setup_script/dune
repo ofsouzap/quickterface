@@ -1,3 +1,5 @@
 (cram
- (deps ../../setup_script/main.exe)
+ (package quickterface-setup-script-tests)
+ (deps
+  (package quickterface))
  (timeout 240))

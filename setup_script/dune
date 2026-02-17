@@ -1,6 +1,7 @@
 (data_only_dirs templates)
 
 (executable
+ (package quickterface)
  (name main)
  (public_name quickterface-setup-script)
  (libraries core findlib fpath bos cmdliner)
@@ -9,6 +10,7 @@
   (pps ppx_jane)))
 
 (install
+ (package quickterface)
  (section share)
  (files
   (glob_files_rec templates/*)))

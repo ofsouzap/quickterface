@@ -6,6 +6,7 @@
   (pps lwt_ppx)))
 
 (executable
+ (package quickterface)
  (public_name math_app)
  (name math_app_terminal_app)
  (modes exe)
@@ -19,6 +20,7 @@
  (libraries math_app_app quickterface.web_app))
 
 (install
+ (package quickterface)
  (section share)
  (files
   (index.html as "math_app/index.html")

@@ -6,6 +6,7 @@
   (pps lwt_ppx)))
 
 (executable
+ (package quickterface)
  (public_name weather_app)
  (name weather_app_terminal_app)
  (modes exe)
@@ -19,6 +20,7 @@
  (libraries weather_app_app quickterface.web_app))
 
 (install
+ (package quickterface)
  (section share)
  (files
   (index.html as "weather_app/index.html")

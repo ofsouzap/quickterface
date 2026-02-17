@@ -6,6 +6,7 @@
   (pps lwt_ppx)))
 
 (executable
+ (package quickterface)
  (public_name simple_text_io_app)
  (name simple_text_io_app_terminal_app)
  (modes exe)
@@ -19,6 +20,7 @@
  (libraries simple_text_io_app_app quickterface.web_app))
 
 (install
+ (package quickterface)
  (section share)
  (files
   (index.html as "simple_text_io_app/index.html")
