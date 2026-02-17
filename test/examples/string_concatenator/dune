@@ -6,6 +6,7 @@
   (pps lwt_ppx ppx_jane)))
 
 (executable
+ (package quickterface)
  (public_name string_concatenator)
  (name string_concatenator_terminal_app)
  (modes exe)
@@ -19,6 +20,7 @@
  (libraries string_concatenator_app quickterface.web_app))
 
 (install
+ (package quickterface)
  (section share)
  (files
   (index.html as "string_concatenator/index.html")
