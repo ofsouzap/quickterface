@@ -54,7 +54,6 @@ module Entry = struct
     Style.Style
       (Style.Entry.
          [
-           { name = "background-color"; value = "#0b1d40ff" };
            { name = "width"; value = "100vw" };
            { name = "height"; value = "100vh" };
            { name = "max-width"; value = "100vw" };
@@ -71,13 +70,13 @@ module Entry = struct
     Style.Style
       (Style.Entry.
          [
-           { name = "min-height"; value = "50px" };
+           { name = "min-height"; value = "40px" };
            { name = "margin"; value = "4px 0px" };
-           { name = "border-width"; value = "0px" };
-           { name = "border-radius"; value = "4px" };
-           { name = "padding"; value = "8px 16px" };
-           { name = "background-color"; value = "#2563eb" };
+           { name = "border-width"; value = "1px" };
+           { name = "border-radius"; value = "0.375rem" };
+           { name = "padding"; value = "0.5rem 1rem" };
            { name = "cursor"; value = "pointer" };
+           { name = "transition"; value = "all 0.15s ease-in-out" };
          ]
       @ font_style_entries)
 
@@ -85,10 +84,12 @@ module Entry = struct
     Style.Style
       (Style.Entry.
          [
-           { name = "min-height"; value = "35px" };
+           { name = "min-height"; value = "38px" };
            { name = "margin"; value = "4px 0px" };
-           { name = "padding"; value = "2px 4px" };
-           { name = "border-radius"; value = "4px" };
+           { name = "padding"; value = "0.375rem 0.75rem" };
+           { name = "border-radius"; value = "0.375rem" };
+           { name = "border"; value = "1px solid #ced4da" };
+           { name = "transition"; value = "border-color 0.15s ease-in-out" };
          ]
       @ font_style_entries)
 
@@ -98,11 +99,12 @@ module Entry = struct
     let open Style.Entry in
     let log_item_style_items =
       [
-        { name = "margin"; value = "4px" };
-        { name = "border-radius"; value = "4px" };
-        { name = "padding"; value = "2px 6px 2px 6px" };
+        { name = "margin"; value = "0.5rem 0" };
+        { name = "border-radius"; value = "0.375rem" };
+        { name = "padding"; value = "0.75rem 1rem" };
         { name = "overflow-wrap"; value = "break-word" };
         { name = "word-break"; value = "break-word" };
+        { name = "box-shadow"; value = "0 1px 3px rgba(0,0,0,0.12)" };
       ]
     in
     function
@@ -117,6 +119,7 @@ module Entry = struct
             { name = "max-height"; value = "100vh" };
             { name = "display"; value = "flex" };
             { name = "flex-direction"; value = "column" };
+            { name = "background"; value = "linear-gradient(135deg, #667eea 0%, #764ba2 100%)" };
           ]
     | Log_container ->
         Style
@@ -127,37 +130,49 @@ module Entry = struct
             { name = "flex-direction"; value = "column" };
             { name = "overflow-y"; value = "auto" };
             { name = "justify-content"; value = "flex-end" };
-            { name = "color"; value = "#eee" };
-            { name = "padding"; value = "8px" };
+            { name = "color"; value = "#212529" };
+            { name = "padding"; value = "1rem" };
           ]
     | Text_prompt_label -> Style [ { name = "width"; value = "10px" } ]
     | Log_item ->
         Style
           (log_item_style_items
-          @ [ { name = "background-color"; value = "#444" } ])
+          @ [
+              { name = "background-color"; value = "rgba(255, 255, 255, 0.95)" };
+              { name = "backdrop-filter"; value = "blur(10px)" };
+            ])
     | Input_container_form ->
         Style
           [
             { name = "display"; value = "flex" };
             { name = "flex-direction"; value = "row" };
-            { name = "gap"; value = "8px" };
+            { name = "gap"; value = "0.5rem" };
             { name = "align-items"; value = "center" };
+            { name = "background-color"; value = "rgba(255, 255, 255, 0.95)" };
+            { name = "padding"; value = "0.75rem" };
+            { name = "border-radius"; value = "0.375rem" };
+            { name = "backdrop-filter"; value = "blur(10px)" };
           ]
     | Input_submit_button ->
         Style
           [
             { name = "flex"; value = "0 0 auto" };
-            { name = "padding"; value = "8px 16px" };
+            { name = "padding"; value = "0.5rem 1rem" };
             { name = "cursor"; value = "pointer" };
+            { name = "background-color"; value = "#0d6efd" };
+            { name = "color"; value = "#fff" };
+            { name = "border"; value = "none" };
+            { name = "border-radius"; value = "0.375rem" };
+            { name = "transition"; value = "background-color 0.15s ease-in-out" };
           ]
     | Input_multiselect_container ->
         Style
           [
             { name = "display"; value = "flex" };
             { name = "flex-direction"; value = "row" };
-            { name = "gap"; value = "16px" };
+            { name = "gap"; value = "1rem" };
           ]
-    | Output_math -> Style [ { name = "padding"; value = "4px 0px" } ]
+    | Output_math -> Style [ { name = "padding"; value = "0.5rem 0" } ]
     | Progress_bar_item ->
         Style
           [
@@ -165,40 +180,51 @@ module Entry = struct
             { name = "display"; value = "flex" };
             { name = "flex-direction"; value = "row" };
             { name = "align-items"; value = "center" };
-            { name = "gap"; value = "8px" };
+            { name = "gap"; value = "0.75rem" };
           ]
     | Progress_bar_label ->
         Style
           [
             { name = "flex"; value = "20" };
-            { name = "font-size"; value = "12px" };
+            { name = "font-size"; value = "0.875rem" };
+            { name = "font-weight"; value = "500" };
           ]
     | Progress_bar_bar_container ->
         Style
           [
             { name = "flex"; value = "60" };
             { name = "width"; value = "100%" };
-            { name = "height"; value = "14px" };
-            { name = "border-radius"; value = "4px" };
-            { name = "background-color"; value = "#222" };
+            { name = "height"; value = "16px" };
+            { name = "border-radius"; value = "0.5rem" };
+            { name = "background-color"; value = "#e9ecef" };
+            { name = "overflow"; value = "hidden" };
           ]
     | Progress_bar_bar_fill_in_progress ->
         Style
           [
             { name = "width"; value = "0%" };
             { name = "height"; value = "100%" };
-            { name = "border-radius"; value = "4px" };
-            { name = "background-color"; value = "#2196f3" };
+            { name = "border-radius"; value = "0.5rem" };
+            { name = "background-color"; value = "#0d6efd" };
+            { name = "transition"; value = "width 0.3s ease-in-out" };
           ]
     | Progress_bar_bar_fill_completed ->
         Style
           [
             { name = "width"; value = "100%" };
             { name = "height"; value = "100%" };
-            { name = "border-radius"; value = "4px" };
-            { name = "background-color"; value = "#4caf50" };
+            { name = "border-radius"; value = "0.5rem" };
+            { name = "background-color"; value = "#198754" };
+            { name = "transition"; value = "width 0.3s ease-in-out" };
           ]
-    | Progress_bar_progress_label -> Style [ { name = "flex"; value = "20" } ]
+    | Progress_bar_progress_label ->
+        Style
+          [
+            { name = "flex"; value = "20" };
+            { name = "font-size"; value = "0.875rem" };
+            { name = "font-weight"; value = "500" };
+            { name = "text-align"; value = "right" };
+          ]
 
   let selector_atom_style = function
     | Selector_atom.Body -> body_style
@@ -225,7 +251,25 @@ module Entry = struct
       [
         ( Selector.{ atom = Button; pseudo_class = Some "disabled" },
           Style.Style
-            [ Style.Entry.{ name = "background-color"; value = "#888" } ] );
+            [
+              Style.Entry.{ name = "background-color"; value = "#6c757d" };
+              { name = "opacity"; value = "0.65" };
+              { name = "cursor"; value = "not-allowed" };
+            ] );
+        ( Selector.{ atom = Button; pseudo_class = Some "hover" },
+          Style.Style
+            [ Style.Entry.{ name = "opacity"; value = "0.9" } ] );
+        ( Selector.{ atom = Input; pseudo_class = Some "focus" },
+          Style.Style
+            [
+              Style.Entry.
+                { name = "border-color"; value = "#86b7fe" };
+              { name = "outline"; value = "0" };
+              {
+                name = "box-shadow";
+                value = "0 0 0 0.25rem rgba(13, 110, 253, 0.25)";
+              };
+            ] );
       ]
 end
 
