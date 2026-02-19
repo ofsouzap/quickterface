@@ -16,6 +16,8 @@ type t =
   | Plus_minus
   | Superscript of { base : t; superscript : t }
   | Subscript of { base : t; subscript : t }
+  | Square_root of t
+  | Nth_root of { body : t; n : int }
   | Exp
   | Ln
   | Sin
@@ -24,6 +26,8 @@ type t =
   | Frac of t * t
   | Bracketed of t
   | Partial
+  | Sum of { lower : t option; upper : t option; body : t }
+  | Prod of { lower : t option; upper : t option; body : t }
   | Integral of { lower : t option; upper : t option; body : t }
   | Less_than
   | Less_than_or_equal_to
@@ -33,7 +37,22 @@ type t =
   | Approximately_equals
   | Equivalent_to
 
-let rec latex_string_of_t = function
+let rec latex_string_of_t =
+  let bounded ~lower ~upper ~body ~main_command =
+    let lower_str =
+      match lower with
+      | None -> ""
+      | Some l -> sprintf "_{%s}" (latex_string_of_t l)
+    in
+    let upper_str =
+      match upper with
+      | None -> ""
+      | Some u -> sprintf "^{%s}" (latex_string_of_t u)
+    in
+    sprintf "%s%s%s %s" main_command lower_str upper_str
+      (latex_string_of_t body)
+  in
+  function
   | Char c -> Char.to_string c
   | Literal s -> s
   | Infinity -> "\\infty"
@@ -52,6 +71,9 @@ let rec latex_string_of_t = function
         (latex_string_of_t superscript)
   | Subscript { base; subscript } ->
       sprintf "{%s}_{%s}" (latex_string_of_t base) (latex_string_of_t subscript)
+  | Square_root inner -> sprintf "\\sqrt{%s}" (latex_string_of_t inner)
+  | Nth_root { body; n } ->
+      sprintf "\\sqrt[%s]{%s}" (string_of_int n) (latex_string_of_t body)
   | Exp -> "\\exp"
   | Ln -> "\\ln"
   | Sin -> "\\sin"
@@ -62,18 +84,12 @@ let rec latex_string_of_t = function
       sprintf "\\frac{%s}{%s}" (latex_string_of_t num) (latex_string_of_t denom)
   | Bracketed inner -> sprintf "\\left(%s\\right)" (latex_string_of_t inner)
   | Partial -> "\\partial"
+  | Sum { lower; upper; body } ->
+      bounded ~lower ~upper ~body ~main_command:"\\sum"
+  | Prod { lower; upper; body } ->
+      bounded ~lower ~upper ~body ~main_command:"\\prod"
   | Integral { lower; upper; body } ->
-      let lower_str =
-        match lower with
-        | None -> ""
-        | Some l -> sprintf "_{%s}" (latex_string_of_t l)
-      in
-      let upper_str =
-        match upper with
-        | None -> ""
-        | Some u -> sprintf "^{%s}" (latex_string_of_t u)
-      in
-      sprintf "\\int%s%s %s" lower_str upper_str (latex_string_of_t body)
+      bounded ~lower ~upper ~body ~main_command:"\\int"
   | Less_than -> "<"
   | Less_than_or_equal_to -> "\\leq"
   | Greater_than -> ">"
