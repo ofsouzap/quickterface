@@ -72,7 +72,6 @@ module Entry = struct
       @ font_style_entries)
 
   let input_style = Style.Style []
-
   let select_style = input_style
 
   let class_style =

@@ -65,8 +65,7 @@ let make ~document () =
   Dom.appendChild document##.head (create_viewport_meta_element document);
   Dom.appendChild document##.head (create_charset_meta_element document);
   document##.documentElement##setAttribute
-    (Js.string "data-theme")
-    (Js.string "dark");
+    (Js.string "data-theme") (Js.string "dark");
   let%lwt () = add_and_await_pico_elements document ~parent:document##.head in
   Dom.appendChild document##.head (create_stylesheet_element document);
   let%lwt () = add_and_await_katex_elements document ~parent:document##.head in
