@@ -54,7 +54,6 @@ module Entry = struct
     Style.Style
       (Style.Entry.
          [
-           { name = "background-color"; value = "#0b1d40ff" };
            { name = "width"; value = "100vw" };
            { name = "height"; value = "100vh" };
            { name = "max-width"; value = "100vw" };
@@ -69,28 +68,10 @@ module Entry = struct
 
   let button_style =
     Style.Style
-      (Style.Entry.
-         [
-           { name = "min-height"; value = "50px" };
-           { name = "margin"; value = "4px 0px" };
-           { name = "border-width"; value = "0px" };
-           { name = "border-radius"; value = "4px" };
-           { name = "padding"; value = "8px 16px" };
-           { name = "background-color"; value = "#2563eb" };
-           { name = "cursor"; value = "pointer" };
-         ]
+      (Style.Entry.[ { name = "cursor"; value = "pointer" } ]
       @ font_style_entries)
 
-  let input_style =
-    Style.Style
-      (Style.Entry.
-         [
-           { name = "min-height"; value = "35px" };
-           { name = "margin"; value = "4px 0px" };
-           { name = "padding"; value = "2px 4px" };
-           { name = "border-radius"; value = "4px" };
-         ]
-      @ font_style_entries)
+  let input_style = Style.Style []
 
   let select_style = input_style
 
@@ -127,14 +108,24 @@ module Entry = struct
             { name = "flex-direction"; value = "column" };
             { name = "overflow-y"; value = "auto" };
             { name = "justify-content"; value = "flex-end" };
-            { name = "color"; value = "#eee" };
+            { name = "color"; value = "var(--pico-color)" };
             { name = "padding"; value = "8px" };
           ]
     | Text_prompt_label -> Style [ { name = "width"; value = "10px" } ]
     | Log_item ->
         Style
           (log_item_style_items
-          @ [ { name = "background-color"; value = "#444" } ])
+          @ [
+              {
+                name = "background-color";
+                value = "var(--pico-card-background-color)";
+              };
+              {
+                name = "border";
+                value = "1px solid var(--pico-card-border-color)";
+              };
+              { name = "color"; value = "var(--pico-color)" };
+            ])
     | Input_container_form ->
         Style
           [
@@ -219,14 +210,7 @@ module Entry = struct
         %{Style.to_css_string style}
         }|}]
 
-  let custom_entries =
-    List.map
-      ~f:(fun (selector, style) -> { selector; style })
-      [
-        ( Selector.{ atom = Button; pseudo_class = Some "disabled" },
-          Style.Style
-            [ Style.Entry.{ name = "background-color"; value = "#888" } ] );
-      ]
+  let custom_entries = []
 end
 
 let css_string =

@@ -27,6 +27,20 @@ let create_charset_meta_element document =
   meta_element##setAttribute (Js.string "charset") (Js.string "UTF-8");
   meta_element
 
+let add_and_await_pico_elements document ~parent =
+  let pico_setup_elements =
+    Pico_setup.make ~document |> Pico_setup.await_elements
+  in
+  let%lwt () =
+    List.map
+      ~f:
+        (Utils.Await_load_element
+         .add_element_as_child_to_parent_and_wait_for_load ~parent)
+      pico_setup_elements
+    |> Lwt.join
+  in
+  Lwt.return ()
+
 let add_and_await_katex_elements document ~parent =
   (* TODO-someday: Waiting for katex to load before starting the app could cause
      noticeable start-up delays. Perhaps in future we could use
@@ -48,11 +62,14 @@ let add_and_await_katex_elements document ~parent =
 let make ~document () =
   let title = create_title_element document in
   Dom.appendChild document##.head title;
-  Dom.appendChild document##.head (create_stylesheet_element document);
   Dom.appendChild document##.head (create_viewport_meta_element document);
   Dom.appendChild document##.head (create_charset_meta_element document);
+  document##.documentElement##setAttribute
+    (Js.string "data-theme")
+    (Js.string "dark");
+  let%lwt () = add_and_await_pico_elements document ~parent:document##.head in
+  Dom.appendChild document##.head (create_stylesheet_element document);
   let%lwt () = add_and_await_katex_elements document ~parent:document##.head in
-
   Lwt.return { title }
 
 let set_title { title; _ } text () =
