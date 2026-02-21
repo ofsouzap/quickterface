@@ -2,6 +2,16 @@
  (public_name quickterface.web_app.backend)
  (name quickterface_web_app_backend)
  (libraries core lwt lwt_ppx js_of_ocaml quickterface)
- (modules utils class stylesheet katex_setup outputs inputs log head app)
+ (modules
+  utils
+  class
+  stylesheet
+  katex_setup
+  pico_setup
+  outputs
+  inputs
+  log
+  head
+  app)
  (preprocess
   (pps ppx_jane js_of_ocaml-ppx lwt_ppx)))

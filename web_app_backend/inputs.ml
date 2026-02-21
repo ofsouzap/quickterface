@@ -50,7 +50,6 @@ struct
 
     let form = Dom_html.createForm document in
     Dom.appendChild container form;
-    (form##.className := Class.(to_js_string Input_container_form));
 
     let input_element = Element.make ~document ~settings () in
     Element.append_element_as_child input_element ~parent:form;
@@ -77,7 +76,7 @@ struct
 
   let set_to_readonly t () =
     let%lwt () = Element.make_readonly t.input_element () in
-    t.submit_button##.disabled := Js._true;
+    Dom.removeChild t.form t.submit_button;
     Lwt.return ()
 
   let wait_for_input ?(auto_focus = true) t () =
