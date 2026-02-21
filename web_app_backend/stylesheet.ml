@@ -125,18 +125,9 @@ module Entry = struct
               };
               { name = "color"; value = "var(--pico-color)" };
             ])
-    | Input_container_form ->
-        Style
-          [
-            { name = "display"; value = "flex" };
-            { name = "flex-direction"; value = "row" };
-            { name = "gap"; value = "8px" };
-            { name = "align-items"; value = "center" };
-          ]
     | Input_submit_button ->
         Style
           [
-            { name = "flex"; value = "0 0 auto" };
             { name = "padding"; value = "8px 16px" };
             { name = "cursor"; value = "pointer" };
           ]

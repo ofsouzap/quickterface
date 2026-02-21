@@ -6,7 +6,6 @@ type t =
   | Log_container
   | Log_item
   | Text_prompt_label
-  | Input_container_form
   | Input_submit_button
   | Input_multiselect_container
   | Output_math
